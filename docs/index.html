@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LYRA Ecosystem · Amplificación Adaptativa</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           CSS VARIABLES & BASE STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        :root {
+            /* Primary Colors */
+            --primary: #5B2C6F;
+            --primary-light: #7D3C98;
+            --primary-dark: #4A235A;
+            --secondary: #1A5276;
+            
+            /* Module Colors */
+            --edu-bg: #F5EEF8;
+            --edu-accent: #AF7AC5;
+            --edu-dark: #8E44AD;
+            --edu-light: #E8DAEF;
+            
+            --work-bg: #E8F8F5;
+            --work-accent: #48C9B0;
+            --work-dark: #1ABC9C;
+            --work-light: #D1F2EB;
+            
+            --ai-bg: #EBF5FB;
+            --ai-accent: #5DADE2;
+            --ai-dark: #3498DB;
+            --ai-light: #D4E6F1;
+            
+            --care-bg: #FEF9E7;
+            --care-accent: #F7DC6F;
+            --care-dark: #F39C12;
+            --care-light: #FCF3CF;
+            
+            --pro-bg: #F8F6F0;
+            --pro-accent: #D4AF37;
+            --pro-dark: #B8960C;
+            --pro-light: #FBF8E9;
+            --pro-premium: #2C2C2C;
+            
+            --earth-bg: #E8F6F3;
+            --earth-accent: #27AE60;
+            --earth-dark: #1E8449;
+            --earth-light: #D5F5E3;
+            --earth-sky: #5DADE2;
+            --earth-soil: #6E2C00;
+            --earth-resonant: #27AE60;
+            --earth-transitional: #F39C12;
+            --earth-alienated: #E74C3C;
+            
+            /* Semantic Colors */
+            --green: #27AE60;
+            --green-light: #E8F8F5;
+            --orange: #E67E22;
+            --orange-light: #FEF5E7;
+            --red: #E74C3C;
+            --red-light: #FDEDEC;
+            
+            /* Neutrals */
+            --text: #2C3E50;
+            --text-light: #5D6D7E;
+            --text-muted: #95A5A6;
+            --border: #E5E8E8;
+            --bg-light: #FAFBFC;
+            --white: #FFFFFF;
+            
+            /* Game */
+            --gold: #F4D03F;
+            --gold-dark: #D4AC0D;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-light);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            outline: none;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           ANIMATIONS
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        @keyframes hubFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(15px, -20px) rotate(5deg); }
+            66% { transform: translate(-10px, 15px) rotate(-3deg); }
+        }
+        
+        @keyframes hubPulse {
+            0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.15); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes starAppear {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(91, 44, 111, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(91, 44, 111, 0.6); }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           UTILITIES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        .hidden { display: none !important; }
+        
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-1 { gap: 0.25rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .gap-8 { gap: 2rem; }
+        
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-base { font-size: 1rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .text-5xl { font-size: 3rem; }
+        
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-2xl { border-radius: 1rem; }
+        .rounded-3xl { border-radius: 1.5rem; }
+        .rounded-full { border-radius: 9999px; }
+        
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .px-8 { padding-left: 2rem; padding-right: 2rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+        
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .mt-8 { margin-top: 2rem; }
+        
+        .w-full { width: 100%; }
+        .max-w-md { max-width: 28rem; }
+        .max-w-lg { max-width: 32rem; }
+        .max-w-xl { max-width: 36rem; }
+        .max-w-2xl { max-width: 42rem; }
+        .max-w-3xl { max-width: 48rem; }
+        .max-w-4xl { max-width: 56rem; }
+        .max-w-5xl { max-width: 64rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        
+        .min-h-screen { min-height: 100vh; }
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+        .fixed { position: fixed; }
+        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        
+        .overflow-hidden { overflow: hidden; }
+        .overflow-y-auto { overflow-y: auto; }
+        
+        .transition-all { transition: all 0.3s ease; }
+        .hover-scale:hover { transform: scale(1.05); }
+        
+        .shadow-lg { box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
+        .shadow-xl { box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
+        
+        .grid { display: grid; }
+        .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+        .col-span-2 { grid-column: span 2; }
+        .col-span-3 { grid-column: span 3; }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           HUB STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        #hub {
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(91, 44, 111, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(52, 152, 219, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
+                linear-gradient(180deg, #0D0D1A 0%, #1A1A2E 50%, #0F0F1A 100%);
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: hubFloat 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .orbital-ring {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            pointer-events: none;
+        }
+        
+        .center-logo {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 20;
+        }
+        
+        .center-logo .glow {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 16rem;
+            height: 16rem;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(91, 44, 111, 0.4) 0%, transparent 70%);
+            filter: blur(50px);
+            animation: hubPulse 4s ease-in-out infinite;
+        }
+        
+        .logo-box {
+            position: relative;
+            width: 7rem;
+            height: 7rem;
+            margin: 0 auto 1rem;
+            border-radius: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #5B2C6F 0%, #4A235A 100%);
+            box-shadow: 0 0 80px rgba(91, 44, 111, 0.5), 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        
+        .formula-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .module-card {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+        
+        .module-card:hover {
+            transform: translate(-50%, -50%) scale(1.08);
+            z-index: 30;
+        }
+        
+        .module-card-inner {
+            width: 8.5rem;
+            padding: 1.25rem;
+            border-radius: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .module-card:hover .module-card-inner {
+            transform: translateY(-4px);
+        }
+        
+        .module-icon-circle {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .module-card:hover .module-icon-circle {
+            transform: scale(1.1);
+        }
+        
+        .module-badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.625rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           MODULE HEADER
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding: 0 1rem;
+        }
+        
+        .back-btn {
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .header-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           LYRA EDU STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        #edu-module {
+            background: var(--edu-bg);
+        }
+        
+        .tamagotchi {
+            width: 6rem;
+            height: 6rem;
+            border-radius: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--edu-accent) 0%, var(--edu-dark) 100%);
+            margin: 0 auto;
+        }
+        
+        .tamagotchi.excited {
+            animation: bounce 0.5s infinite;
+        }
+        
+        .tamagotchi .eyes { font-size: 1.5rem; color: white; }
+        .tamagotchi .mouth { font-size: 1.25rem; color: white; margin-top: 0.25rem; }
+        
+        .game-area {
+            position: relative;
+            background: var(--white);
+            border-radius: 1.5rem;
+            height: 400px;
+            overflow: hidden;
+        }
+        
+        .game-star {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            animation: starAppear 0.3s ease-out;
+            transition: transform 0.15s ease;
+        }
+        
+        .game-star:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
+        .stat-box {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           LYRA WORK STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        #work-module {
+            background: var(--work-bg);
+        }
+        
+        .wellness-card {
+            background: var(--white);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        
+        .sentiment-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .sentiment-btn:hover {
+            transform: scale(1.08);
+        }
+        
+        .sentiment-btn.active {
+            transform: scale(1.1);
+        }
+        
+        .micropausa-countdown {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .chat-bubble {
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            max-width: 85%;
+            animation: fadeInUp 0.3s ease-out;
+        }
+        
+        .chat-bubble.ai {
+            background: var(--work-light);
+            color: var(--text);
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        .chat-bubble.user {
+            background: var(--work-dark);
+            color: white;
+            border-bottom-right-radius: 0.25rem;
+            margin-left: auto;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           LYRA AI STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        #ai-module {
+            background: var(--ai-bg);
+        }
+        
+        .prompt-card {
+            background: var(--white);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid var(--border);
+        }
+        
+        .prompt-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+            border-color: var(--ai-accent);
+        }
+        
+        .category-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid transparent;
+        }
+        
+        .category-tab.active {
+            background: var(--white);
+            color: var(--ai-dark);
+            border-color: var(--ai-accent);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .category-tab:hover:not(.active) {
+            background: rgba(255,255,255,0.5);
+        }
+        
+        .prompt-template {
+            background: #1E1E1E;
+            color: #D4D4D4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .prompt-template .variable {
+            color: #4EC9B0;
+            font-weight: bold;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           LYRA CARE STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        #care-module {
+            background: var(--care-bg);
+        }
+        
+        .ethos-card {
+            background: var(--white);
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            border: 1px solid var(--border);
+        }
+        
+        .domain-indicator {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+        }
+        
+        .trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-resonant { background: rgba(39, 174, 96, 0.15); color: var(--green); }
+        .status-transitional { background: rgba(243, 156, 18, 0.15); color: var(--orange); }
+        .status-alienated { background: rgba(231, 76, 60, 0.15); color: var(--red); }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           LYRA EARTH STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        #earth-module {
+            background: var(--earth-bg);
+        }
+        
+        .gaia-card {
+            background: var(--white);
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .gaia-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+        }
+        
+        .ecosystem-visual {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+        }
+        
+        .tree-element {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           LYRA PRO STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        #pro-module {
+            background: linear-gradient(135deg, #1A1A1A 0%, #2C2C2C 100%);
+        }
+        
+        .pro-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .pillar-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .pillar-card:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: var(--pro-accent);
+            transform: translateY(-2px);
+        }
+        
+        .gold-gradient {
+            background: linear-gradient(135deg, var(--pro-accent) 0%, #C49B0C 100%);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           LANDING PREVIEW STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        #landing-module {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+        
+        .landing-section {
+            background: rgba(255,255,255,0.03);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .landing-section:hover {
+            background: rgba(255,255,255,0.06);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           MODAL STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 50;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            background: var(--white);
+            border-radius: 1.5rem;
+            max-width: 48rem;
+            max-height: 90vh;
+            overflow-y: auto;
+            width: 100%;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           CHART STYLES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        .mini-chart {
+            width: 100%;
+            height: 60px;
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+            height: 120px;
+            padding: 0.5rem 0;
+        }
+        
+        .bar {
+            flex: 1;
+            border-radius: 0.25rem 0.25rem 0 0;
+            transition: all 0.3s ease;
+            min-width: 20px;
+        }
+        
+        .bar:hover {
+            filter: brightness(1.1);
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        
+        @media (max-width: 768px) {
+            .module-card-inner {
+                width: 7rem;
+                padding: 1rem;
+            }
+            
+            .module-icon-circle {
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+            
+            .grid-cols-3, .grid-cols-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .col-span-3 {
+                grid-column: span 2;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         APP CONTAINER
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="app">
+        <!-- HUB -->
+        <div id="hub" class="min-h-screen relative overflow-hidden">
+            <!-- Particles -->
+            <div id="particles"></div>
+            
+            <!-- Orbital Rings -->
+            <div class="orbital-ring" style="width: 70vmin; height: 70vmin; opacity: 0.15;"></div>
+            <div class="orbital-ring" style="width: 60vmin; height: 60vmin; border-color: rgba(91, 44, 111, 0.2); opacity: 0.15;"></div>
+            
+            <!-- Center Logo -->
+            <div class="center-logo">
+                <div class="glow"></div>
+                <div class="logo-box">
+                    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a9 9 0 0 1 9 9c0 3.074-1.676 5.5-3.5 7.5S14 22 12 22c-2 0-3.824-1.5-5.5-3.5S3 14.074 3 11a9 9 0 0 1 9-9z"/>
+                        <path d="M12 2v6"/>
+                        <path d="M12 18v4"/>
+                        <path d="M5 10l4 2"/>
+                        <path d="M15 12l4-2"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </div>
+                <h1 class="text-5xl font-bold" style="color: white; text-shadow: 0 0 40px rgba(91, 44, 111, 0.8);">LYRA</h1>
+                <p class="text-xs mt-2" style="color: rgba(255,255,255,0.5); letter-spacing: 0.3em; text-transform: uppercase;">Amplificación Adaptativa</p>
+                <div class="formula-pill mt-4">
+                    <span class="text-lg" style="color: white; font-family: 'Playfair Display', serif; font-style: italic;">
+                        xI = f(H, A, <span style="color: #D4AF37; font-weight: bold;">κ</span>)
+                    </span>
+                </div>
+                <p class="text-sm mt-3" style="color: #D4AF37; font-style: italic;">"Armonía cognitiva"</p>
+            </div>
+            
+            <!-- Module Cards -->
+            <div id="module-cards"></div>
+            
+            <!-- Footer -->
+            <div class="absolute" style="bottom: 2rem; left: 50%; transform: translateX(-50%); text-align: center;">
+                <p class="text-sm" style="color: rgba(255,255,255,0.5);">Universidad Pontificia de Salamanca · TCUE 2025</p>
+                <p class="text-xs mt-2" style="color: rgba(255,255,255,0.3);">Diego Elvira Vásquez (IP) · Investigación en Inteligencia Extendida</p>
+            </div>
+            
+            <!-- Corner decorations -->
+            <div class="absolute" style="top: 1.5rem; left: 1.5rem; display: flex; align-items: center; gap: 0.5rem; opacity: 0.5;">
+                <div style="width: 2rem; height: 1px; background: #D4AF37;"></div>
+                <span class="text-xs" style="color: #D4AF37; letter-spacing: 0.15em;">ECOSISTEMA</span>
+            </div>
+            <div class="absolute" style="top: 1.5rem; right: 1.5rem; display: flex; align-items: center; gap: 0.5rem; opacity: 0.5;">
+                <span class="text-xs" style="color: #D4AF37; letter-spacing: 0.15em;">DEMO INTERACTIVA</span>
+                <div style="width: 2rem; height: 1px; background: #D4AF37;"></div>
+            </div>
+        </div>
+        
+        <!-- EDU MODULE -->
+        <div id="edu-module" class="min-h-screen p-6 hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="module-header">
+                    <div class="flex items-center gap-4">
+                        <button class="back-btn" style="background: var(--edu-light);" onclick="showHub()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--edu-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <div class="header-icon" style="background: linear-gradient(135deg, var(--edu-dark) 0%, var(--edu-accent) 100%);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold" style="color: var(--text);">LYRA EDU <span style="color: var(--edu-dark);">· Caza Estrellas</span></h1>
+                            <p class="text-sm" style="color: var(--text-light);">Evaluación cognitiva gamificada para TDAH</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium" style="color: var(--text);" id="edu-date"></p>
+                        <p class="text-xs" style="color: var(--text-light);">TCUE 2025 · UPSA</p>
+                    </div>
+                </div>
+                
+                <!-- Game Content -->
+                <div id="edu-content">
+                    <!-- Ready State -->
+                    <div id="edu-ready" class="rounded-3xl p-8 text-center shadow-lg" style="background: var(--white);">
+                        <div class="tamagotchi mb-6">
+                            <div class="eyes">◠ ◠</div>
+                            <div class="mouth">◡</div>
+                        </div>
+                        <h2 class="text-3xl font-bold mb-4" style="color: var(--text);">¡Hola! Soy <span style="color: var(--edu-dark);">Lumi</span></h2>
+                        <p class="text-lg mb-2" style="color: var(--text-light);">Atrapa las estrellas ⭐ <span style="color: var(--gold);">doradas</span></p>
+                        <p class="text-lg mb-8" style="color: var(--text-light);">¡Evita las estrellas <span style="color: var(--red);">rojas</span>! 🚫</p>
+                        <button onclick="startGame()" class="px-8 py-4 rounded-2xl text-xl font-bold text-white transition-all hover-scale" style="background: linear-gradient(135deg, var(--edu-dark) 0%, var(--edu-accent) 100%); box-shadow: 0 8px 24px rgba(142, 68, 173, 0.4);">
+                            ▶ ¡Jugar!
+                        </button>
+                    </div>
+                    
+                    <!-- Playing State -->
+                    <div id="edu-playing" class="hidden">
+                        <div class="grid grid-cols-4 gap-4">
+                            <div class="col-span-3">
+                                <div id="game-area" class="game-area shadow-lg"></div>
+                            </div>
+                            <div class="flex flex-col gap-4">
+                                <div class="stat-box">
+                                    <div id="lumi-playing" class="tamagotchi mb-2" style="width: 5rem; height: 5rem;">
+                                        <div class="eyes">● ●</div>
+                                        <div class="mouth">ᴗ</div>
+                                    </div>
+                                    <p class="text-sm font-medium" style="color: var(--edu-dark);">Lumi</p>
+                                </div>
+                                <div class="stat-box">
+                                    <svg class="mx-auto mb-2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                                    </svg>
+                                    <p id="time-left" class="text-3xl font-bold" style="color: var(--text);">30s</p>
+                                </div>
+                                <div class="stat-box">
+                                    <svg class="mx-auto mb-2" width="20" height="20" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold-dark)" stroke-width="2">
+                                        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                                    </svg>
+                                    <p id="score" class="text-3xl font-bold" style="color: var(--text);">0</p>
+                                </div>
+                                <div id="streak-box" class="stat-box">
+                                    <svg class="mx-auto mb-2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--edu-dark)" stroke-width="2">
+                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                                    </svg>
+                                    <p id="streak" class="text-2xl font-bold" style="color: var(--edu-dark);">x0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Finished State -->
+                    <div id="edu-finished" class="hidden rounded-3xl p-8 text-center shadow-lg" style="background: var(--white);">
+                        <div class="tamagotchi mb-6" id="lumi-finished">
+                            <div class="eyes">★ ★</div>
+                            <div class="mouth">▽</div>
+                        </div>
+                        <h2 class="text-3xl font-bold mb-4" style="color: var(--text);">¡Genial!</h2>
+                        <p class="text-lg mb-2" style="color: var(--text-light);">Tu puntuación:</p>
+                        <p id="final-score" class="text-5xl font-bold mb-6" style="color: var(--edu-dark);">0</p>
+                        <div class="flex justify-center gap-4 mb-6">
+                            <div class="px-4 py-2 rounded-xl" style="background: var(--edu-light);">
+                                <p class="text-sm" style="color: var(--text-light);">Precisión</p>
+                                <p id="precision" class="text-xl font-bold" style="color: var(--edu-dark);">--</p>
+                            </div>
+                            <div class="px-4 py-2 rounded-xl" style="background: var(--edu-light);">
+                                <p class="text-sm" style="color: var(--text-light);">Mejor racha</p>
+                                <p id="best-streak" class="text-xl font-bold" style="color: var(--edu-dark);">x0</p>
+                            </div>
+                        </div>
+                        <button onclick="resetGame()" class="px-8 py-3 rounded-xl font-semibold transition-all hover-scale" style="background: var(--edu-light); color: var(--edu-dark);">
+                            ↻ Jugar de nuevo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- WORK MODULE -->
+        <div id="work-module" class="min-h-screen p-4 hidden">
+            <div class="max-w-md mx-auto">
+                <div class="module-header">
+                    <div class="flex items-center gap-4">
+                        <button class="back-btn" style="background: var(--work-light);" onclick="showHub()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--work-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <div class="header-icon" style="background: linear-gradient(135deg, var(--work-dark) 0%, var(--work-accent) 100%);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold" style="color: var(--text);">LYRA WORK</h1>
+                            <p class="text-sm" style="color: var(--text-light);">Bienestar del empleado</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Greeting Card -->
+                <div class="wellness-card mb-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-lg font-semibold" style="color: var(--text);">☀️ Buenos días, <span style="color: var(--work-dark);">Carlos</span></p>
+                            <p class="text-sm" style="color: var(--text-light);">Día 127 en Desarrollo · Racha: 8 días</p>
+                        </div>
+                        <div class="text-right">
+                            <p id="work-time" class="text-2xl font-bold" style="color: var(--text);">--:--</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Wellness Gauge -->
+                    <div class="text-center mb-4">
+                        <svg width="180" height="100" viewBox="0 0 180 100" class="mx-auto">
+                            <path d="M 20 90 A 70 70 0 0 1 160 90" fill="none" stroke="var(--border)" stroke-width="12" stroke-linecap="round"/>
+                            <path id="wellness-arc" d="M 20 90 A 70 70 0 0 1 160 90" fill="none" stroke="var(--green)" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="60"/>
+                            <text x="90" y="75" text-anchor="middle" class="text-3xl font-bold" fill="var(--text)">72</text>
+                            <text x="90" y="92" text-anchor="middle" class="text-xs" fill="var(--text-light)">SENTIDO-X®</text>
+                        </svg>
+                    </div>
+                    
+                    <!-- Sentiment buttons -->
+                    <div class="flex justify-center gap-4 mb-4">
+                        <button class="sentiment-btn" style="background: var(--red-light);" onclick="selectSentiment('sad')">
+                            <span style="font-size: 1.5rem;">😔</span>
+                        </button>
+                        <button class="sentiment-btn" style="background: var(--orange-light);" onclick="selectSentiment('meh')">
+                            <span style="font-size: 1.5rem;">😐</span>
+                        </button>
+                        <button class="sentiment-btn active" style="background: var(--green-light); border-color: var(--green);" onclick="selectSentiment('good')">
+                            <span style="font-size: 1.5rem;">🙂</span>
+                        </button>
+                        <button class="sentiment-btn" style="background: var(--work-light);" onclick="selectSentiment('great')">
+                            <span style="font-size: 1.5rem;">😊</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Micropausa Card -->
+                <div class="wellness-card mb-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium" style="color: var(--text-light);">Próxima micropausa</p>
+                            <p class="text-lg font-semibold" style="color: var(--work-dark);">🌬️ Respiración 4-7-8</p>
+                        </div>
+                        <div class="text-right">
+                            <p id="micropausa-time" class="micropausa-countdown" style="color: var(--work-dark);">14:07</p>
+                            <p class="text-xs" style="color: var(--text-muted);">2 min · Parasimpático</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Weekly Chart -->
+                <div class="wellness-card mb-4">
+                    <p class="text-sm font-semibold mb-3" style="color: var(--text);">Evolución semanal</p>
+                    <div class="bar-chart">
+                        <div class="text-center flex-1">
+                            <div class="bar mx-auto" style="height: 65%; background: var(--work-accent); width: 100%;"></div>
+                            <p class="text-xs mt-1" style="color: var(--text-muted);">L</p>
+                        </div>
+                        <div class="text-center flex-1">
+                            <div class="bar mx-auto" style="height: 68%; background: var(--work-accent); width: 100%;"></div>
+                            <p class="text-xs mt-1" style="color: var(--text-muted);">M</p>
+                        </div>
+                        <div class="text-center flex-1">
+                            <div class="bar mx-auto" style="height: 72%; background: var(--work-accent); width: 100%;"></div>
+                            <p class="text-xs mt-1" style="color: var(--text-muted);">X</p>
+                        </div>
+                        <div class="text-center flex-1">
+                            <div class="bar mx-auto" style="height: 70%; background: var(--work-accent); width: 100%;"></div>
+                            <p class="text-xs mt-1" style="color: var(--text-muted);">J</p>
+                        </div>
+                        <div class="text-center flex-1">
+                            <div class="bar mx-auto" style="height: 75%; background: var(--work-accent); width: 100%;"></div>
+                            <p class="text-xs mt-1" style="color: var(--text-muted);">V</p>
+                        </div>
+                        <div class="text-center flex-1">
+                            <div class="bar mx-auto" style="height: 78%; background: var(--work-accent); width: 100%;"></div>
+                            <p class="text-xs mt-1" style="color: var(--text-muted);">S</p>
+                        </div>
+                        <div class="text-center flex-1">
+                            <div class="bar mx-auto" style="height: 72%; background: var(--work-dark); width: 100%;"></div>
+                            <p class="text-xs mt-1 font-semibold" style="color: var(--work-dark);">Hoy</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Button -->
+                <button onclick="toggleChat()" class="w-full py-4 rounded-2xl font-semibold text-white transition-all hover-scale" style="background: linear-gradient(135deg, var(--work-dark) 0%, var(--work-accent) 100%); box-shadow: 0 4px 20px rgba(26, 188, 156, 0.3);">
+                    💬 Chat confidencial con IA
+                </button>
+                
+                <!-- Chat Modal -->
+                <div id="chat-modal" class="hidden modal-overlay" onclick="toggleChat()">
+                    <div class="modal-content max-w-md" onclick="event.stopPropagation()">
+                        <div class="p-4 flex items-center justify-between" style="border-bottom: 1px solid var(--border);">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: var(--work-light);">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--work-dark)" stroke-width="2">
+                                        <path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-semibold" style="color: var(--text);">Asistente de Bienestar</p>
+                                    <p class="text-xs" style="color: var(--green);">● Confidencial</p>
+                                </div>
+                            </div>
+                            <button onclick="toggleChat()" class="p-2 rounded-lg hover:bg-gray-100">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="2">
+                                    <path d="M18 6L6 18"/><path d="M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="chat-messages" class="p-4 flex flex-col gap-3" style="height: 350px; overflow-y: auto;">
+                            <div class="chat-bubble ai">Hola, soy tu asistente de bienestar confidencial. ¿Cómo te sientes hoy?</div>
+                        </div>
+                        <div class="p-4 flex gap-2" style="border-top: 1px solid var(--border);">
+                            <input id="chat-input" type="text" placeholder="Escribe tu mensaje..." class="flex-1 px-4 py-3 rounded-xl" style="background: var(--bg-light); border: 1px solid var(--border);" onkeypress="if(event.key==='Enter')sendChatMessage()">
+                            <button onclick="sendChatMessage()" class="px-4 py-3 rounded-xl text-white" style="background: var(--work-dark);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI MODULE -->
+        <div id="ai-module" class="min-h-screen p-6 hidden">
+            <div class="max-w-5xl mx-auto">
+                <div class="module-header">
+                    <div class="flex items-center gap-4">
+                        <button class="back-btn" style="background: var(--ai-light);" onclick="showHub()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ai-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <div class="header-icon" style="background: linear-gradient(135deg, var(--ai-dark) 0%, var(--ai-accent) 100%);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold" style="color: var(--text);">LYRA AI <span style="color: var(--ai-dark);">· Biblioteca de Prompts</span></h1>
+                            <p class="text-sm" style="color: var(--text-light);">Prompts profesionales curados para amplificar tu productividad</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Search and Categories -->
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="flex-1 relative">
+                        <svg class="absolute" style="left: 1rem; top: 50%; transform: translateY(-50%);" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                        </svg>
+                        <input id="prompt-search" type="text" placeholder="Buscar prompts..." class="w-full py-3 rounded-xl" style="padding-left: 3rem; background: var(--white); border: 1px solid var(--border);" oninput="filterPrompts()">
+                    </div>
+                </div>
+                
+                <!-- Category Tabs -->
+                <div class="flex gap-2 mb-6 overflow-x-auto pb-2" id="category-tabs">
+                    <button class="category-tab active" data-category="all" onclick="selectCategory('all')">Todos</button>
+                    <button class="category-tab" data-category="presentations" onclick="selectCategory('presentations')">Presentaciones</button>
+                    <button class="category-tab" data-category="reports" onclick="selectCategory('reports')">Informes</button>
+                    <button class="category-tab" data-category="analysis" onclick="selectCategory('analysis')">Análisis</button>
+                    <button class="category-tab" data-category="communication" onclick="selectCategory('communication')">Comunicación</button>
+                    <button class="category-tab" data-category="training" onclick="selectCategory('training')">Formación</button>
+                </div>
+                
+                <!-- Prompts Grid -->
+                <div id="prompts-grid" class="grid grid-cols-2 gap-4"></div>
+            </div>
+            
+            <!-- Prompt Detail Modal -->
+            <div id="prompt-modal" class="hidden modal-overlay" onclick="closePromptModal()">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="p-6" style="border-bottom: 1px solid var(--border);">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span id="modal-category" class="text-xs px-3 py-1 rounded-full font-medium" style="background: var(--ai-light); color: var(--ai-dark);"></span>
+                                <h2 id="modal-title" class="text-xl font-bold mt-2" style="color: var(--text);"></h2>
+                            </div>
+                            <button onclick="closePromptModal()" class="p-2 rounded-xl hover:bg-gray-100">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="2">
+                                    <path d="M18 6L6 18"/><path d="M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p id="modal-description" class="mb-4" style="color: var(--text-light);"></p>
+                        <div class="flex gap-2 mb-6" id="modal-tags"></div>
+                        <h3 class="font-bold mb-3" style="color: var(--text);">Prompt completo</h3>
+                        <div id="modal-template" class="prompt-template mb-6"></div>
+                        <h3 class="font-bold mb-3" style="color: var(--text);">Instrucciones de uso</h3>
+                        <div id="modal-instructions" class="p-4 rounded-xl mb-6" style="background: var(--bg-light);"></div>
+                        <div class="flex justify-end">
+                            <button id="copy-btn" onclick="copyPrompt()" class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white" style="background: var(--ai-dark);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                                Copiar prompt
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CARE MODULE -->
+        <div id="care-module" class="min-h-screen p-6 hidden">
+            <div class="max-w-5xl mx-auto">
+                <div class="module-header">
+                    <div class="flex items-center gap-4">
+                        <button class="back-btn" style="background: var(--care-light);" onclick="showHub()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--care-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <div class="header-icon" style="background: linear-gradient(135deg, var(--care-dark) 0%, var(--care-accent) 100%);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold" style="color: var(--text);">LYRA CARE <span style="color: var(--care-dark);">· Sistema ETHOS</span></h1>
+                            <p class="text-sm" style="color: var(--text-light);">Monitorización cognitiva para personas mayores</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Patient Info -->
+                <div class="ethos-card mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl" style="background: var(--care-light);">👩🏻‍🦳</div>
+                            <div>
+                                <h2 class="text-xl font-bold" style="color: var(--text);">María García López</h2>
+                                <p class="text-sm" style="color: var(--text-light);">78 años · ID: ETH-2024-0847</p>
+                                <p class="text-sm" style="color: var(--text-light);">Diagnóstico: DCL Amnésico · 18 meses seguimiento</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium" style="background: rgba(39, 174, 96, 0.15); color: var(--green);">● Estable</span>
+                            <p class="text-sm mt-2" style="color: var(--text-muted);">Última actualización: hace 2h</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ETHOS Domains Grid -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="ethos-card" style="border-left: 4px solid var(--green);">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium" style="color: var(--text);">Memoria</span>
+                            <span class="trend-badge status-resonant">↑ +2.3%</span>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">78</p>
+                        <p class="text-xs" style="color: var(--text-muted);">Baseline: 75</p>
+                        <svg class="mini-chart mt-2" viewBox="0 0 100 30">
+                            <polyline fill="none" stroke="var(--green)" stroke-width="2" points="0,25 15,22 30,20 45,18 60,15 75,14 100,10"/>
+                        </svg>
+                    </div>
+                    <div class="ethos-card" style="border-left: 4px solid var(--orange);">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium" style="color: var(--text);">Orientación</span>
+                            <span class="trend-badge status-transitional">→ -5.2%</span>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">62</p>
+                        <p class="text-xs" style="color: var(--text-muted);">Baseline: 68</p>
+                        <svg class="mini-chart mt-2" viewBox="0 0 100 30">
+                            <polyline fill="none" stroke="var(--orange)" stroke-width="2" points="0,10 15,12 30,14 45,16 60,18 75,20 100,22"/>
+                        </svg>
+                    </div>
+                    <div class="ethos-card" style="border-left: 4px solid var(--green);">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium" style="color: var(--text);">Lenguaje</span>
+                            <span class="trend-badge status-resonant">↑ +1.8%</span>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">84</p>
+                        <p class="text-xs" style="color: var(--text-muted);">Baseline: 82</p>
+                        <svg class="mini-chart mt-2" viewBox="0 0 100 30">
+                            <polyline fill="none" stroke="var(--green)" stroke-width="2" points="0,20 15,18 30,16 45,14 60,12 75,11 100,8"/>
+                        </svg>
+                    </div>
+                    <div class="ethos-card" style="border-left: 4px solid var(--green);">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium" style="color: var(--text);">Praxias</span>
+                            <span class="trend-badge status-resonant">↑ +3.1%</span>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">71</p>
+                        <p class="text-xs" style="color: var(--text-muted);">Baseline: 69</p>
+                    </div>
+                    <div class="ethos-card" style="border-left: 4px solid var(--orange);">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium" style="color: var(--text);">Atención</span>
+                            <span class="trend-badge status-transitional">→ -8.7%</span>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">58</p>
+                        <p class="text-xs" style="color: var(--text-muted);">Baseline: 65</p>
+                    </div>
+                    <div class="ethos-card" style="border-left: 4px solid var(--green);">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium" style="color: var(--text);">Funciones Ejecutivas</span>
+                            <span class="trend-badge status-resonant">↑ +0.5%</span>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">65</p>
+                        <p class="text-xs" style="color: var(--text-muted);">Baseline: 64</p>
+                    </div>
+                </div>
+                
+                <!-- Alerts -->
+                <div class="ethos-card">
+                    <h3 class="font-bold mb-4" style="color: var(--text);">Alertas Recientes</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3 p-3 rounded-xl" style="background: var(--orange-light);">
+                            <span style="color: var(--orange);">⚠️</span>
+                            <div>
+                                <p class="font-medium" style="color: var(--text);">Desorientación temporal detectada</p>
+                                <p class="text-sm" style="color: var(--text-light);">Confusión en fecha durante llamada vespertina · Hace 4h</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 rounded-xl" style="background: var(--green-light);">
+                            <span style="color: var(--green);">✓</span>
+                            <div>
+                                <p class="font-medium" style="color: var(--text);">Rutina completada exitosamente</p>
+                                <p class="text-sm" style="color: var(--text-light);">Medicación matutina confirmada · Hace 6h</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- EARTH MODULE -->
+        <div id="earth-module" class="min-h-screen p-6 hidden">
+            <div class="max-w-5xl mx-auto">
+                <div class="module-header">
+                    <div class="flex items-center gap-4">
+                        <button class="back-btn" style="background: var(--earth-light);" onclick="showHub()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--earth-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <div class="header-icon" style="background: linear-gradient(135deg, var(--earth-dark) 0%, var(--earth-accent) 100%);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold" style="color: var(--text);">LYRA EARTH <span style="color: var(--earth-dark);">· Sistema GAIA</span></h1>
+                            <p class="text-sm" style="color: var(--text-light);">Resonancia ecológica personal · xI = f(H, A, E, κ)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Global Score -->
+                <div class="gaia-card mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-6">
+                            <div class="text-center">
+                                <p class="text-5xl font-bold" style="color: var(--earth-transitional);">62</p>
+                                <p class="text-sm mt-1 px-3 py-1 rounded-full" style="background: rgba(243, 156, 18, 0.15); color: var(--earth-transitional);">EN TRANSICIÓN</p>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold" style="color: var(--text);">Carlos Mendoza Rivera</h2>
+                                <p class="text-sm" style="color: var(--text-light);">Profesional urbano · Madrid, España</p>
+                                <p class="text-sm" style="color: var(--text-light);">62 días de seguimiento</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm" style="color: var(--text-muted);">Dominios GAIA</p>
+                            <div class="flex gap-2 mt-2">
+                                <span class="px-2 py-1 rounded text-xs font-medium" style="background: rgba(39, 174, 96, 0.15); color: var(--green);">2 resonantes</span>
+                                <span class="px-2 py-1 rounded text-xs font-medium" style="background: rgba(243, 156, 18, 0.15); color: var(--orange);">3 transición</span>
+                                <span class="px-2 py-1 rounded text-xs font-medium" style="background: rgba(231, 76, 60, 0.15); color: var(--red);">2 alienación</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- GAIA Domains Grid -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="gaia-card" style="border: 2px solid rgba(39, 174, 96, 0.4);">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="p-2 rounded-xl" style="background: rgba(39, 174, 96, 0.15);">🌲</div>
+                            <div>
+                                <p class="font-medium" style="color: var(--text);">Resonancia Natural</p>
+                                <p class="text-xs" style="color: var(--text-muted);">Rosa (Resonancia Vertical)</p>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">68 <span class="text-sm font-normal" style="color: var(--text-muted);">pts</span></p>
+                        <p class="text-xs" style="color: var(--text-light);">↑ Incremento del 12% en tiempo en espacios verdes.</p>
+                    </div>
+                    
+                    <div class="gaia-card" style="border: 2px solid rgba(231, 76, 60, 0.4);">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="p-2 rounded-xl" style="background: rgba(231, 76, 60, 0.15);">📱</div>
+                            <div>
+                                <p class="font-medium" style="color: var(--text);">Huella Cognitiva Digital</p>
+                                <p class="text-xs" style="color: var(--text-muted);">Citton (Ecología Atención)</p>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">4.2 <span class="text-sm font-normal" style="color: var(--text-muted);">h/día</span></p>
+                        <p class="text-xs" style="color: var(--red);">⚠ Consumo digital 40% sobre el óptimo.</p>
+                    </div>
+                    
+                    <div class="gaia-card" style="border: 2px solid rgba(243, 156, 18, 0.5);">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="p-2 rounded-xl" style="background: rgba(243, 156, 18, 0.15);">🚲</div>
+                            <div>
+                                <p class="font-medium" style="color: var(--text);">Movilidad Sostenible</p>
+                                <p class="text-xs" style="color: var(--text-muted);">Varela (Acoplamiento)</p>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">62 <span class="text-sm font-normal" style="color: var(--text-muted);">%</span></p>
+                        <p class="text-xs" style="color: var(--text-light);">↑ Aumento del uso de transporte público (+15%).</p>
+                    </div>
+                    
+                    <div class="gaia-card" style="border: 2px solid rgba(39, 174, 96, 0.4);">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="p-2 rounded-xl" style="background: rgba(39, 174, 96, 0.15);">🛒</div>
+                            <div>
+                                <p class="font-medium" style="color: var(--text);">Consumo Consciente</p>
+                                <p class="text-xs" style="color: var(--text-muted);">Wilson (Biofilia)</p>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">71 <span class="text-sm font-normal" style="color: var(--text-muted);">pts</span></p>
+                        <p class="text-xs" style="color: var(--text-light);">→ Buen nivel de separación de residuos.</p>
+                    </div>
+                    
+                    <div class="gaia-card" style="border: 2px solid rgba(243, 156, 18, 0.5);">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="p-2 rounded-xl" style="background: rgba(243, 156, 18, 0.15);">🌸</div>
+                            <div>
+                                <p class="font-medium" style="color: var(--text);">Biofilia Activa</p>
+                                <p class="text-xs" style="color: var(--text-muted);">Wilson (Biofilia)</p>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">54 <span class="text-sm font-normal" style="color: var(--text-muted);">pts</span></p>
+                        <p class="text-xs" style="color: var(--orange);">↓ Reducción de interacciones con naturaleza.</p>
+                    </div>
+                    
+                    <div class="gaia-card" style="border: 2px solid rgba(231, 76, 60, 0.4);">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="p-2 rounded-xl" style="background: rgba(231, 76, 60, 0.15);">🌱</div>
+                            <div>
+                                <p class="font-medium" style="color: var(--text);">Contribución Regenerativa</p>
+                                <p class="text-xs" style="color: var(--text-muted);">Varela (Autopoiesis)</p>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-bold" style="color: var(--text);">42 <span class="text-sm font-normal" style="color: var(--text-muted);">pts</span></p>
+                        <p class="text-xs" style="color: var(--red);">⚠ Área de mayor oportunidad.</p>
+                    </div>
+                </div>
+                
+                <!-- Terra Companion -->
+                <div class="gaia-card" style="background: linear-gradient(135deg, var(--earth-light) 0%, var(--white) 100%);">
+                    <div class="flex items-center gap-6">
+                        <div class="ecosystem-visual">
+                            <svg viewBox="0 0 200 200" width="200" height="200">
+                                <!-- Ground -->
+                                <ellipse cx="100" cy="170" rx="80" ry="20" fill="#8B4513" opacity="0.3"/>
+                                <!-- Tree -->
+                                <rect x="95" y="100" width="10" height="60" fill="#6E2C00"/>
+                                <circle cx="100" cy="80" r="35" fill="#27AE60"/>
+                                <circle cx="80" cy="90" r="25" fill="#2ECC71"/>
+                                <circle cx="120" cy="90" r="25" fill="#2ECC71"/>
+                                <!-- Birds -->
+                                <text x="40" y="50" font-size="20">🐦</text>
+                                <text x="150" y="40" font-size="16">🐦</text>
+                                <text x="60" y="30" font-size="14">🐦</text>
+                                <!-- Flowers -->
+                                <text x="30" y="165" font-size="18">🌸</text>
+                                <text x="160" y="165" font-size="18">🌺</text>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-3">
+                                <h3 class="text-xl font-bold" style="color: var(--earth-dark);">Terra</h3>
+                                <span class="px-2 py-1 rounded-full text-xs" style="background: var(--earth-light); color: var(--earth-dark);">Tu Ecosistema Personal</span>
+                            </div>
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="flex-1 h-3 rounded-full" style="background: var(--border);">
+                                    <div class="h-3 rounded-full" style="width: 58%; background: var(--earth-transitional);"></div>
+                                </div>
+                                <span class="font-bold" style="color: var(--earth-transitional);">58%</span>
+                            </div>
+                            <div class="p-3 rounded-xl" style="background: rgba(39, 174, 96, 0.1);">
+                                <p class="text-sm" style="color: var(--text);">💬 "El árbol de tu resonancia está creciendo... pero el arroyo digital necesita limpiarse."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PRO MODULE -->
+        <div id="pro-module" class="min-h-screen p-6 hidden">
+            <div class="max-w-5xl mx-auto">
+                <div class="module-header">
+                    <div class="flex items-center gap-4">
+                        <button class="back-btn" style="background: rgba(212, 175, 55, 0.2);" onclick="showHub()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--pro-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <div class="header-icon gold-gradient">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold" style="color: white;">LYRA PRO <span style="color: var(--pro-accent);">· Dashboard</span></h1>
+                            <p class="text-sm" style="color: rgba(255,255,255,0.6);">Amplificación Cognitiva para Profesionales del Conocimiento</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Card -->
+                <div class="pro-card mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl" style="background: linear-gradient(135deg, var(--pro-accent) 0%, #C49B0C 100%);">
+                                👨🏻‍💼
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-white">Alejandro Ruiz Vega</h2>
+                                <p class="text-sm" style="color: rgba(255,255,255,0.6);">Consultor Senior · Strategy & Ops</p>
+                                <p class="text-sm" style="color: rgba(255,255,255,0.6);">DeloitteESP · 8 años experiencia</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-4xl font-bold" style="color: var(--pro-accent);">4.2<span class="text-xl">:1</span></p>
+                            <p class="text-sm" style="color: rgba(255,255,255,0.5);">Ratio de Amplificación</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 4 Pillars -->
+                <h3 class="text-lg font-bold text-white mb-4">Los 4 Pilares de Amplificación</h3>
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="pillar-card">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(155, 89, 182, 0.2);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9B59B6" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-white">Focus</p>
+                                <p class="text-xs" style="color: rgba(255,255,255,0.5);">Atención profunda</p>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-bold text-white">87%</p>
+                        <p class="text-xs" style="color: var(--green);">↑ +12% vs mes anterior</p>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(52, 152, 219, 0.2);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3498DB" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-white">Flujo</p>
+                                <p class="text-xs" style="color: rgba(255,255,255,0.5);">Estados productivos</p>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-bold text-white">72%</p>
+                        <p class="text-xs" style="color: var(--green);">↑ +8% vs mes anterior</p>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(230, 126, 34, 0.2);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2">
+                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-white">Leverage</p>
+                                <p class="text-xs" style="color: rgba(255,255,255,0.5);">Uso de IA</p>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-bold text-white">91%</p>
+                        <p class="text-xs" style="color: var(--green);">↑ +23% vs mes anterior</p>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(39, 174, 96, 0.2);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#27AE60" stroke-width="2">
+                                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-white">Resonancia</p>
+                                <p class="text-xs" style="color: rgba(255,255,255,0.5);">Bienestar cognitivo</p>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-bold text-white">78%</p>
+                        <p class="text-xs" style="color: var(--green);">↑ +5% vs mes anterior</p>
+                    </div>
+                </div>
+                
+                <!-- Projects -->
+                <div class="pro-card">
+                    <h3 class="text-lg font-bold text-white mb-4">Proyectos Activos</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 rounded-xl" style="background: rgba(255,255,255,0.03);">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(52, 152, 219, 0.2);">
+                                    <span>📊</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-white">Due Diligence Tech · ACME Corp</p>
+                                    <p class="text-xs" style="color: rgba(255,255,255,0.5);">Deadline: 15 días · 67% completado</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(39, 174, 96, 0.2); color: var(--green);">En tiempo</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 rounded-xl" style="background: rgba(255,255,255,0.03);">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(243, 156, 18, 0.2);">
+                                    <span>🎯</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-white">Transformación Digital · Banco Iberia</p>
+                                    <p class="text-xs" style="color: rgba(255,255,255,0.5);">Deadline: 8 días · 45% completado</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(243, 156, 18, 0.2); color: var(--orange);">Atención</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer metrics -->
+                <div class="mt-6 rounded-2xl p-4 flex items-center justify-center gap-8" style="background: var(--pro-premium); border: 1px solid rgba(212, 175, 55, 0.3);">
+                    <div class="flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--pro-accent)" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                        </svg>
+                        <span class="text-sm text-white">Esta semana: <strong style="color: var(--pro-accent);">12.5h liberadas</strong></span>
+                    </div>
+                    <div style="width: 1px; height: 1rem; background: rgba(255,255,255,0.2);"></div>
+                    <div class="flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--pro-accent)" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>
+                        </svg>
+                        <span class="text-sm text-white"><strong style="color: var(--pro-accent);">23 entregables</strong> asistidos</span>
+                    </div>
+                    <div style="width: 1px; height: 1rem; background: rgba(255,255,255,0.2);"></div>
+                    <div class="flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>
+                        </svg>
+                        <span class="text-sm text-white"><strong style="color: var(--green);">0 plazos</strong> incumplidos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- LANDING MODULE -->
+        <div id="landing-module" class="min-h-screen p-8 hidden">
+            <div class="max-w-4xl mx-auto">
+                <button onclick="showHub()" class="flex items-center gap-2 px-4 py-2 rounded-xl mb-8 transition-all text-white" style="background: rgba(255,255,255,0.1);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+                    </svg>
+                    Volver al HUB
+                </button>
+                
+                <div class="text-center mb-12">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6" style="background: rgba(255,255,255,0.1);">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                            <path d="M12 2a9 9 0 0 1 9 9c0 3.074-1.676 5.5-3.5 7.5S14 22 12 22c-2 0-3.824-1.5-5.5-3.5S3 14.074 3 11a9 9 0 0 1 9-9z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-4xl font-bold text-white mb-4">Landing Page LYRA</h1>
+                    <p class="text-lg" style="color: rgba(255,255,255,0.7);">Presentación completa del ecosistema para el jurado TCUE 2025</p>
+                </div>
+                
+                <div class="rounded-3xl p-8" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(10px);">
+                    <h2 class="text-xl font-bold text-white mb-6">Secciones de la Landing</h2>
+                    <div class="space-y-4">
+                        <div class="landing-section">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(247, 220, 111, 0.2);">✓</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-white">Hero Section</h3>
+                                <p class="text-sm" style="color: rgba(255,255,255,0.5);">Logo animado, fórmula xI, tagline</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(39, 174, 96, 0.2); color: var(--green);">Completado</span>
+                        </div>
+                        <div class="landing-section">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(247, 220, 111, 0.2);">✓</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-white">El Problema</h3>
+                                <p class="text-sm" style="color: rgba(255,255,255,0.5);">Sobrecarga cognitiva en 4 poblaciones</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(39, 174, 96, 0.2); color: var(--green);">Completado</span>
+                        </div>
+                        <div class="landing-section">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(247, 220, 111, 0.2);">✓</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-white">Los Módulos</h3>
+                                <p class="text-sm" style="color: rgba(255,255,255,0.5);">EDU, WORK, AI, CARE interactivos</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(39, 174, 96, 0.2); color: var(--green);">Completado</span>
+                        </div>
+                        <div class="landing-section">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(247, 220, 111, 0.2);">✓</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-white">La Ciencia</h3>
+                                <p class="text-sm" style="color: rgba(255,255,255,0.5);">xI Theory explicada visualmente</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(39, 174, 96, 0.2); color: var(--green);">Completado</span>
+                        </div>
+                        <div class="landing-section">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(247, 220, 111, 0.2);">✓</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-white">Validación</h3>
+                                <p class="text-sm" style="color: rgba(255,255,255,0.5);">HACK4EDU, SafeCreative, pilotos</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(39, 174, 96, 0.2); color: var(--green);">Completado</span>
+                        </div>
+                        <div class="landing-section">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(247, 220, 111, 0.2);">✓</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-white">Equipo</h3>
+                                <p class="text-sm" style="color: rgba(255,255,255,0.5);">Diego (IP), Eugenia, Alexandra, Mariia</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(39, 174, 96, 0.2); color: var(--green);">Completado</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <div class="inline-block px-8 py-6 rounded-2xl" style="background: rgba(255,255,255,0.05);">
+                        <p class="text-3xl mb-4 text-white" style="font-family: 'Playfair Display', serif; font-style: italic;">
+                            xI = f(H, A, <span style="color: var(--care-accent);">κ</span>)
+                        </p>
+                        <div class="flex flex-wrap justify-center gap-4 text-xs" style="color: rgba(255,255,255,0.6);">
+                            <span><strong>xI</strong> = Inteligencia Extendida</span>
+                            <span><strong>H</strong> = Humano</span>
+                            <span><strong>A</strong> = Agente IA</span>
+                            <span><strong style="color: var(--care-accent);">κ</strong> = Coeficiente de Acoplamiento</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-12 text-center">
+                    <p class="text-sm" style="color: rgba(255,255,255,0.5);">Universidad Pontificia de Salamanca · TCUE 2025</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // LYRA ECOSYSTEM - JavaScript Controller
+        // ═══════════════════════════════════════════════════════════════════════════════
+        
+        // Module data
+        const modules = [
+            { id: 'edu', name: 'LYRA EDU', badge: 'NT55', subtitle: 'Educación', colors: { main: '#8E44AD', light: '#F5EEF8', accent: '#AF7AC5' } },
+            { id: 'work', name: 'LYRA WORK', badge: 'NT79', subtitle: 'Bienestar', colors: { main: '#1ABC9C', light: '#E8F8F5', accent: '#48C9B0' } },
+            { id: 'ai', name: 'LYRA AI', badge: 'NT16', subtitle: 'Prompts', colors: { main: '#3498DB', light: '#EBF5FB', accent: '#5DADE2' } },
+            { id: 'care', name: 'LYRA CARE', badge: 'NT70', subtitle: 'ETHOS', colors: { main: '#F39C12', light: '#FEF9E7', accent: '#F7DC6F' } },
+            { id: 'earth', name: 'LYRA EARTH', badge: 'GAIA', subtitle: 'Resonancia Ecológica', colors: { main: '#1E8449', light: '#E8F6F3', accent: '#27AE60' } },
+            { id: 'pro', name: 'LYRA PRO', badge: '4:1', subtitle: 'Amplificación', colors: { main: '#D4AF37', light: '#FDF9E8', accent: '#D4AF37' }, premium: true },
+            { id: 'landing', name: 'PRESENTACIÓN', badge: 'PITCH', subtitle: 'Landing Page', colors: { main: '#5B2C6F', light: '#F5EEF8', accent: '#7D3C98' } }
+        ];
+        
+        // Prompts data
+        const prompts = [
+            { id: 1, category: 'presentations', title: 'Estructura de pitch narrativo', description: 'Estructura completa para presentaciones persuasivas con storytelling', effectiveness: 4.8, uses: 1234, tags: ['pitch', 'storytelling', 'persuasión'], template: 'Actúa como experto en comunicación ejecutiva...\n\n[TEMA]: Tu tema aquí\n[AUDIENCIA]: Tu audiencia\n[DURACIÓN]: Tiempo disponible' },
+            { id: 2, category: 'reports', title: 'Informe ejecutivo estructurado', description: 'Genera informes con resumen ejecutivo, hallazgos clave y recomendaciones priorizadas', effectiveness: 4.9, uses: 847, tags: ['ejecutivo', 'hallazgos', 'recomendaciones'], template: 'Actúa como consultor senior especializado en [ÁREA].\n\nRedacta un informe ejecutivo sobre [TEMA] para [AUDIENCIA]...' },
+            { id: 3, category: 'analysis', title: 'Análisis DAFO expandido', description: 'DAFO completo con cruce de estrategias y plan de acción priorizado', effectiveness: 4.6, uses: 412, tags: ['estrategia', 'DAFO', 'plan acción'], template: 'Realiza un análisis DAFO exhaustivo de [EMPRESA/PROYECTO/INICIATIVA]...' },
+            { id: 4, category: 'communication', title: 'Email persuasivo B2B', description: 'Emails de prospección con estructura probada de alta conversión', effectiveness: 4.5, uses: 1203, tags: ['ventas', 'prospección', 'cold email'], template: 'Escribe un email de prospección B2B para [ROL OBJETIVO]...' },
+            { id: 5, category: 'reports', title: 'Propuesta comercial ganadora', description: 'Estructura de propuesta enfocada en valor y diferenciación', effectiveness: 4.7, uses: 678, tags: ['comercial', 'propuesta', 'valor'], template: 'Crea una propuesta comercial para [CLIENTE] del sector [SECTOR]...' },
+            { id: 6, category: 'training', title: 'Diseño de taller formativo', description: 'Estructura completa para sesiones de formación corporativa', effectiveness: 4.4, uses: 289, tags: ['formación', 'taller', 'capacitación'], template: 'Diseña un taller formativo de [DURACIÓN] sobre [TEMA]...' }
+        ];
+        
+        let selectedCategory = 'all';
+        let currentPrompt = null;
+        
+        // Game state
+        let gameState = 'ready';
+        let score = 0;
+        let timeLeft = 30;
+        let stars = [];
+        let streak = 0;
+        let bestStreak = 0;
+        let gameInterval;
+        let timerInterval;
+        let starIdCounter = 0;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            createModuleCards();
+            renderPrompts();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            setInterval(updateMicropausa, 1000);
+        });
+        
+        // Create particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const colors = ['#5B2C6F', '#D4AF37', '#3498DB', '#F39C12'];
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.cssText = `
+                    width: ${Math.random() * 3 + 1}px;
+                    height: ${Math.random() * 3 + 1}px;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    opacity: ${0.2 + Math.random() * 0.3};
+                    animation-delay: ${Math.random() * 10}s;
+                    animation-duration: ${15 + Math.random() * 20}s;
+                `;
+                container.appendChild(particle);
+            }
+        }
+        
+        // Create module cards
+        function createModuleCards() {
+            const container = document.getElementById('module-cards');
+            modules.forEach((module, index) => {
+                const angle = ((index * 360) / modules.length) - 90;
+                const radian = angle * (Math.PI / 180);
+                const radius = 38;
+                const left = 50 + radius * Math.cos(radian);
+                const top = 50 + radius * Math.sin(radian);
+                
+                const icons = {
+                    edu: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
+                    work: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
+                    ai: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/></svg>',
+                    care: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+                    earth: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>',
+                    pro: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>',
+                    landing: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>'
+                };
+                
+                const card = document.createElement('button');
+                card.className = 'module-card';
+                card.style.cssText = `left: ${left}%; top: ${top}%; opacity: 0; animation: fadeInUp 0.6s ease-out ${index * 80 + 1000}ms forwards;`;
+                card.onclick = () => showModule(module.id);
+                
+                card.innerHTML = `
+                    <div class="module-card-inner" style="background: ${module.colors.light}; box-shadow: 0 8px 32px ${module.colors.main}25;">
+                        <div class="module-icon-circle" style="background: linear-gradient(135deg, ${module.colors.main} 0%, ${module.colors.accent} 100%);">
+                            ${icons[module.id]}
+                        </div>
+                        <h3 style="font-size: 0.875rem; font-weight: 700; color: ${module.colors.main};">${module.name}</h3>
+                        <p style="font-size: 0.75rem; color: #5D6D7E; margin-top: 0.25rem;">${module.subtitle}</p>
+                        <span class="module-badge" style="background: ${module.colors.main}15; color: ${module.colors.main};">${module.badge}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        // Navigation
+        function showHub() {
+            document.querySelectorAll('#app > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('hub').classList.remove('hidden');
+        }
+        
+        function showModule(moduleId) {
+            document.querySelectorAll('#app > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`${moduleId}-module`).classList.remove('hidden');
+            
+            if (moduleId === 'edu') {
+                resetGame();
+            }
+        }
+        
+        // Update date/time
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            const dateStr = now.toLocaleDateString('es-ES', options);
+            const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
+            const eduDate = document.getElementById('edu-date');
+            if (eduDate) eduDate.textContent = dateStr;
+            
+            const workTime = document.getElementById('work-time');
+            if (workTime) workTime.textContent = timeStr;
+        }
+        
+        // Micropausa countdown
+        let micropausaSeconds = 847;
+        function updateMicropausa() {
+            micropausaSeconds = micropausaSeconds > 0 ? micropausaSeconds - 1 : 1800;
+            const mins = Math.floor(micropausaSeconds / 60);
+            const secs = micropausaSeconds % 60;
+            const el = document.getElementById('micropausa-time');
+            if (el) el.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // LYRA EDU - Game Functions
+        // ═══════════════════════════════════════════════════════════════════════════════
+        
+        function startGame() {
+            gameState = 'playing';
+            score = 0;
+            timeLeft = 30;
+            stars = [];
+            streak = 0;
+            bestStreak = 0;
+            starIdCounter = 0;
+            
+            document.getElementById('edu-ready').classList.add('hidden');
+            document.getElementById('edu-playing').classList.remove('hidden');
+            document.getElementById('edu-finished').classList.add('hidden');
+            
+            updateGameUI();
+            
+            // Timer
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateGameUI();
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            // Star spawner
+            gameInterval = setInterval(() => {
+                spawnStar();
+                removeExpiredStars();
+            }, 1000);
+        }
+        
+        function spawnStar() {
+            const gameArea = document.getElementById('game-area');
+            if (!gameArea) return;
+            
+            const rect = gameArea.getBoundingClientRect();
+            const star = {
+                id: starIdCounter++,
+                x: Math.random() * (rect.width - 80) + 40,
+                y: Math.random() * (rect.height - 80) + 40,
+                type: Math.random() < 0.7 ? 'gold' : 'red',
+                createdAt: Date.now()
+            };
+            
+            stars.push(star);
+            
+            const starEl = document.createElement('div');
+            starEl.className = 'game-star';
+            starEl.id = `star-${star.id}`;
+            starEl.style.left = `${star.x}px`;
+            starEl.style.top = `${star.y}px`;
+            starEl.innerHTML = `
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="${star.type === 'gold' ? '#F4D03F' : '#E74C3C'}" stroke="${star.type === 'gold' ? '#D4AC0D' : '#C0392B'}" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+            `;
+            starEl.onclick = () => clickStar(star);
+            gameArea.appendChild(starEl);
+        }
+        
+        function clickStar(star) {
+            const starEl = document.getElementById(`star-${star.id}`);
+            if (starEl) starEl.remove();
+            
+            stars = stars.filter(s => s.id !== star.id);
+            
+            if (star.type === 'gold') {
+                score += 10;
+                streak++;
+                if (streak > bestStreak) bestStreak = streak;
+                setLumiEmotion(streak >= 3 ? 'excited' : 'happy');
+            } else {
+                score = Math.max(0, score - 5);
+                streak = 0;
+                setLumiEmotion('sad');
+            }
+            
+            updateGameUI();
+            setTimeout(() => setLumiEmotion('neutral'), 800);
+        }
+        
+        function removeExpiredStars() {
+            const now = Date.now();
+            stars = stars.filter(star => {
+                if (now - star.createdAt > 2500) {
+                    const starEl = document.getElementById(`star-${star.id}`);
+                    if (starEl) starEl.remove();
+                    if (star.type === 'gold') streak = 0;
+                    return false;
+                }
+                return true;
+            });
+            updateGameUI();
+        }
+        
+        function setLumiEmotion(emotion) {
+            const lumi = document.getElementById('lumi-playing');
+            if (!lumi) return;
+            
+            const expressions = {
+                neutral: { eyes: '● ●', mouth: 'ᴗ' },
+                happy: { eyes: '◠ ◠', mouth: '◡' },
+                excited: { eyes: '★ ★', mouth: '▽' },
+                sad: { eyes: '╥ ╥', mouth: '︵' }
+            };
+            
+            const expr = expressions[emotion] || expressions.neutral;
+            lumi.querySelector('.eyes').textContent = expr.eyes;
+            lumi.querySelector('.mouth').textContent = expr.mouth;
+            lumi.classList.toggle('excited', emotion === 'excited');
+        }
+        
+        function updateGameUI() {
+            const timeEl = document.getElementById('time-left');
+            const scoreEl = document.getElementById('score');
+            const streakEl = document.getElementById('streak');
+            const streakBox = document.getElementById('streak-box');
+            
+            if (timeEl) {
+                timeEl.textContent = `${timeLeft}s`;
+                timeEl.style.color = timeLeft <= 10 ? 'var(--red)' : 'var(--text)';
+            }
+            if (scoreEl) scoreEl.textContent = score;
+            if (streakEl) streakEl.textContent = `x${streak}`;
+            if (streakBox) streakBox.style.background = streak >= 3 ? 'var(--edu-light)' : 'var(--white)';
+        }
+        
+        function endGame() {
+            gameState = 'finished';
+            clearInterval(timerInterval);
+            clearInterval(gameInterval);
+            
+            // Clear remaining stars
+            const gameArea = document.getElementById('game-area');
+            if (gameArea) gameArea.innerHTML = '';
+            stars = [];
+            
+            document.getElementById('edu-playing').classList.add('hidden');
+            document.getElementById('edu-finished').classList.remove('hidden');
+            
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('best-streak').textContent = `x${bestStreak}`;
+            
+            // Set Lumi's expression based on score
+            const lumi = document.getElementById('lumi-finished');
+            if (lumi) {
+                if (score >= 100) {
+                    lumi.querySelector('.eyes').textContent = '★ ★';
+                    lumi.querySelector('.mouth').textContent = '▽';
+                } else if (score >= 50) {
+                    lumi.querySelector('.eyes').textContent = '◠ ◠';
+                    lumi.querySelector('.mouth').textContent = '◡';
+                } else {
+                    lumi.querySelector('.eyes').textContent = '● ●';
+                    lumi.querySelector('.mouth').textContent = 'ᴗ';
+                }
+            }
+        }
+        
+        function resetGame() {
+            clearInterval(timerInterval);
+            clearInterval(gameInterval);
+            
+            const gameArea = document.getElementById('game-area');
+            if (gameArea) gameArea.innerHTML = '';
+            stars = [];
+            
+            gameState = 'ready';
+            document.getElementById('edu-ready').classList.remove('hidden');
+            document.getElementById('edu-playing').classList.add('hidden');
+            document.getElementById('edu-finished').classList.add('hidden');
+        }
+        
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // LYRA WORK - Functions
+        // ═══════════════════════════════════════════════════════════════════════════════
+        
+        function selectSentiment(sentiment) {
+            document.querySelectorAll('.sentiment-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.borderColor = 'transparent';
+            });
+            event.target.closest('.sentiment-btn').classList.add('active');
+            event.target.closest('.sentiment-btn').style.borderColor = 'var(--green)';
+        }
+        
+        function toggleChat() {
+            const modal = document.getElementById('chat-modal');
+            modal.classList.toggle('hidden');
+        }
+        
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            const messages = document.getElementById('chat-messages');
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-bubble user';
+            userMsg.textContent = text;
+            messages.appendChild(userMsg);
+            
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+            
+            // Simulate AI response
+            setTimeout(() => {
+                const responses = [
+                    'Entiendo cómo te sientes. Recuerda que es normal tener días difíciles. ¿Hay algo específico que te preocupa?',
+                    'Gracias por compartir. Tu bienestar es importante. ¿Has probado tomar una micropausa de respiración?',
+                    'Me alegra que puedas expresarte aquí. Esta conversación es completamente confidencial.',
+                    'Eso suena desafiante. ¿Qué pequeño paso podrías dar hoy para mejorar esa situación?'
+                ];
+                
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'chat-bubble ai';
+                aiMsg.textContent = responses[Math.floor(Math.random() * responses.length)];
+                messages.appendChild(aiMsg);
+                messages.scrollTop = messages.scrollHeight;
+            }, 1200);
+        }
+        
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // LYRA AI - Functions
+        // ═══════════════════════════════════════════════════════════════════════════════
+        
+        function renderPrompts() {
+            const grid = document.getElementById('prompts-grid');
+            if (!grid) return;
+            
+            const searchTerm = document.getElementById('prompt-search')?.value.toLowerCase() || '';
+            
+            const filtered = prompts.filter(p => {
+                const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+                const matchesSearch = p.title.toLowerCase().includes(searchTerm) || 
+                                     p.description.toLowerCase().includes(searchTerm) ||
+                                     p.tags.some(t => t.toLowerCase().includes(searchTerm));
+                return matchesCategory && matchesSearch;
+            });
+            
+            grid.innerHTML = filtered.map(prompt => `
+                <div class="prompt-card" onclick="openPromptModal(${prompt.id})">
+                    <div class="flex items-start justify-between mb-3">
+                        <span class="text-xs px-2 py-1 rounded-full" style="background: var(--ai-light); color: var(--ai-dark);">${getCategoryLabel(prompt.category)}</span>
+                        <div class="flex items-center gap-1">
+                            ${renderStars(prompt.effectiveness)}
+                        </div>
+                    </div>
+                    <h3 class="font-semibold mb-2" style="color: var(--text);">${prompt.title}</h3>
+                    <p class="text-sm mb-3" style="color: var(--text-light);">${prompt.description}</p>
+                    <div class="flex flex-wrap gap-1">
+                        ${prompt.tags.slice(0, 3).map(tag => `<span class="text-xs px-2 py-1 rounded" style="background: var(--bg-light); color: var(--text-muted);">${tag}</span>`).join('')}
+                    </div>
+                    <div class="flex items-center justify-between mt-4 pt-3" style="border-top: 1px solid var(--border);">
+                        <span class="text-xs" style="color: var(--text-muted);">${prompt.uses.toLocaleString()} usos</span>
+                        <span class="text-sm font-medium" style="color: var(--ai-dark);">Ver prompt →</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getCategoryLabel(category) {
+            const labels = {
+                presentations: 'Presentaciones',
+                reports: 'Informes',
+                analysis: 'Análisis',
+                communication: 'Comunicación',
+                training: 'Formación'
+            };
+            return labels[category] || category;
+        }
+        
+        function renderStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalf = rating % 1 >= 0.5;
+            let html = '';
+            for (let i = 0; i < 5; i++) {
+                if (i < fullStars) {
+                    html += '<svg width="12" height="12" viewBox="0 0 24 24" fill="#F4D03F" stroke="#D4AC0D"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+                } else if (i === fullStars && hasHalf) {
+                    html += '<svg width="12" height="12" viewBox="0 0 24 24" fill="#E5E8E8" stroke="#D4AC0D"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+                } else {
+                    html += '<svg width="12" height="12" viewBox="0 0 24 24" fill="#E5E8E8" stroke="#E5E8E8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+                }
+            }
+            return html;
+        }
+        
+        function selectCategory(category) {
+            selectedCategory = category;
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.category === category);
+            });
+            renderPrompts();
+        }
+        
+        function filterPrompts() {
+            renderPrompts();
+        }
+        
+        function openPromptModal(promptId) {
+            currentPrompt = prompts.find(p => p.id === promptId);
+            if (!currentPrompt) return;
+            
+            document.getElementById('modal-category').textContent = getCategoryLabel(currentPrompt.category);
+            document.getElementById('modal-title').textContent = currentPrompt.title;
+            document.getElementById('modal-description').textContent = currentPrompt.description;
+            document.getElementById('modal-tags').innerHTML = currentPrompt.tags.map(tag => 
+                `<span class="text-sm px-3 py-1 rounded-lg" style="background: var(--ai-light); color: var(--ai-dark);">${tag}</span>`
+            ).join('');
+            
+            // Highlight variables in template
+            const template = currentPrompt.template.replace(/\[([^\]]+)\]/g, '<span class="variable">[$1]</span>');
+            document.getElementById('modal-template').innerHTML = template;
+            
+            document.getElementById('modal-instructions').innerHTML = '<p class="text-sm" style="color: var(--text-light);">1. Reemplaza las variables entre corchetes con tu información específica.<br>2. Ajusta el tono según tu audiencia.<br>3. Revisa y personaliza el resultado.</p>';
+            
+            document.getElementById('prompt-modal').classList.remove('hidden');
+        }
+        
+        function closePromptModal() {
+            document.getElementById('prompt-modal').classList.add('hidden');
+            currentPrompt = null;
+        }
+        
+        function copyPrompt() {
+            if (!currentPrompt) return;
+            navigator.clipboard.writeText(currentPrompt.template).then(() => {
+                const btn = document.getElementById('copy-btn');
+                btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> ¡Copiado!';
+                btn.style.background = 'var(--green)';
+                setTimeout(() => {
+                    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar prompt';
+                    btn.style.background = 'var(--ai-dark)';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
