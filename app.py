@@ -203,6 +203,72 @@ def init_state():
         st.session_state.trust_analyzer = TrustDynamicsAnalyzer()
     if "cognitive_history" not in st.session_state:
         st.session_state.cognitive_history = []  # CognitiveAnalysis per interaction
+    if "cognitive_gap_detector" not in st.session_state:
+        try:
+            from cognitive_gap_detector import CognitiveGapDetector
+            st.session_state.cognitive_gap_detector = CognitiveGapDetector()
+        except ImportError:
+            st.session_state.cognitive_gap_detector = None
+
+
+def _get_epistemic_curiosities(student_id: str) -> list[str]:
+    """
+    Obtiene curiosidades dinámicas desde cognitive_gap_detector (sondas epistémicas).
+    Si el detector no está disponible o no hay gaps/probes, devuelve lista vacía.
+    """
+    detector = st.session_state.get("cognitive_gap_detector")
+    if not detector:
+        return []
+
+    rag = st.session_state.get("rag")
+    if not rag or not getattr(rag, "documents", []):
+        return []
+
+    # Construir mapa de conocimiento si no existe
+    if not detector.knowledge_map:
+        detector.build_knowledge_map(rag.documents)
+
+    # Reiniciar mapas de estudiantes para evitar doble conteo entre reruns
+    detector.student_maps.clear()
+
+    # Alimentar detector con interacciones (demo + reales)
+    demo_logs = st.session_state.get("demo_logs", [])
+    orch = st.session_state.get("orchestrator")
+    real_logs = orch.middleware.interaction_logs if orch and hasattr(orch, "middleware") else []
+
+    def _bloom_from_scaffolding(level: int) -> int:
+        return min(max(level + 1, 1), 6)
+
+    for log in demo_logs:
+        topics = log.get("topics", log.get("detected_topics", []))
+        if topics:
+            detector.record_interaction(
+                student_id=log.get("student_id", student_id),
+                detected_topics=topics,
+                bloom_level=_bloom_from_scaffolding(log.get("scaffolding_level", 1)),
+                timestamp=log.get("timestamp"),
+            )
+
+    for log in real_logs:
+        topics = getattr(log, "detected_topics", [])
+        if topics:
+            detector.record_interaction(
+                student_id=log.student_id,
+                detected_topics=topics,
+                bloom_level=_bloom_from_scaffolding(getattr(log, "scaffolding_level", 1)),
+                timestamp=getattr(log, "timestamp", None),
+            )
+
+    # Detectar gaps y generar sondas
+    gaps = detector.detect_critical_gaps(student_id)
+    curiosities: list[str] = []
+    for gap in gaps[:5]:  # límite para no saturar
+        probes = detector.generate_epistemic_probes(gap)
+        for p in probes[:2]:
+            if p.probe_text and len(p.probe_text) > 20:
+                curiosities.append(p.probe_text)
+
+    return curiosities
 
 
 def generate_demo_data() -> list[dict]:
@@ -265,7 +331,7 @@ with st.sidebar:
 
     view = st.radio(
         "Vista activa",
-        ["Estudiante", "Docente — Configuración", "Docente — Analytics", "Mapa Epistémico", "Demo en Vivo", "Investigador"],
+        ["Estudiante", "Práctica Guiada", "Docente — Configuración", "Docente — Analytics", "Mapa Epistémico", "Demo en Vivo", "Investigador"],
         index=0,
     )
 
@@ -496,6 +562,82 @@ if view == "Estudiante":
         st.session_state.student_id = st.text_input(
             "ID estudiante", value=st.session_state.student_id
         )
+
+
+# ──────────────────────────────────────────────
+# VISTA: PRÁCTICA GUIADA (Gamificación)
+# ──────────────────────────────────────────────
+
+elif view == "Práctica Guiada":
+    st.markdown('<div class="main-header">Práctica Guiada — Desafíos</div>', unsafe_allow_html=True)
+    st.markdown("*Mini-retos sin presión de evaluación. Progreso como logros desbloqueados, no como notas.*")
+
+    # Selector de estudiante para curiosidades dinámicas
+    orch = st.session_state.get("orchestrator")
+    demo_ids = list(set(l.get("student_id") for l in st.session_state.get("demo_logs", []) if l.get("student_id")))
+    real_logs_list = orch.middleware.interaction_logs if orch and hasattr(orch, "middleware") else []
+    real_ids = list(set(l.student_id for l in real_logs_list))
+    all_ids = sorted(set([st.session_state.student_id] + demo_ids + real_ids)) or [st.session_state.student_id]
+    practica_student = st.selectbox(
+        "Estudiante (para curiosidades personalizadas)",
+        all_ids,
+        index=0,
+        key="practica_student",
+    )
+
+    if "practica_logros" not in st.session_state:
+        st.session_state.practica_logros = []
+    if "practica_retos_completados" not in st.session_state:
+        st.session_state.practica_retos_completados = set()
+
+    col_retos, col_logros = st.columns([2, 1])
+
+    with col_retos:
+        st.markdown("### Mini-retos")
+        RETOS = [
+            ("variables", "Escribe una variable que guarde tu nombre", "Establecer una variable"),
+            ("condicionales", "¿Qué pasa si la condición es falsa?", "Entender ramas del if"),
+            ("bucles", "Cuenta de 1 a 5 con un bucle", "Iterar con for o while"),
+            ("funciones", "Crea una función que sume dos números", "Definir y llamar funciones"),
+            ("arrays", "Recorre un array e imprime cada elemento", "Acceso por índice"),
+        ]
+        for tema, enunciado, logro in RETOS:
+            completado = tema in st.session_state.practica_retos_completados
+            with st.container():
+                st.markdown(f"**{tema.title()}** — {enunciado}")
+                if st.button(f"Marcar completado — {logro}", key=f"reto_{tema}", disabled=completado):
+                    st.session_state.practica_retos_completados.add(tema)
+                    st.session_state.practica_logros.append({"tema": tema, "logro": logro})
+                    st.rerun()
+                if completado:
+                    st.caption("Logro desbloqueado")
+            st.markdown("---")
+
+    with col_logros:
+        st.markdown("### Logros desbloqueados")
+        for l in reversed(st.session_state.practica_logros[-10:]):
+            st.markdown(f"- **{l['logro']}** ({l['tema']})")
+        if not st.session_state.practica_logros:
+            st.caption("Completa retos para desbloquear logros.")
+
+    st.markdown("### ¿Sabías que...?")
+    CURIOSIDADES_FALLBACK = [
+        "En muchos lenguajes, las variables se declaran con un tipo (int, String) pero Python infiere el tipo automáticamente.",
+        "Un bucle for recorre una secuencia; un while repite mientras una condición sea verdadera.",
+        "Las funciones permiten reutilizar código: define una vez, usa muchas veces.",
+        "El caso base en recursión es crucial: sin él, la función se llama infinitamente.",
+    ]
+    try:
+        curiosidades = _get_epistemic_curiosities(practica_student)
+    except Exception:
+        curiosidades = []
+    textos = curiosidades if curiosidades else CURIOSIDADES_FALLBACK
+    curiosidad = random.choice(textos)
+    st.info(f"*{curiosidad}*")
+    st.caption(
+        "Curiosidades epistémicas (cognitive_gap_detector)" if curiosidades
+        else "Curiosidades epistémicas — no son preguntas de examen, son pistas para explorar."
+    )
 
 
 # ──────────────────────────────────────────────

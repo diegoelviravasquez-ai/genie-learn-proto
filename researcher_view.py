@@ -484,17 +484,18 @@ def render_researcher_view():
         with diag_col1:
             st.markdown(f"""
             <div style="background: #FFF8E1; border: 2px solid #FFA000; 
-                        border-radius: 12px; padding: 20px; text-align: center;">
+                        border-radius: 12px; padding: 20px; text-align: center;
+                        -webkit-text-fill-color: unset; background-clip: unset;">
                 <div style="font-size: 1.1rem; font-weight: 700; color: #E65100;">
                     HIPÓTESIS PRINCIPAL
                 </div>
-                <div style="font-size: 1.3rem; font-weight: 700; margin-top: 8px;">
+                <div style="font-size: 1.3rem; font-weight: 700; margin-top: 8px; color: #1a1a1a;">
                     {h_info['name']}
                 </div>
-                <div style="font-size: 0.9rem; color: #555; margin-top: 6px;">
+                <div style="font-size: 0.9rem; color: #333333; margin-top: 6px;">
                     {h_info['short']}
                 </div>
-                <div style="margin-top: 10px; font-size: 0.85rem; color: #777;">
+                <div style="margin-top: 10px; font-size: 0.85rem; color: #555555;">
                     Confianza: {diagnosis.confidence:.0%} · VanLehn: {h_info['van_lehn_type']}
                 </div>
             </div>
@@ -655,7 +656,10 @@ def render_researcher_view():
                         "prompt": f"Pregunta simulada {i}",
                         "detected_topics": [BLOOM_LEVELS[a.bloom_level]["name"]],
                         "trust_direction": sdata["trust_signals"][i] if i < len(sdata["trust_signals"]) else 0,
-                        "scaffolding_mode": ["socratic", "hints", "direct"][sdata["scaffolding_levels"][i] % 3] if i < len(sdata["scaffolding_levels"]) else "socratic",
+                        "scaffolding_mode": [
+                            "socratic", "hints", "examples", "analogies",
+                            "direct", "challenge", "rubber_duck", "progressive",
+                        ][i % 8],  # distribuye entre las 8 metodologías
                         "response_time_ms": 1500,
                         "timestamp": (datetime.now() - timedelta(days=7, hours=i * 2)).isoformat(),
                     })
@@ -664,9 +668,19 @@ def render_researcher_view():
             m1, m2 = st.columns(2)
             with m1:
                 if meta.effectiveness_by_strategy:
+                    STRATEGY_LABELS = {
+                        "socratic": "Socrático",
+                        "hints": "Pistas",
+                        "examples": "Ejemplos",
+                        "analogies": "Analogías",
+                        "direct": "Directo",
+                        "challenge": "Desafío",
+                        "rubber_duck": "Rubber Duck",
+                        "progressive": "Progresivo",
+                    }
                     eff_df = pd.DataFrame([
-                        {"Estrategia": k, "Tasa éxito": f"{v:.0%}"}
-                        for k, v in meta.effectiveness_by_strategy.items()
+                        {"Estrategia": STRATEGY_LABELS.get(k, k), "Tasa éxito": f"{v:.0%}"}
+                        for k, v in sorted(meta.effectiveness_by_strategy.items())
                     ])
                     st.dataframe(eff_df, use_container_width=True, hide_index=True)
                 for rec in meta.strategy_recommendations:
