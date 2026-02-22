@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GENIE Learn — Mapa Arquitectónico</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap');
+
+  :root {
+    --bg: #0a0b0f;
+    --bg-card: #12131a;
+    --bg-card-hover: #181a24;
+    --border: #1e2030;
+    --border-active: #3d4266;
+    --text-primary: #e2e4ef;
+    --text-secondary: #8890b5;
+    --text-dim: #505578;
+    --accent-core: #c9a44c;
+    --accent-rag: #4ca89c;
+    --accent-cognitive: #c75d5d;
+    --accent-temporal: #7b68c4;
+    --accent-intervention: #4a90c4;
+    --accent-ethics: #c4884a;
+    --accent-teacher: #5daa6e;
+    --accent-meta: #9c6ec4;
+    --accent-ecology: #5d8dc7;
+    --glow-opacity: 0.08;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .container {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 60px 40px;
+  }
+
+  /* HEADER */
+  header {
+    margin-bottom: 72px;
+    position: relative;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -36px;
+    left: 0;
+    width: 120px;
+    height: 1px;
+    background: var(--accent-core);
+  }
+
+  .header-sup {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent-core);
+  }
+
+  .header-meta {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .header-meta span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: rgba(201,164,76,0.08);
+    color: var(--accent-core);
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-left: 6px;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 48px;
+    margin-bottom: 64px;
+    padding: 28px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  /* NAVIGATION */
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+
+  .nav-tab {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    padding: 10px 18px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nav-tab:hover {
+    border-color: var(--border-active);
+    color: var(--text-primary);
+    background: var(--bg-card);
+  }
+
+  .nav-tab.active {
+    color: var(--text-primary);
+    border-color: var(--border-active);
+    background: var(--bg-card);
+  }
+
+  .nav-tab .tab-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+  }
+
+  /* VIEW CONTAINER */
+  .view-container {
+    position: relative;
+  }
+
+  /* LAYER VIEW */
+  .layer-section {
+    display: none;
+    animation: fadeSlide 0.4s ease;
+  }
+
+  .layer-section.active {
+    display: block;
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .layer-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+
+  .layer-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.12;
+    flex-shrink: 0;
+    width: 80px;
+    text-align: right;
+  }
+
+  .layer-info h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .layer-question {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* ADR CARDS */
+  .adr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 20px;
+    margin-bottom: 48px;
+  }
+
+  .adr-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .adr-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+
+  .adr-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-active);
+    transform: translateY(-2px);
+  }
+
+  .adr-card:hover::before {
+    width: 4px;
+  }
+
+  .adr-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .adr-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .adr-lines {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.03);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+
+  .adr-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.25;
+  }
+
+  .adr-decision {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+
+  .adr-decision strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .adr-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .adr-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.04);
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+  }
+
+  .adr-tag.innovation {
+    background: rgba(201,164,76,0.1);
+    color: var(--accent-core);
+  }
+
+  .adr-expand {
+    display: none;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .adr-card.expanded .adr-expand {
+    display: block;
+    animation: fadeSlide 0.3s ease;
+  }
+
+  .adr-expand h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    margin-top: 16px;
+  }
+
+  .adr-expand h4:first-child { margin-top: 0; }
+
+  .adr-expand p { margin-bottom: 8px; }
+
+  /* GRAPH VIEW */
+  .graph-section {
+    display: none;
+  }
+
+  .graph-section.active {
+    display: block;
+    animation: fadeSlide 0.4s ease;
+  }
+
+  .graph-canvas {
+    width: 100%;
+    min-height: 700px;
+    position: relative;
+  }
+
+  svg.dep-graph {
+    width: 100%;
+    height: 720px;
+  }
+
+  .graph-node {
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+
+  .graph-node:hover .node-bg {
+    stroke-width: 2;
+  }
+
+  .node-bg {
+    rx: 6;
+    ry: 6;
+    stroke-width: 1;
+    transition: all 0.3s ease;
+  }
+
+  .node-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    fill: var(--text-primary);
+    pointer-events: none;
+  }
+
+  .node-sublabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    fill: var(--text-dim);
+    pointer-events: none;
+  }
+
+  .dep-line {
+    stroke-width: 1.5;
+    fill: none;
+    opacity: 0.4;
+    transition: opacity 0.3s ease;
+  }
+
+  .dep-line.highlighted {
+    opacity: 0.9;
+    stroke-width: 2.5;
+  }
+
+  .dep-arrow {
+    fill: var(--text-dim);
+    opacity: 0.5;
+  }
+
+  /* OVERVIEW (all layers) */
+  .overview-section {
+    display: none;
+  }
+
+  .overview-section.active {
+    display: block;
+    animation: fadeSlide 0.4s ease;
+  }
+
+  .overview-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .overview-layer {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 0;
+    min-height: 72px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .overview-layer:hover {
+    border-color: var(--border-active);
+    transform: translateX(4px);
+  }
+
+  .overview-layer-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 16px 20px;
+    position: relative;
+  }
+
+  .overview-layer-label::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .overview-layer-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .overview-layer-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .overview-adrs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+  }
+
+  .overview-adr-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 12px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .overview-layer:hover .overview-adr-chip {
+    border-color: var(--border-active);
+    color: var(--text-primary);
+  }
+
+  /* INNOVATIONS TABLE */
+  .innovations-section {
+    display: none;
+  }
+
+  .innovations-section.active {
+    display: block;
+    animation: fadeSlide 0.4s ease;
+  }
+
+  .innov-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .innov-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .innov-table td {
+    font-size: 13px;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(30,32,48,0.6);
+    vertical-align: top;
+  }
+
+  .innov-table tr:hover td {
+    background: var(--bg-card);
+  }
+
+  .innov-table .module-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .innov-table .status-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  .innov-table .status-badge.novel {
+    background: rgba(201,164,76,0.1);
+    color: var(--accent-core);
+  }
+
+  .innov-table .status-badge.partial {
+    background: rgba(76,168,156,0.1);
+    color: var(--accent-rag);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .container { padding: 32px 20px; }
+    h1 { font-size: 36px; }
+    .stats-bar { gap: 24px; flex-wrap: wrap; }
+    .stat-value { font-size: 28px; }
+    .adr-grid { grid-template-columns: 1fr; }
+    .nav-tabs { gap: 4px; }
+    .nav-tab { font-size: 11px; padding: 8px 12px; }
+    .overview-layer { grid-template-columns: 1fr; }
+    .overview-layer-label::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="header-sup">Architecture Decision Records · Estudio Visual</div>
+    <h1>GENIE Learn — <em>Mapa Arquitectónico</em></h1>
+    <div class="header-meta">
+      Middleware pedagógico · Diego Elvira Vásquez · GSIC/EMIC-UVa
+      <span>CP25/152</span>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value">20</div>
+      <div class="stat-label">Decisiones</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">39</div>
+      <div class="stat-label">Módulos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">35K</div>
+      <div class="stat-label">Líneas Python</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">9</div>
+      <div class="stat-label">Capas funcionales</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">7</div>
+      <div class="stat-label">Innovaciones sin precedente</div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-view="overview">
+      <span class="tab-dot" style="background:var(--text-secondary)"></span>Visión General
+    </button>
+    <button class="nav-tab" data-view="layer-1">
+      <span class="tab-dot" style="background:var(--accent-core)"></span>Infraestructura
+    </button>
+    <button class="nav-tab" data-view="layer-2">
+      <span class="tab-dot" style="background:var(--accent-rag)"></span>RAG
+    </button>
+    <button class="nav-tab" data-view="layer-3">
+      <span class="tab-dot" style="background:var(--accent-cognitive)"></span>Diagnóstico Cognitivo
+    </button>
+    <button class="nav-tab" data-view="layer-4">
+      <span class="tab-dot" style="background:var(--accent-temporal)"></span>Temporal
+    </button>
+    <button class="nav-tab" data-view="layer-5">
+      <span class="tab-dot" style="background:var(--accent-intervention)"></span>Intervenciones
+    </button>
+    <button class="nav-tab" data-view="layer-6">
+      <span class="tab-dot" style="background:var(--accent-ethics)"></span>Ética
+    </button>
+    <button class="nav-tab" data-view="layer-7">
+      <span class="tab-dot" style="background:var(--accent-teacher)"></span>Inteligencia Docente
+    </button>
+    <button class="nav-tab" data-view="layer-8">
+      <span class="tab-dot" style="background:var(--accent-meta)"></span>Meta-Sistema
+    </button>
+    <button class="nav-tab" data-view="layer-9">
+      <span class="tab-dot" style="background:var(--accent-ecology)"></span>Ecología
+    </button>
+    <button class="nav-tab" data-view="graph">
+      <span class="tab-dot" style="background:var(--accent-core)"></span>Dependencias
+    </button>
+    <button class="nav-tab" data-view="innovations">
+      <span class="tab-dot" style="background:var(--accent-core)"></span>Innovaciones
+    </button>
+  </div>
+
+  <div class="view-container" id="viewContainer">
+
+    <!-- OVERVIEW -->
+    <div class="overview-section active" id="view-overview">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--text-secondary)">⊘</div>
+        <div class="layer-info">
+          <h2>Las nueve capas del sistema</h2>
+          <div class="layer-question">De la infraestructura al meta-sistema — cada capa depende de las anteriores y alimenta a las siguientes.</div>
+        </div>
+      </div>
+      <div class="overview-grid" id="overviewGrid"></div>
+    </div>
+
+    <!-- LAYER 1: INFRAESTRUCTURA -->
+    <div class="layer-section" id="view-layer-1">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--accent-core)">I</div>
+        <div class="layer-info">
+          <h2>Infraestructura y Núcleo Computacional</h2>
+          <div class="layer-question">¿Con qué materiales construimos y cómo se comporta el sistema cuando piensa?</div>
+        </div>
+      </div>
+      <div class="adr-grid" id="grid-layer-1"></div>
+    </div>
+
+    <!-- LAYER 2: RAG -->
+    <div class="layer-section" id="view-layer-2">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--accent-rag)">II</div>
+        <div class="layer-info">
+          <h2>Pipeline RAG y Evaluación de Retrieval</h2>
+          <div class="layer-question">¿Cómo recupera el sistema el conocimiento relevante y cómo sabemos que lo hace bien?</div>
+        </div>
+      </div>
+      <div class="adr-grid" id="grid-layer-2"></div>
+    </div>
+
+    <!-- LAYER 3: COGNITIVE -->
+    <div class="layer-section" id="view-layer-3">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--accent-cognitive)">III</div>
+        <div class="layer-info">
+          <h2>Motor de Diagnóstico Cognitivo</h2>
+          <div class="layer-question">¿Cómo detecta GENIE Learn lo que el estudiante sabe, lo que no sabe, y lo que no sabe que no sabe?</div>
+        </div>
+      </div>
+      <div class="adr-grid" id="grid-layer-3"></div>
+    </div>
+
+    <!-- LAYER 4: TEMPORAL -->
+    <div class="layer-section" id="view-layer-4">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--accent-temporal)">IV</div>
+        <div class="layer-info">
+          <h2>Capa Temporal: Consolidación y Memoria</h2>
+          <div class="layer-question">¿Cómo introduce el sistema la dimensión temporal que la mayoría de los sistemas de LA ignoran?</div>
+        </div>
+      </div>
+      <div class="adr-grid" id="grid-layer-4"></div>
+    </div>
+
+    <!-- LAYER 5: INTERVENTIONS -->
+    <div class="layer-section" id="view-layer-5">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--accent-intervention)">V</div>
+        <div class="layer-info">
+          <h2>Intervenciones sobre el Estudiante</h2>
+          <div class="layer-question">¿Cómo interviene GENIE Learn sin ser intrusivo y cómo gestiona la relación de confianza?</div>
+        </div>
+      </div>
+      <div class="adr-grid" id="grid-layer-5"></div>
+    </div>
+
+    <!-- LAYER 6: ETHICS -->
+    <div class="layer-section" id="view-layer-6">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--accent-ethics)">VI</div>
+        <div class="layer-info">
+          <h2>Capa Ética y de Valores</h2>
+          <div class="layer-question">¿Qué tipo de artefacto ético es GENIE Learn? Las decisiones que definen la columna vertebral axiológica.</div>
+        </div>
+      </div>
+      <div class="adr-grid" id="grid-layer-6"></div>
+    </div>
+
+    <!-- LAYER 7: TEACHER -->
+    <div class="layer-section" id="view-layer-7">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--accent-teacher)">VII</div>
+        <div class="layer-info">
+          <h2>Inteligencia Docente</h2>
+          <div class="layer-question">¿Cómo crece el docente al usar el sistema? La pregunta que la mayoría de los sistemas EdTech ignoran.</div>
+        </div>
+      </div>
+      <div class="adr-grid" id="grid-layer-7"></div>
+    </div>
+
+    <!-- LAYER 8: META -->
+    <div class="layer-section" id="view-layer-8">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--accent-meta)">VIII</div>
+        <div class="layer-info">
+          <h2>Meta-Sistema: Investigación y Auto-Reflexión</h2>
+          <div class="layer-question">Donde GENIE Learn deja de ser solo un sistema educativo y se convierte en un instrumento de investigación que se investiga a sí mismo.</div>
+        </div>
+      </div>
+      <div class="adr-grid" id="grid-layer-8"></div>
+    </div>
+
+    <!-- LAYER 9: ECOLOGY -->
+    <div class="layer-section" id="view-layer-9">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--accent-ecology)">IX</div>
+        <div class="layer-info">
+          <h2>Ecología Multi-Nodo</h2>
+          <div class="layer-question">Más allá de la instancia individual: inteligencia colectiva distribuida entre universidades.</div>
+        </div>
+      </div>
+      <div class="adr-grid" id="grid-layer-9"></div>
+    </div>
+
+    <!-- GRAPH VIEW -->
+    <div class="graph-section" id="view-graph">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--accent-core)">⟷</div>
+        <div class="layer-info">
+          <h2>Grafo de Dependencias</h2>
+          <div class="layer-question">Qué ADRs alimentan a otras. Pasa el cursor sobre un nodo para ver sus conexiones.</div>
+        </div>
+      </div>
+      <div class="graph-canvas">
+        <svg class="dep-graph" id="depGraph"></svg>
+      </div>
+    </div>
+
+    <!-- INNOVATIONS -->
+    <div class="innovations-section" id="view-innovations">
+      <div class="layer-header">
+        <div class="layer-number" style="color:var(--accent-core)">★</div>
+        <div class="layer-info">
+          <h2>Innovaciones sin Precedente</h2>
+          <div class="layer-question">Contribuciones que no existen en la literatura publicada de Learning Analytics.</div>
+        </div>
+      </div>
+      <table class="innov-table">
+        <thead>
+          <tr>
+            <th>Innovación</th>
+            <th>Módulo</th>
+            <th>Estado en literatura</th>
+          </tr>
+        </thead>
+        <tbody id="innovBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────
+const layers = [
+  { id: 'layer-1', num: 'I', name: 'Infraestructura', color: '#c9a44c', adrs: ['001','002','007'] },
+  { id: 'layer-2', num: 'II', name: 'Pipeline RAG', color: '#4ca89c', adrs: ['003'] },
+  { id: 'layer-3', num: 'III', name: 'Diagnóstico Cognitivo', color: '#c75d5d', adrs: ['004','008','019'] },
+  { id: 'layer-4', num: 'IV', name: 'Capa Temporal', color: '#7b68c4', adrs: ['013'] },
+  { id: 'layer-5', num: 'V', name: 'Intervenciones', color: '#4a90c4', adrs: ['016','020'] },
+  { id: 'layer-6', num: 'VI', name: 'Ética y Valores', color: '#c4884a', adrs: ['005','006','009','018'] },
+  { id: 'layer-7', num: 'VII', name: 'Inteligencia Docente', color: '#5daa6e', adrs: ['011','012'] },
+  { id: 'layer-8', num: 'VIII', name: 'Meta-Sistema', color: '#9c6ec4', adrs: ['010','015','017'] },
+  { id: 'layer-9', num: 'IX', name: 'Ecología Multi-Nodo', color: '#5d8dc7', adrs: ['014'] },
+];
+
+const adrs = {
+  '001': {
+    title: 'Streamlit sobre Next.js',
+    module: null,
+    lines: null,
+    decision: 'Prototipo en <strong>Streamlit</strong>, no en Next.js. El prototipo es instrumento de investigación, no producto. Velocidad de iteración sobre estética de frontend.',
+    tags: ['streamlit','pragmatismo','prototipo'],
+    expand: '<h4>Lógica</h4><p>Los evaluadores (Bote-Lorenzo, Asensio-Pérez) son ingenieros de telecomunicaciones. Evaluarán la lógica del middleware y el pipeline RAG, no la UI.</p><h4>Deuda técnica</h4><p>Streamlit no escala a 200 concurrentes. Migración planificada en Fase A. El repo incluye 96K líneas React como preparación.</p><h4>Descartadas</h4><p>Next.js + FastAPI (excesivo para prototipo), Gradio (limitado para 4 vistas).</p>'
+  },
+  '002': {
+    title: 'Scaffolding con máquina de estados',
+    module: null,
+    lines: null,
+    decision: '<strong>Máquina de estados explícita</strong> con 4 niveles discretos en el middleware. Los LLMs no tienen memoria fiable entre turnos y cuentan mal.',
+    tags: ['máquina de estados','scaffolding','Saltzer 1984'],
+    expand: '<h4>Separación de conceptos</h4><p>Política (decisión pedagógica del docente) separada del mecanismo (implementación). Principio de Saltzer et al. (1984).</p><h4>Dato publicable</h4><p>"El 60% llegaron al nivel 3 en bucles, pero solo el 20% en recursión."</p><h4>Limitación</h4><p>Transición por conteo de intentos. En producción: análisis semántico de la respuesta.</p>'
+  },
+  '003': {
+    title: 'TF-IDF como baseline experimental',
+    module: null,
+    lines: null,
+    decision: 'El fallback a TF-IDF no es parche de robustez — es <strong>baseline experimental deliberado</strong>. Tres condiciones: RAG-semántico vs. RAG-keywords vs. no-RAG.',
+    tags: ['TF-IDF','baseline','RAGAS','evaluación'],
+    expand: '<h4>Principio</h4><p>Toda afirmación de superioridad técnica exige contrafactual. Sin baseline, no hay medida.</p><h4>Observación</h4><p>TF-IDF es sorprendentemente bueno para documentación técnica con vocabulario específico.</p><h4>Pendiente</h4><p>Implementar RAGAS (faithfulness + answer relevancy + context recall).</p>'
+  },
+  '004': {
+    title: 'ACH para diagnóstico educativo',
+    module: 'ach_diagnostic.py',
+    lines: '517',
+    decision: '<strong>Análisis de Hipótesis Competitivas</strong> (Heuer, 1999) como motor de diagnóstico. Sin datos etiquetados no hay supervisado; ACH opera con razonamiento estructurado sobre evidencia cualitativa.',
+    tags: ['ACH','Heuer 1999','transferencia','innovación'],
+    innovation: true,
+    expand: '<h4>Beneficio a largo plazo</h4><p>Los diagnósticos ACH validados por docentes se convierten en etiquetas de entrenamiento para un clasificador supervisado en Fase C.</p><h4>Origen</h4><p>Máster en Análisis de Inteligencia (LISA-UDIMA). Transferencia genuina entre dominios.</p>'
+  },
+  '005': {
+    title: 'Neurodivergencia: adaptación, no etiqueta',
+    module: 'nd_patterns.py',
+    lines: '500',
+    decision: 'Detecta <strong>patrones funcionales</strong> y sugiere adaptaciones. Nunca genera etiquetas diagnósticas. Diagnosticar es acto clínico; un chatbot no diagnostica.',
+    tags: ['neurodivergencia','VSD','Friedman 2017','ética','innovación'],
+    innovation: true,
+    expand: '<h4>Distinción clave</h4><p>El docente ve "interacción episódica con ráfagas de hiperfoco", no "posible TDAH". La primera describe un patrón; la segunda emite un juicio clínico.</p><h4>Marco</h4><p>Value-Sensitive Design (Friedman et al., 2017).</p><h4>Perfiles</h4><p>TDAH, AACC, perfiles 2e (twice-exceptional).</p>'
+  },
+  '006': {
+    title: 'Alucinaciones pedagógicas controladas',
+    module: null,
+    lines: null,
+    decision: 'Errores deliberados para fomentar lectura crítica, con <strong>flag explícito visible</strong>. Compromiso conservador: advertencia reduce efecto pedagógico pero elimina problema ético.',
+    tags: ['Bjork 1994','desirable difficulties','ética'],
+    expand: '<h4>Tensión</h4><p>Si el estudiante no sabe que la respuesta puede ser incorrecta, el chatbot miente. Solo el 50% de profesores la consideraron útil (LAK 2026).</p><h4>Para el piloto</h4><p>Diseñar experimento con grupo control vs. experimental.</p>'
+  },
+  '007': {
+    title: 'Mock LLM pedagógicamente diferenciado',
+    module: null,
+    lines: null,
+    decision: 'Respuestas mock son <strong>especificación ejecutable</strong>: gold standard contra el que se evalúa si el system prompt produce el comportamiento deseado con LLM real.',
+    tags: ['mock','especificación','gold standard'],
+    expand: '<h4>Doble función</h4><p>1) Demostrar la diferencia entre scaffolding socrático y respuesta directa sin API key. 2) Documentación viva que declara qué debería hacer el sistema.</p>'
+  },
+  '008': {
+    title: 'Silencio Epistémico — medir ausencias',
+    module: 'epistemic_silence_detector.py',
+    lines: '848',
+    decision: 'Detector de <strong>silencios epistémicos</strong>: lo que el estudiante no preguntó cuando estadísticamente debería haberlo hecho. Ningún sistema de LA publicado mide ausencia de eventos.',
+    tags: ['Flavell 1979','Dunning-Kruger','SIGINT','innovación'],
+    innovation: true,
+    expand: '<h4>Fundamentación triple</h4><p>Metacognición (Flavell, 1979): "no saber que no se sabe". Principio SIGINT de ausencia significativa. Holmes en Silver Blaze: "el perro no hizo nada."</p><h4>Innovación</h4><p>Todos los sistemas de LA responden a eventos. Este invierte la lógica: mide la ausencia.</p>'
+  },
+  '009': {
+    title: 'HHH Alignment como auditoría real',
+    module: 'hhh_alignment_detector.py',
+    lines: '737',
+    decision: 'Auditor <strong>HHH</strong> (Helpful, Honest, Harmless) que evalúa cada respuesta después de generarla y antes de entregarla. Los valores se implementan, no solo se declaran.',
+    tags: ['Askell 2021','HHH','VSD','innovación'],
+    innovation: true,
+    expand: '<h4>No-trivialidad</h4><p>En educación, lo más "helpful" a veces es NO responder directamente (Bjork, 1994). El módulo puede bloquear respuestas que no superen umbrales mínimos.</p>'
+  },
+  '010': {
+    title: 'Bucle O3→O1 — retroalimentación de supuestos',
+    module: 'o1_feedback_engine.py',
+    lines: '1819',
+    decision: 'Motor que <strong>cierra el ciclo DSRM</strong>: retroalimenta O1 (escenarios HL) con evidencia empírica de los pilotos. Double-loop learning computacional.',
+    tags: ['DSRM','Argyris-Schön 1978','Popper 1963','innovación'],
+    innovation: true,
+    expand: '<h4>Fundamentación</h4><p>Double-loop learning (Argyris & Schön, 1978): cuestionar los supuestos, no solo ajustar las acciones. Popper (1963): un supuesto sin condiciones de falsación no es ciencia.</p><h4>Implementación</h4><p>Cada O1Assumption lleva un evidence_threshold explícito: el n mínimo para considerar válida la prueba.</p>'
+  },
+  '011': {
+    title: 'Config Genome — fingerprint pedagógico',
+    module: 'config_genome.py',
+    lines: '580',
+    decision: '<strong>Genoma de configuración</strong> que genera fingerprint único para cada combinación de parámetros. Infiere estilo pedagógico de las acciones del docente, no de sus declaraciones.',
+    tags: ['fingerprint','clustering','correlación'],
+    expand: '<h4>Estilos detectados</h4><p>scaffolded_explorer · strict_guardian · permissive_guide · challenge_based · mixed</p><h4>Beneficio</h4><p>Análisis de correlación: "¿qué configuraciones producen mejores resultados?"</p>'
+  },
+  '012': {
+    title: 'Teacher Agency Longitudinal',
+    module: 'teacher_agency_longitudinal.py',
+    lines: '1250',
+    decision: 'Tracker longitudinal de <strong>agencia docente</strong> basado en Priestley, Biesta & Robinson (2015). Tres dimensiones temporales: iterativa (pasado), proyectiva (futuro), práctica-evaluativa (presente).',
+    tags: ['Priestley-Biesta 2015','IFS Score','agencia'],
+    expand: '<h4>Métrica</h4><p>IFS Score (Iteration-Forward-Situation), calculado sobre patrones de cambio de configuración en el tiempo.</p><h4>Principio</h4><p>Un docente que modifica iterativamente en respuesta a datos exhibe más agencia que uno que fija la config el primer día.</p>'
+  },
+  '013': {
+    title: 'Consolidation Detector — spacing effect',
+    module: 'consolidation_detector.py',
+    lines: '1210',
+    decision: 'Detector de consolidación basado en <strong>ventanas temporales de 48-72h</strong>. Distingue cramming, reset y abandono de la consolidación genuina.',
+    tags: ['Bjork 1994','spacing effect','Bloom'],
+    expand: '<h4>Señales de consolidación</h4><p>Preguntas en sesiones separadas 24-72h · Progresión Bloom entre sesiones · Reducción copy-paste · Aumento metacognición.</p><h4>Señales de NO consolidación</h4><p>Cramming (muchas preguntas en una sesión) · Reset (Bloom-1 tras días de inactividad) · Abandono (silencio post-dificultad, conecta con ADR-008).</p>'
+  },
+  '014': {
+    title: 'Cross-Node Signals — inteligencia colectiva',
+    module: 'cross_node_signal.py',
+    lines: '680',
+    decision: '<strong>Señales anónimas entre nodos</strong> universitarios (UC3M, UVa, UPF). Si UC3M detecta dificultad con recursión en semana 3, los demás reciben alerta antes de llegar.',
+    tags: ['federated','privacidad','inteligencia colectiva','innovación'],
+    innovation: true,
+    expand: '<h4>Privacidad</h4><p>Solo patrones estadísticos agregados: "topic X, semana Y, dificultad Z%". Nunca datos individuales. Condicionado por ADR-018 (GDPR).</p>'
+  },
+  '015': {
+    title: 'Paper Drafting Engine',
+    module: 'paper_drafting_engine.py',
+    lines: '920',
+    decision: 'Motor que extrae datos del sistema y genera <strong>secciones académicas</strong>: tablas LaTeX, gráficos para publicación, borradores de resultados. El investigador revisa y aprueba.',
+    tags: ['LaTeX','ACM','IEEE','auto-documentación'],
+    expand: '<h4>Capacidades</h4><p>Estadísticos descriptivos en LaTeX · Gráficos listos para publicación · Borradores de secciones de resultados · Export a ACM, IEEE, Springer.</p><h4>Limitación explícita</h4><p>Genera borradores. No es generación automática de papers — es asistencia estructurada.</p>'
+  },
+  '016': {
+    title: 'Metacognitive Nudges',
+    module: 'metacognitive_nudges.py',
+    lines: '830',
+    decision: '<strong>Nudges metacognitivos calibrados por perfil</strong>. Cuatro tipos: reflexivo, estratégico, afectivo, metacognitivo. Frecuencia e intensidad ajustadas al diagnóstico.',
+    tags: ['nudges','metacognición','calibración'],
+    expand: '<h4>Tipología</h4><p>Reflexivo: "¿Qué parte te cuesta más formular?" · Estratégico: "¿Has intentado descomponer el problema?" · Afectivo: "Es normal sentir frustración" · Metacognitivo: "¿Qué diferencia hay entre esta pregunta y la anterior?"</p>'
+  },
+  '017': {
+    title: 'LLM-as-Judge para evaluación',
+    module: 'llm_judge.py',
+    lines: '310',
+    decision: '<strong>LLM como evaluador</strong> con rúbricas explícitas y calibración contra gold standard humano. Filtro de primer nivel para volumen alto, no reemplazo de evaluación humana.',
+    tags: ['LLM-judge','inter-rater','calibración'],
+    expand: '<h4>Proceso</h4><p>Definir rúbrica → Calibrar contra gold standard → Medir inter-rater reliability → Usar solo donde la concordancia supera umbral.</p>'
+  },
+  '018': {
+    title: 'GDPR Anonymizer — privacidad by design',
+    module: 'gdpr_anonymizer.py',
+    lines: '350',
+    decision: 'Anonimización <strong>en el pipeline de logging</strong>, no en post-proceso. Los datos crudos nunca salen del sistema. Solo datos que cumplen k-anonimidad mínima.',
+    tags: ['GDPR','k-anonimidad','differential privacy','PII'],
+    expand: '<h4>Técnicas</h4><p>Pseudonimización (hash + salt rotativo) · Supresión PII (regex + NER) · K-anonimidad para exports · Differential privacy para agregados.</p>'
+  },
+  '019': {
+    title: 'Cognitive Gap Detector — unknown unknowns',
+    module: 'cognitive_gap_detector.py',
+    lines: '1593',
+    decision: '<strong>Sondas epistémicas</strong> (Firlej, 2024) para descubrir gaps cognitivos no manifestados. ADR-008 detecta ausencias pasivamente; este las busca activamente.',
+    tags: ['Firlej 2024','contrafactual','sondas','innovación'],
+    expand: '<h4>Tipos de sonda</h4><p>"¿Qué diferencia hay entre X e Y?" (distinción) · "¿En qué caso usarías X en vez de Y?" (transferencia) · "¿Qué pasaría si...?" (contrafactual).</p><h4>Ética</h4><p>Las sondas no son evaluación. El estudiante no recibe "nota".</p>'
+  },
+  '020': {
+    title: 'Trust Dynamics — modelo de confianza',
+    module: 'trust_dynamics.py',
+    lines: '267',
+    decision: 'Modelo de <strong>dinámicas de confianza</strong> (Lee & See, 2004). Tres factores: Performance, Process, Purpose. Confianza excesiva → dependencia; insuficiente → abandono.',
+    tags: ['Lee-See 2004','confianza','calibración'],
+    expand: '<h4>Intervenciones</h4><p>Confianza excesiva: aumentar scaffolding socrático, mostrar incertidumbre. Confianza insuficiente: mostrar fuentes RAG, explicar razonamiento.</p>'
+  }
+};
+
+const dependencies = [
+  { from: '008', to: '013', label: 'señal de abandono' },
+  { from: '008', to: '019', label: 'señal pasiva → activa' },
+  { from: '004', to: '016', label: 'calibración por perfil' },
+  { from: '004', to: '020', label: 'ajuste de intervención' },
+  { from: '002', to: '007', label: 'niveles → especificación' },
+  { from: '002', to: '009', label: 'niveles → auditoría' },
+  { from: '011', to: '012', label: 'genoma → evolución temporal' },
+  { from: '003', to: '017', label: 'baseline → evaluación' },
+  { from: '003', to: '010', label: 'baseline → retroalimentación' },
+  { from: '018', to: '014', label: 'GDPR → señales anónimas' },
+];
+
+const innovations = [
+  { name: 'Middleware pedagógico como capa ejecutable', module: 'middleware.py', status: 'partial', statusText: 'Conceptual sí, implementación no' },
+  { name: 'ACH para diagnóstico educativo', module: 'ach_diagnostic.py', status: 'novel', statusText: 'No — transferencia de inteligencia' },
+  { name: 'Detección de silencios epistémicos', module: 'epistemic_silence_detector.py', status: 'novel', statusText: 'No — todos miden presencia, no ausencia' },
+  { name: 'HHH alignment implementado', module: 'hhh_alignment_detector.py', status: 'novel', statusText: 'Declarado en papers, nunca implementado' },
+  { name: 'Bucle O3→O1 instrumentado', module: 'o1_feedback_engine.py', status: 'novel', statusText: 'Double-loop teórico, no computacional' },
+  { name: 'Patrones ND como adaptación funcional', module: 'nd_patterns.py', status: 'novel', statusText: 'Etiquetado sí, adaptación no' },
+  { name: 'Cross-node signals anónimos', module: 'cross_node_signal.py', status: 'novel', statusText: 'No existe en LA educativo' },
+];
+
+// ─── RENDER FUNCTIONS ──────────────────────────────────────────────────
+
+function getLayerForAdr(adrId) {
+  return layers.find(l => l.adrs.includes(adrId));
+}
+
+function renderAdrCard(id) {
+  const a = adrs[id];
+  const layer = getLayerForAdr(id);
+  const color = layer ? layer.color : '#888';
+  return `
+    <div class="adr-card" data-adr="${id}" onclick="toggleCard(this)" style="--card-color:${color}">
+      <div style="position:absolute;top:0;left:0;width:3px;height:100%;background:${color}"></div>
+      <div class="adr-card-header">
+        <span class="adr-id">ADR-${id}</span>
+        ${a.lines ? `<span class="adr-lines">${a.module} · ${a.lines} líneas</span>` : ''}
+      </div>
+      <div class="adr-title">${a.title}</div>
+      <div class="adr-decision">${a.decision}</div>
+      <div class="adr-tags">
+        ${a.tags.map(t => `<span class="adr-tag ${a.innovation && t === 'innovación' ? 'innovation' : ''}">${t}</span>`).join('')}
+      </div>
+      <div class="adr-expand">${a.expand}</div>
+    </div>`;
+}
+
+function toggleCard(el) {
+  el.classList.toggle('expanded');
+}
+
+// Render layer grids
+layers.forEach(layer => {
+  const grid = document.getElementById('grid-' + layer.id);
+  if (grid) {
+    grid.innerHTML = layer.adrs.map(id => renderAdrCard(id)).join('');
+  }
+});
+
+// Render overview
+const overviewGrid = document.getElementById('overviewGrid');
+overviewGrid.innerHTML = layers.map(l => `
+  <div class="overview-layer" onclick="switchView('${l.id}')">
+    <div class="overview-layer-label" style="border-left:3px solid ${l.color}">
+      <div class="overview-layer-name">${l.name}</div>
+      <div class="overview-layer-num">Capa ${l.num} · ${l.adrs.length} ADR${l.adrs.length>1?'s':''}</div>
+    </div>
+    <div class="overview-adrs">
+      ${l.adrs.map(id => `<span class="overview-adr-chip">${id} ${adrs[id].title}</span>`).join('')}
+    </div>
+  </div>
+`).join('');
+
+// Render innovations
+const innovBody = document.getElementById('innovBody');
+innovBody.innerHTML = innovations.map(i => `
+  <tr>
+    <td style="font-weight:500">${i.name}</td>
+    <td class="module-name">${i.module}</td>
+    <td><span class="status-badge ${i.status}">${i.statusText}</span></td>
+  </tr>
+`).join('');
+
+// ─── DEPENDENCY GRAPH ──────────────────────────────────────────────────
+
+function renderGraph() {
+  const svg = document.getElementById('depGraph');
+  const W = svg.clientWidth || 1280;
+  const H = 720;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  // Position nodes in a structured layout
+  const allAdrIds = Object.keys(adrs);
+  const nodePositions = {};
+
+  // Layout: arrange by layer columns
+  const layerX = {};
+  const colWidth = W / (layers.length + 1);
+  layers.forEach((l, i) => {
+    layerX[l.id] = colWidth * (i + 0.7);
+  });
+
+  layers.forEach(l => {
+    const x = layerX[l.id];
+    const spacing = Math.min(120, (H - 160) / Math.max(l.adrs.length, 1));
+    const startY = (H - (l.adrs.length - 1) * spacing) / 2;
+    l.adrs.forEach((id, j) => {
+      nodePositions[id] = { x: x, y: startY + j * spacing, color: l.color, layer: l };
+    });
+  });
+
+  let svgContent = '';
+  // Defs for arrow markers
+  svgContent += `<defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#505578"/>
+    </marker>
+  </defs>`;
+
+  // Draw dependency lines
+  dependencies.forEach((dep, i) => {
+    const from = nodePositions[dep.from];
+    const to = nodePositions[dep.to];
+    if (!from || !to) return;
+
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const cx1 = from.x + dx * 0.4;
+    const cy1 = from.y;
+    const cx2 = from.x + dx * 0.6;
+    const cy2 = to.y;
+
+    svgContent += `<path class="dep-line" data-from="${dep.from}" data-to="${dep.to}"
+      d="M ${from.x + 70} ${from.y} C ${cx1 + 70} ${cy1}, ${cx2 - 70} ${cy2}, ${to.x - 70} ${to.y}"
+      stroke="#505578" marker-end="url(#arrowhead)"/>`;
+  });
+
+  // Draw nodes
+  Object.entries(nodePositions).forEach(([id, pos]) => {
+    const a = adrs[id];
+    const nw = 136, nh = 48;
+    svgContent += `
+      <g class="graph-node" data-node="${id}"
+         onmouseenter="highlightNode('${id}')" onmouseleave="unhighlightNode()">
+        <rect class="node-bg" x="${pos.x - nw/2}" y="${pos.y - nh/2}" width="${nw}" height="${nh}"
+              fill="${pos.color}11" stroke="${pos.color}55"/>
+        <text class="node-label" x="${pos.x}" y="${pos.y - 4}" text-anchor="middle">${a.title.length > 18 ? a.title.substring(0,17) + '…' : a.title}</text>
+        <text class="node-sublabel" x="${pos.x}" y="${pos.y + 14}" text-anchor="middle">ADR-${id}</text>
+      </g>`;
+  });
+
+  svg.innerHTML = svgContent;
+}
+
+function highlightNode(id) {
+  document.querySelectorAll('.dep-line').forEach(line => {
+    const from = line.getAttribute('data-from');
+    const to = line.getAttribute('data-to');
+    if (from === id || to === id) {
+      line.classList.add('highlighted');
+      line.style.stroke = '#c9a44c';
+    } else {
+      line.style.opacity = '0.1';
+    }
+  });
+  document.querySelectorAll('.graph-node').forEach(node => {
+    const nodeId = node.getAttribute('data-node');
+    const connected = dependencies.some(d =>
+      (d.from === id && d.to === nodeId) || (d.to === id && d.from === nodeId) || nodeId === id
+    );
+    if (!connected) node.style.opacity = '0.2';
+  });
+}
+
+function unhighlightNode() {
+  document.querySelectorAll('.dep-line').forEach(line => {
+    line.classList.remove('highlighted');
+    line.style.stroke = '#505578';
+    line.style.opacity = '';
+  });
+  document.querySelectorAll('.graph-node').forEach(node => {
+    node.style.opacity = '';
+  });
+}
+
+// ─── NAVIGATION ────────────────────────────────────────────────────────
+
+function switchView(viewId) {
+  // Hide all views
+  document.querySelectorAll('.layer-section, .overview-section, .graph-section, .innovations-section').forEach(el => {
+    el.classList.remove('active');
+  });
+
+  // Show target
+  const target = document.getElementById('view-' + viewId);
+  if (target) target.classList.add('active');
+
+  // Update tabs
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.view === viewId);
+  });
+
+  // Render graph if needed
+  if (viewId === 'graph') {
+    setTimeout(renderGraph, 50);
+  }
+
+  window.scrollTo({ top: document.querySelector('.nav-tabs').offsetTop - 20, behavior: 'smooth' });
+}
+
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchView(tab.dataset.view));
+});
+
+// Handle resize for graph
+window.addEventListener('resize', () => {
+  if (document.getElementById('view-graph').classList.contains('active')) {
+    renderGraph();
+  }
+});
+</script>
+
+</body>
+</html>
