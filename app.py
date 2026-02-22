@@ -15,6 +15,11 @@ Autor: Diego Elvira Vásquez — Prototipo para entrevista GSIC/EMIC CP25/152
 """
 
 import os
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 import streamlit as st
 import time
 import json
@@ -176,7 +181,7 @@ def init_state():
         st.session_state.rag_loaded = True
         st.session_state.rag_chunks = n
     if "llm" not in st.session_state:
-        st.session_state.llm = get_llm_client()
+        st.session_state.llm = get_llm_client(anthropic_api_key=st.session_state.get("anthropic_api_key", ""))
     if "orchestrator" not in st.session_state:
         llm_adapted = _LLMAdapterForOrchestrator(st.session_state.llm)
         st.session_state.orchestrator = EcosystemOrchestrator(
@@ -184,6 +189,8 @@ def init_state():
             rag_pipeline=st.session_state.rag,
             llm_client=llm_adapted,
         )
+    if "anthropic_api_key" not in st.session_state:
+        st.session_state.anthropic_api_key = ""
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
     if "student_id" not in st.session_state:
@@ -513,9 +520,21 @@ elif view == "Docente — Configuración":
         st.markdown("*(Paper LAK 2026, Ortega-Arranz et al., Sección 3)*")
 
         st.markdown('<div class="config-card">', unsafe_allow_html=True)
+        st.markdown("**API Key de Anthropic (opcional)**")
+        st.text_input(
+            "Pega tu key aquí — solo dura la sesión, no se guarda en archivo",
+            type="password",
+            placeholder="sk-ant-...",
+            help="Si está vacío, usa modo demo con respuestas simuladas.",
+            key="anthropic_api_key",
+        )
+        st.caption("La key se guarda solo en esta sesión. Vacío = modo demo.")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="config-card">', unsafe_allow_html=True)
         st.markdown("**Modelo de IA**")
         has_openai = bool(os.getenv("OPENAI_API_KEY"))
-        has_anthropic = bool(os.getenv("ANTHROPIC_API_KEY"))
+        has_anthropic = bool(st.session_state.get("anthropic_api_key") or os.getenv("ANTHROPIC_API_KEY"))
         model_options = ["gpt-4o-mini", "claude-sonnet", "gpt-4o", "claude-sonnet-4-20250514"]
         model_labels = [
             "gpt-4o-mini" + (" (OpenAI configurada)" if has_openai else ""),
@@ -535,7 +554,12 @@ elif view == "Docente — Configuración":
         if not has_openai and not has_anthropic:
             st.caption("API keys: ninguna configurada — modo demo con respuestas mock.")
         else:
-            st.caption("API keys: " + ", ".join(k for k in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY"] if os.getenv(k)))
+            parts = []
+            if os.getenv("OPENAI_API_KEY"):
+                parts.append("OPENAI_API_KEY")
+            if has_anthropic:
+                parts.append("ANTHROPIC_API_KEY" + (" (sesión)" if st.session_state.get("anthropic_api_key") and not os.getenv("ANTHROPIC_API_KEY") else ""))
+            st.caption("API keys: " + ", ".join(parts))
         st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="config-card">', unsafe_allow_html=True)
@@ -634,6 +658,7 @@ elif view == "Docente — Configuración":
         # Aplicar configuración
         if st.button("Aplicar configuración", type="primary", use_container_width=True):
             st.session_state.config = config
+            st.session_state.llm = get_llm_client(anthropic_api_key=st.session_state.get("anthropic_api_key", ""))
             llm_adapted = _LLMAdapterForOrchestrator(st.session_state.llm)
             st.session_state.orchestrator = EcosystemOrchestrator(
                 config,

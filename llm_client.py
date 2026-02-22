@@ -12,15 +12,16 @@ import time
 import json
 
 
-def get_llm_client():
+def get_llm_client(anthropic_api_key: str = None):
     """
     Factory: devuelve el cliente LLM disponible.
-    Prioridad: ANTHROPIC_API_KEY → claude-sonnet-4-20250514,
+    Prioridad: anthropic_api_key (sesión) → ANTHROPIC_API_KEY (env) → claude,
                OPENAI_API_KEY → gpt-4o-mini,
                si ninguna existe → modo demo (mock).
     """
-    if os.getenv("ANTHROPIC_API_KEY"):
-        return AnthropicClient()
+    api_key = (anthropic_api_key or "").strip() or os.getenv("ANTHROPIC_API_KEY", "")
+    if api_key:
+        return AnthropicClient(api_key=api_key)
     if os.getenv("OPENAI_API_KEY"):
         return OpenAIClient()
     return MockLLMClient()
@@ -227,9 +228,10 @@ class OpenAIClient:
 class AnthropicClient:
     """Cliente para API de Anthropic."""
 
-    def __init__(self):
+    def __init__(self, api_key: str = None):
         import anthropic
-        self.client = anthropic.Anthropic()
+        key = api_key or os.getenv("ANTHROPIC_API_KEY")
+        self.client = anthropic.Anthropic(api_key=key)
         self.model_name = "claude-sonnet-4-20250514"
 
     def chat(self, system_prompt: str, user_prompt: str, context: str = "") -> dict:

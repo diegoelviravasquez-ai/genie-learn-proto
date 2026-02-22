@@ -4,6 +4,7 @@
 
 # === NIVEL 1: DEMO (make run-demo) ===
 # Funciona sin API key, sin base de datos, sin nada externo.
+python-dotenv>=1.0.0
 streamlit>=1.30.0
 plotly>=5.18.0
 pandas>=2.0.0
