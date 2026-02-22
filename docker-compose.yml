@@ -1,0 +1,77 @@
+version: "3.9"
+
+# GENIE Learn — Docker Compose
+# ==============================
+# Levanta el sistema completo con un solo comando:
+#   docker-compose up
+#
+# Requisitos:
+#   - .env con OPENAI_API_KEY (opcional — funciona en modo demo sin ella)
+#   - Docker Desktop instalado
+#
+# Servicios:
+#   streamlit  → http://localhost:8501  (UI estudiante/docente/investigador)
+#   api        → http://localhost:8000  (FastAPI REST + /docs)
+
+services:
+
+  # ── Backend: FastAPI ──────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn api:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GENIE_SECRET_KEY=${GENIE_SECRET_KEY:-genie-learn-dev-key-ONLY-FOR-LOCAL-DEMO}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8501,http://localhost:3000}
+      - RATE_LIMIT_REQUESTS=${RATE_LIMIT_REQUESTS:-60}
+      - ENV=development
+    volumes:
+      - .:/app                          # hot-reload en desarrollo
+      - genie_db:/app/data              # SQLite persistente
+      - genie_chroma:/app/chroma_db     # ChromaDB persistente
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  # ── Frontend: Streamlit ───────────────────────────────────────────
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GENIE_API_URL=http://api:8000    # llama al servicio api interno
+      - ENV=development
+    volumes:
+      - .:/app
+      - genie_db:/app/data
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+# ── Volúmenes persistentes ─────────────────────────────────────────
+volumes:
+  genie_db:
+    driver: local
+  genie_chroma:
+    driver: local

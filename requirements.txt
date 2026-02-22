@@ -1,0 +1,26 @@
+# GENIE Learn Prototype — Dependencies
+# ======================================
+# Tres niveles de instalación según el contexto de uso.
+
+# === NIVEL 1: DEMO (make run-demo) ===
+# Funciona sin API key, sin base de datos, sin nada externo.
+streamlit>=1.30.0
+plotly>=5.18.0
+pandas>=2.0.0
+
+# === NIVEL 2: DESARROLLO (make setup-full) ===
+# Descomenta para RAG con embeddings reales y LLM
+# chromadb>=0.4.22        # vector store — el TFG usa ChromaDB, mantengo compatibilidad
+# PyMuPDF>=1.23.0         # extracción de texto de PDF — mejor que pdftotext para PDFs complejos
+# openai>=1.12.0          # GPT-4o-mini para respuestas + text-embedding-3-small para RAG
+# anthropic>=0.18.0       # Claude como alternativa (útil si OpenAI tiene downtime)
+
+# === NIVEL 3: INVESTIGACIÓN (futuro) ===
+# Para la fase de análisis de datos del piloto
+# scikit-learn>=1.3.0     # clustering de engagement profiles, clasificador supervisado
+# scipy>=1.11.0           # tests estadísticos (Mann-Whitney, Kruskal-Wallis)
+# bertopic>=0.16.0        # topic modeling sobre prompts de estudiantes
+# ragas>=0.1.0            # evaluación de calidad RAG (faithfulness, relevance)
+
+# === TESTING ===
+# pytest>=7.0.0

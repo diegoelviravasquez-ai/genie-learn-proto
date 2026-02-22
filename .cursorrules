@@ -1,0 +1,224 @@
+# GENIE Learn — Cursor AI Rules
+# ================================
+# Reglas específicas para el asistente de Cursor en este proyecto.
+# Proyecto: CP25/152 GSIC/EMIC-UVa · Chatbot Pedagógico con IA Generativa
+
+## CONTEXTO DEL PROYECTO
+
+Este es un prototipo de chatbot educativo con configuraciones pedagógicas docentes.
+El sistema tiene 51 módulos Python (~32K líneas) organizados en 10 categorías.
+
+### Arquitectura de 4 capas principales:
+1. **CORE** (middleware, RAG, LLM) — Flujo de interacción
+2. **ANALYTICS** (Bloom, ICAP, ND patterns) — Análisis cognitivo
+3. **TEMPORAL** (consolidación, latencia) — Análisis inter-sesión
+4. **INFRASTRUCTURE** (API, DB, LTI) — Backend
+
+### Pieza diferencial: middleware.py
+El middleware NO es un wrapper de API. Es la capa que materializa decisiones
+pedagógicas del docente sobre el comportamiento del LLM:
+- max_daily_prompts: límite de consultas
+- scaffolding_mode: socrático → pista → ejemplo → explicación
+- block_direct_solutions: detecta peticiones de código
+- forced_hallucination_pct: errores pedagógicos etiquetados
+- use_rag + no_context_behavior: control de respuestas fuera del temario
+
+## CONVENCIONES DE CÓDIGO
+
+### Docstrings
+Todos los módulos comienzan con:
+```python
+"""
+NOMBRE DEL MÓDULO — Descripción breve
+═══════════════════════════════════════
+PROBLEMA QUE ATACA:
+[Descripción del problema que este módulo resuelve]
+
+FUNDAMENTACIÓN TEÓRICA:
+[Referencias académicas relevantes]
+
+POSICIÓN EN EL ECOSISTEMA:
+[Qué módulos alimentan a este, qué módulos consume]
+"""
+```
+
+### Dataclasses para DTOs
+```python
+from dataclasses import dataclass, field
+from typing import Optional, List
+
+@dataclass
+class ConceptResult:
+    """Resultado de análisis con tipo y metadata."""
+    value: float
+    confidence: float = 0.0
+    metadata: dict = field(default_factory=dict)
+```
+
+### Type hints obligatorios
+```python
+def analyze_prompt(self, text: str, student_id: Optional[str] = None) -> CognitiveAnalysis:
+```
+
+### Logging (no print en producción)
+```python
+import logging
+logger = logging.getLogger(__name__)
+logger.info("Análisis completado: %s", result)
+```
+
+## FRAMEWORKS TEÓRICOS
+
+Cuando trabajes con estos módulos, respeta los frameworks teóricos:
+
+| Módulo | Framework | Referencia |
+|--------|-----------|------------|
+| cognitive_engine.py | Taxonomía de Bloom Revisada | Anderson & Krathwohl, 2001 |
+| cognitive_engine.py | ICAP Framework | Chi & Wylie, 2014 |
+| trust_dynamics.py | Trust in Automation | Lee & See, 2004 |
+| nd_patterns.py | Neurodiversity | Walker, 2014 |
+| udl_adapter.py | Universal Design for Learning | CAST |
+| consolidation_detector.py | Spacing Effect | Cepeda et al., 2006 |
+| consolidation_detector.py | Curva del olvido | Ebbinghaus, 1885 |
+| cognitive_gap_detector.py | Dunning-Kruger Effect | Kruger & Dunning, 1999 |
+| o1_feedback_engine.py | DSRM | Peffers et al., 2007 |
+| o1_feedback_engine.py | Double-loop learning | Argyris & Schön, 1978 |
+
+## DEPENDENCIAS ENTRE MÓDULOS
+
+### Core dependencies (no deben tener imports del ecosistema)
+- middleware.py → standalone
+- rag_pipeline.py → standalone
+- llm_client.py → standalone
+- cognitive_engine.py → standalone
+
+### Analytics (pueden importar de core)
+- cognitive_profiler.py → cognitive_engine
+- nd_patterns.py → standalone
+- trust_dynamics.py → standalone
+
+### Higher-level (pueden importar de analytics)
+- o1_feedback_engine.py → nd_patterns, cognitive_profiler, epistemic_autonomy
+- researcher_view.py → cognitive_analyzer, trust_dynamics, nd_patterns, ach_diagnostic
+
+## TESTS
+
+Los tests usan pytest y siguen el patrón:
+```python
+# test_modulo.py
+import pytest
+from modulo import ClasePrincipal
+
+class TestClasePrincipal:
+    def test_caso_basico(self):
+        obj = ClasePrincipal()
+        result = obj.metodo("input")
+        assert result.value > 0
+
+    def test_caso_limite(self):
+        # Edge cases
+        pass
+```
+
+Ejecutar: `pytest tests/ -v`
+
+## PRIORIDADES ACTUALES
+
+### P0 (CRÍTICO)
+1. Renombrar `cognitive_analyzer__1_.py` → `cognitive_analyzer.py`
+2. Consolidar `api.py` y `api__2_.py`
+3. Implementar migrations Alembic en `database.py`
+
+### P1 (ALTA)
+1. Completar LTI 1.3 en `lti_integration.py`
+2. Añadir tests a `api.py`
+3. Integrar RAGAS en `rag_pipeline.py`
+
+### P2 (MEDIA)
+1. Conectar `metacognitive_nudges.py` → `middleware.py`
+2. Implementar webhooks en `teacher_notification_engine.py`
+
+## PATRONES A EVITAR
+
+❌ No usar print() para debugging — usar logging
+❌ No hardcodear API keys — usar os.getenv()
+❌ No usar mutable default arguments — usar field(default_factory=...)
+❌ No crear imports circulares — respetar la jerarquía de capas
+❌ No modificar el estado global — pasar config como parámetro
+
+## ESTRUCTURA DE RESPUESTAS
+
+Cuando generes código para este proyecto:
+
+1. **Incluye docstring** con PROBLEMA QUE ATACA si es módulo nuevo
+2. **Type hints** en todas las funciones
+3. **Dataclasses** para estructuras de datos
+4. **Tests** en archivo separado test_*.py
+5. **Logging** en vez de print
+
+## EJEMPLO DE MÓDULO BIEN ESTRUCTURADO
+
+```python
+"""
+NUEVO_MODULO — Descripción
+═══════════════════════════════════════
+PROBLEMA QUE ATACA:
+[Por qué existe este módulo]
+
+POSICIÓN EN EL ECOSISTEMA:
+    input_module.py → nuevo_modulo.py → output_module.py
+"""
+
+import logging
+from dataclasses import dataclass, field
+from typing import Optional, List
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class NuevoResultado:
+    """DTO para resultados del análisis."""
+    valor: float
+    confianza: float = 0.0
+    metadata: dict = field(default_factory=dict)
+
+
+class NuevoAnalizador:
+    """
+    Analizador de [cosa].
+    
+    Uso:
+        analyzer = NuevoAnalizador(config)
+        result = analyzer.analyze(input_data)
+    """
+    
+    def __init__(self, config: Optional[dict] = None):
+        self.config = config or {}
+        logger.info("NuevoAnalizador inicializado con config: %s", self.config)
+    
+    def analyze(self, data: str) -> NuevoResultado:
+        """Analiza los datos de entrada."""
+        # Implementación
+        logger.debug("Analizando: %s", data[:50])
+        return NuevoResultado(valor=1.0)
+```
+
+## COMANDOS ÚTILES
+
+```bash
+# Test rápido del core
+python -c "from middleware import PedagogicalMiddleware, PedagogicalConfig; print('✅')"
+
+# Ejecutar Streamlit
+streamlit run app.py
+
+# Tests
+pytest tests/ -v
+
+# Lint
+ruff check .
+
+# Type check
+mypy core/ --ignore-missing-imports
+```
