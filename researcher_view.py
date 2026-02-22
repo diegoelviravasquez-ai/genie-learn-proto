@@ -19,9 +19,20 @@ import random
 from datetime import datetime, timedelta
 
 from cognitive_analyzer import (
-    CognitiveAnalyzer, EngagementProfiler, CognitiveAnalysis, BLOOM_LEVELS,
+    CognitiveAnalyzer, EngagementProfiler, CognitiveAnalysis,
 )
 from cognitive_engine import ICAP_LEVELS
+
+# BLOOM_LEVELS local con todas las claves necesarias (Chi & Wylie 2014 ICAP mapping)
+# Bloom 1-2 → Passive/Active, 3-4 → Active/Constructive, 5-6 → Constructive/Interactive
+BLOOM_LEVELS = {
+    1: {"name": "Recordar", "code": "REMEMBER", "color": "#9E9E9E", "icap_equivalent": "passive"},
+    2: {"name": "Comprender", "code": "UNDERSTAND", "color": "#42A5F5", "icap_equivalent": "active"},
+    3: {"name": "Aplicar", "code": "APPLY", "color": "#66BB6A", "icap_equivalent": "active"},
+    4: {"name": "Analizar", "code": "ANALYZE", "color": "#FFA726", "icap_equivalent": "constructive"},
+    5: {"name": "Evaluar", "code": "EVALUATE", "color": "#EF5350", "icap_equivalent": "constructive"},
+    6: {"name": "Crear", "code": "CREATE", "color": "#AB47BC", "icap_equivalent": "interactive"},
+}
 from trust_dynamics import TrustDynamicsAnalyzer
 from ach_diagnostic import ACHDiagnosticEngine, DIAGNOSTIC_HYPOTHESES
 from nd_patterns import NeurodivergentPatternDetector, InteractionEvent
