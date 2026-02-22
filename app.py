@@ -181,7 +181,7 @@ def init_state():
         st.session_state.rag_loaded = True
         st.session_state.rag_chunks = n
     if "llm" not in st.session_state:
-        st.session_state.llm = get_llm_client(anthropic_api_key=st.session_state.get("anthropic_api_key", ""))
+        st.session_state.llm = get_llm_client()
     if "orchestrator" not in st.session_state:
         llm_adapted = _LLMAdapterForOrchestrator(st.session_state.llm)
         st.session_state.orchestrator = EcosystemOrchestrator(
@@ -658,7 +658,7 @@ elif view == "Docente — Configuración":
         # Aplicar configuración
         if st.button("Aplicar configuración", type="primary", use_container_width=True):
             st.session_state.config = config
-            st.session_state.llm = get_llm_client(anthropic_api_key=st.session_state.get("anthropic_api_key", ""))
+            st.session_state.llm = get_llm_client()
             llm_adapted = _LLMAdapterForOrchestrator(st.session_state.llm)
             st.session_state.orchestrator = EcosystemOrchestrator(
                 config,
