@@ -266,6 +266,21 @@ class EcosystemOrchestrator:
         if SystemReflexivity:
             self._modules["reflexivity"] = SystemReflexivity()
 
+        # CAPA 2: Evaluación de calidad (LLM-as-Judge)
+        if LLMJudge:
+            self._modules["llm_bloom_judge"] = LLMJudge(llm_client=self.llm)
+
+        # CAPA 3: Diagnóstico ACH
+        if ACHDiagnostic:
+            self._modules["ach_diagnostic"] = ACHDiagnostic()
+
+        # CAPA 3: Interacción de configuraciones
+        if ConfigInteractionAnalyzer:
+            genome = self._modules.get("config_genome")
+            self._modules["config_interaction"] = ConfigInteractionAnalyzer(
+                genome_analyzer=genome
+            )
+
     def get_module(self, name: str):
         """Obtiene un módulo por nombre, o None si no está disponible."""
         return self._modules.get(name)
@@ -399,6 +414,10 @@ class EcosystemOrchestrator:
         if hhh:
             result.hhh_alignment = hhh
             result.modules_activated.append("hhh_detector")
+
+        # ─── FASE 8.5: LLM BLOOM JUDGE (validación de clasificación) ────
+
+        self._judge_bloom(prompt, result)
 
         # ─── FASE 9: CALIBRACIÓN DOCENTE ────────────────────────
 
@@ -554,6 +573,18 @@ class EcosystemOrchestrator:
         except Exception:
             return None
 
+    def _judge_bloom(self, prompt: str, result: OrchestratedResult) -> None:
+        """Valida la clasificación Bloom con LLM-as-Judge (si disponible)."""
+        judge = self.get_module("llm_bloom_judge")
+        if not judge:
+            return
+        try:
+            regex_bloom = result.bloom_level if result.bloom_level >= 1 else 2
+            judge.judge(prompt=prompt, regex_bloom=regex_bloom)
+            result.modules_activated.append("llm_bloom_judge")
+        except Exception as e:
+            print(f"  [WARNING] LLM Bloom Judge error: {e}")
+
     def _check_teacher_calibration(
         self, bloom_level: int, scaffolding_level: int
     ) -> Optional[Dict]:
@@ -656,6 +687,52 @@ class EcosystemOrchestrator:
                 result.modules_activated.append("cross_node")
             except Exception:
                 pass
+
+        # ACH Diagnostic: diagnóstico de hipótesis competitivas
+        ach = self.get_module("ach_diagnostic")
+        if ach:
+            try:
+                topic_dist = {t: 1 for t in result.detected_topics}
+                ach.diagnose(
+                    student_id=student_id,
+                    bloom_levels=[result.bloom_level],
+                    bloom_mean=float(result.bloom_level),
+                    bloom_trend=0.0,
+                    metacognitive_ratio=0.0,
+                    copypaste_scores=[result.copy_paste_score],
+                    trust_calibration=0.0,
+                    scaffolding_levels_reached=[result.scaffolding_level],
+                    topic_distribution=topic_dist or {"general": 1},
+                    n_interactions=1,
+                )
+                result.modules_activated.append("ach_diagnostic")
+            except Exception as e:
+                print(f"  [WARNING] ACH Diagnostic error: {e}")
+
+        # Config interaction: registrar observación bajo config actual
+        config_interaction = self.get_module("config_interaction")
+        if config_interaction:
+            try:
+                cfg = self.config
+                active_configs = {
+                    "socratic_scaffolding": cfg.scaffolding_mode == "socratic",
+                    "max_daily_prompts": cfg.max_daily_prompts,
+                    "hallucination_rate": cfg.forced_hallucination_pct,
+                    "block_direct_solutions": cfg.block_direct_solutions,
+                    "use_rag": cfg.use_rag,
+                }
+                metrics = {
+                    "bloom_mean": float(result.bloom_level),
+                    "autonomy_score": result.autonomy_score,
+                    "pedagogical_value": min(1.0, result.bloom_level / 6.0 + 0.2),
+                }
+                config_interaction.record_observation(
+                    active_configs=active_configs,
+                    metrics=metrics,
+                )
+                result.modules_activated.append("config_interaction")
+            except Exception as e:
+                print(f"  [WARNING] Config interaction error: {e}")
 
         # System reflexivity
         reflexivity = self.get_module("reflexivity")
