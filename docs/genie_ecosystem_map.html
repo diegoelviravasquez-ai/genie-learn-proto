@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GENIE Learn — Mapa del Ecosistema</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#08090e;color:#e8e8ed;font-family:'DM Sans',sans-serif;overflow-x:hidden;min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.06);border-radius:3px}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* HEADER */
+.header{padding:48px 40px 20px;max-width:1200px;margin:0 auto}
+.header-label{font-size:12px;font-weight:600;letter-spacing:4px;color:rgba(255,255,255,.2);text-transform:uppercase;margin-bottom:16px}
+.header h1{font-size:clamp(42px,6vw,68px);font-weight:900;letter-spacing:-.03em;line-height:1;background:linear-gradient(135deg,#c4b5fd 0%,#818cf8 40%,#6366f1 70%,#4f46e5 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-sub{font-size:18px;color:rgba(255,255,255,.25);margin-top:14px;line-height:1.6}
+
+/* MEGA STATS */
+.mega-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:rgba(255,255,255,.03);border-radius:20px;overflow:hidden;margin:32px 40px;max-width:1200px;margin-left:auto;margin-right:auto}
+.mega-stat{background:#0c0d14;padding:28px 20px;text-align:center;transition:background .3s}
+.mega-stat:hover{background:#10111a}
+.mega-stat-n{font-size:36px;font-weight:900;letter-spacing:-.02em}
+.mega-stat-l{font-size:11px;color:rgba(255,255,255,.25);margin-top:6px;letter-spacing:.5px;text-transform:uppercase}
+
+/* LAYER SECTION */
+.layers-section{max-width:1200px;margin:48px auto;padding:0 40px}
+.section-title{font-size:13px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.15);text-transform:uppercase;margin-bottom:32px}
+
+/* LAYER ROW */
+.layer{margin-bottom:3px;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.03);transition:all .35s}
+.layer:hover{border-color:rgba(255,255,255,.08);background:rgba(255,255,255,.025)}
+.layer-header{display:flex;align-items:center;padding:18px 24px;cursor:pointer;gap:16px}
+.layer-num{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.layer-name{font-size:18px;font-weight:800;flex:1}
+.layer-desc{font-size:13px;color:rgba(255,255,255,.25);flex:2}
+.layer-count{font-size:13px;color:rgba(255,255,255,.2);text-align:right;min-width:90px}
+.layer-count strong{font-size:18px;font-weight:800;margin-right:3px}
+.layer-arrow{width:20px;height:20px;color:rgba(255,255,255,.15);transition:transform .3s;flex-shrink:0}
+.layer.open .layer-arrow{transform:rotate(90deg)}
+
+/* MODULES GRID */
+.layer-body{display:none;padding:4px 24px 20px;gap:8px}
+.layer.open .layer-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.mod{padding:14px 16px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.03);transition:all .3s;cursor:default;position:relative;overflow:hidden}
+.mod:hover{border-color:rgba(255,255,255,.1);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.mod-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.mod-lines{font-size:11px;color:rgba(255,255,255,.2)}
+.mod-star{position:absolute;top:10px;right:12px;font-size:10px}
+.mod-bar{height:2px;border-radius:1px;margin-top:8px;background:rgba(255,255,255,.03);overflow:hidden}
+.mod-bar-fill{height:100%;border-radius:1px;transition:width 1s ease}
+
+/* PAPERS SECTION */
+.papers-section{max-width:1200px;margin:56px auto;padding:0 40px}
+.papers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.paper{padding:16px 18px;border-radius:12px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.03);transition:all .3s}
+.paper:hover{border-color:rgba(255,255,255,.08);transform:translateY(-2px)}
+.paper-id{font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:6px}
+.paper-title{font-size:13px;color:rgba(255,255,255,.5);line-height:1.5}
+
+/* DOCS SECTION */
+.docs-section{max-width:1200px;margin:56px auto;padding:0 40px}
+.docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.doc{padding:14px 16px;border-radius:10px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.03)}
+.doc-icon{font-size:18px;margin-bottom:8px}
+.doc-name{font-size:13px;font-weight:600}
+.doc-type{font-size:11px;color:rgba(255,255,255,.2);margin-top:2px}
+
+/* CONNECTIONS */
+.connections-section{max-width:1200px;margin:56px auto;padding:0 40px}
+.conn-visual{position:relative;height:420px;border-radius:20px;background:rgba(255,255,255,.01);border:1px solid rgba(255,255,255,.03);overflow:hidden}
+.conn-node{position:absolute;padding:8px 14px;border-radius:8px;font-size:11px;font-weight:700;cursor:default;transition:all .4s;z-index:2;white-space:nowrap}
+.conn-node:hover{transform:scale(1.15);z-index:10}
+
+/* DIMENSIONS */
+.dims-section{max-width:1200px;margin:56px auto;padding:0 40px}
+.dims-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.dim-card{padding:24px;border-radius:16px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.03);text-align:center;transition:all .3s}
+.dim-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.4)}
+.dim-letter{font-size:48px;font-weight:900;line-height:1}
+.dim-name{font-size:14px;font-weight:700;margin-top:8px}
+.dim-q{font-size:12px;color:rgba(255,255,255,.25);margin-top:6px;font-style:italic;line-height:1.5}
+.dim-status{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:12px;padding:4px 10px;border-radius:4px;display:inline-block}
+
+/* DIFFERENTIALS */
+.diff-section{max-width:1200px;margin:56px auto;padding:0 40px 80px}
+.diff-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.diff{padding:24px;border-radius:16px;border:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.015);transition:all .3s}
+.diff:hover{border-color:rgba(255,255,255,.1)}
+.diff-icon{font-size:28px;margin-bottom:12px}
+.diff-title{font-size:17px;font-weight:800}
+.diff-desc{font-size:13px;color:rgba(255,255,255,.3);margin-top:8px;line-height:1.7}
+
+footer{padding:48px 40px;text-align:center;border-top:1px solid rgba(255,255,255,.03)}
+footer p{font-size:12px;color:rgba(255,255,255,.12)}
+
+@media(max-width:768px){
+  .mega-stats{grid-template-columns:repeat(3,1fr)}
+  .dims-grid{grid-template-columns:1fr 1fr}
+  .diff-grid{grid-template-columns:1fr}
+  .layer-desc{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">CP25/152 · GSIC/EMIC · Universidad de Valladolid</div>
+  <h1>Mapa del Ecosistema</h1>
+  <p class="header-sub">Inventario completo de GENIE Learn — cada archivo, cada módulo, cada paper.</p>
+</div>
+
+<div class="mega-stats">
+  <div class="mega-stat"><div class="mega-stat-n" style="color:#a78bfa">59</div><div class="mega-stat-l">.py files</div></div>
+  <div class="mega-stat"><div class="mega-stat-n" style="color:#818cf8">35K</div><div class="mega-stat-l">líneas Python</div></div>
+  <div class="mega-stat"><div class="mega-stat-n" style="color:#6366f1">209</div><div class="mega-stat-l">clases</div></div>
+  <div class="mega-stat"><div class="mega-stat-n" style="color:#4f46e5">97</div><div class="mega-stat-l">dataclasses</div></div>
+  <div class="mega-stat"><div class="mega-stat-n" style="color:#7c3aed">749</div><div class="mega-stat-l">funciones</div></div>
+  <div class="mega-stat"><div class="mega-stat-n" style="color:#8b5cf6">8</div><div class="mega-stat-l">capas</div></div>
+</div>
+
+<!-- 4 DIMENSIONS -->
+<div class="dims-section">
+  <div class="section-title">Las cuatro dimensiones</div>
+  <div class="dims-grid">
+    <div class="dim-card" style="border-color:rgba(100,210,255,.12)">
+      <div class="dim-letter" style="color:#64d2ff">X</div>
+      <div class="dim-name">Observacional</div>
+      <div class="dim-q">¿Qué hace el estudiante?</div>
+      <div class="dim-status" style="background:rgba(100,210,255,.1);color:#64d2ff">Implementada — GenAI Analytics</div>
+    </div>
+    <div class="dim-card" style="border-color:rgba(191,90,242,.12)">
+      <div class="dim-letter" style="color:#bf5af2">Y</div>
+      <div class="dim-name">Configurativa</div>
+      <div class="dim-q">¿Cómo responde el sistema?</div>
+      <div class="dim-status" style="background:rgba(191,90,242,.1);color:#bf5af2">Implementada — Ped. Configs</div>
+    </div>
+    <div class="dim-card" style="border-color:rgba(255,159,10,.12)">
+      <div class="dim-letter" style="color:#ff9f0a">Z</div>
+      <div class="dim-name">Temporal-Evolutiva</div>
+      <div class="dim-q">¿Cómo evoluciona el aprendizaje?</div>
+      <div class="dim-status" style="background:rgba(255,159,10,.1);color:#ff9f0a">Propuesta + prototipo</div>
+    </div>
+    <div class="dim-card" style="border-color:rgba(48,209,88,.12)">
+      <div class="dim-letter" style="color:#30d158">W</div>
+      <div class="dim-name">Ecológico-Relacional</div>
+      <div class="dim-q">¿En qué ecología opera?</div>
+      <div class="dim-status" style="background:rgba(48,209,88,.1);color:#30d158">Propuesta + prototipo</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8 LAYERS -->
+<div class="layers-section">
+  <div class="section-title">8 capas · 47 módulos funcionales · 8 tests</div>
+  <div id="layers-container"></div>
+</div>
+
+<!-- CONNECTION MAP -->
+<div class="connections-section">
+  <div class="section-title">Grafo de dependencias (módulos estrella)</div>
+  <div class="conn-visual" id="conn-map">
+    <canvas id="conn-canvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
+  </div>
+</div>
+
+<!-- PAPERS -->
+<div class="papers-section">
+  <div class="section-title">20 papers de referencia en el proyecto</div>
+  <div class="papers-grid" id="papers-grid"></div>
+</div>
+
+<!-- DOCS -->
+<div class="docs-section">
+  <div class="section-title">Documentación y assets</div>
+  <div class="docs-grid" id="docs-grid"></div>
+</div>
+
+<!-- DIFFERENTIALS -->
+<div class="diff-section">
+  <div class="section-title">Lo que ningún chatbot educativo publicado tiene</div>
+  <div class="diff-grid">
+    <div class="diff"><div class="diff-icon">⚙️</div><div class="diff-title">Middleware pedagógico</div><div class="diff-desc">Las decisiones del docente se materializan como instrucciones ejecutables sobre el LLM. No es un wrapper de API.</div></div>
+    <div class="diff"><div class="diff-icon">🧠</div><div class="diff-title">Unknown unknowns</div><div class="diff-desc">1.593 líneas de grafo epistémico. Sondas de Firlej para descubrir lo que el estudiante no sabe que no sabe.</div></div>
+    <div class="diff"><div class="diff-icon">🔬</div><div class="diff-title">Docente como sujeto</div><div class="diff-desc">IFS score, fingerprint pedagógico, agencia longitudinal. El sistema estudia al docente mientras el docente estudia al alumno.</div></div>
+    <div class="diff"><div class="diff-icon">🪞</div><div class="diff-title">Auto-reflexividad</div><div class="diff-desc">HHH alignment, LLM-as-judge, system reflexivity. El sistema audita si cumple sus propios principios.</div></div>
+    <div class="diff"><div class="diff-icon">📡</div><div class="diff-title">Inteligencia colectiva</div><div class="diff-desc">Señales anónimas UC3M↔UVa↔UPF. Un nodo detecta un problema, los demás se preparan días antes.</div></div>
+    <div class="diff"><div class="diff-icon">📝</div><div class="diff-title">Paper auto-generado</div><div class="diff-desc">paper_drafting_engine.py extrae datos del sistema y genera secciones académicas. El dataset genera su propia publicación.</div></div>
+  </div>
+</div>
+
+<footer><p>GENIE Learn · Diego Elvira Vásquez · Febrero 2026 · 99 archivos · 35.028 líneas Python</p></footer>
+
+<script>
+// ════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════
+const LAYERS = [
+  {
+    name: "Núcleo", desc: "Pipeline end-to-end: prompt → middleware → RAG → LLM → respuesta",
+    color: "#64d2ff", num: 1,
+    modules: [
+      {name:"app.py",lines:635,desc:"Streamlit UI",star:0},
+      {name:"middleware.py",lines:442,desc:"Motor de reglas pedagógicas",star:1},
+      {name:"rag_pipeline.py",lines:376,desc:"PDF→ChromaDB→retrieval",star:0},
+      {name:"llm_client.py",lines:220,desc:"OpenAI / Anthropic / Mock",star:0},
+    ]
+  },
+  {
+    name: "Cognitivo", desc: "Radiografía del aprendizaje: Bloom, ICAP, confianza, gaps, consolidación",
+    color: "#bf5af2", num: 2,
+    modules: [
+      {name:"cognitive_engine.py",lines:358,desc:"Bloom (6) + ICAP",star:0},
+      {name:"cognitive_profiler.py",lines:612,desc:"Perfiles longitudinales",star:1},
+      {name:"cognitive_gap_detector.py",lines:1593,desc:"Unknown unknowns",star:1},
+      {name:"cognitive_pragmatics.py",lines:554,desc:"Análisis pragmático",star:0},
+      {name:"trust_dynamics.py",lines:267,desc:"Confianza Lee & See",star:0},
+      {name:"consolidation_detector.py",lines:1210,desc:"Ventana 48-72h Bjork",star:0},
+      {name:"nd_patterns.py",lines:500,desc:"Neurodivergencia",star:0},
+      {name:"cognitive_analyzer__1_.py",lines:380,desc:"Analyzer v1 (legacy)",star:0},
+    ]
+  },
+  {
+    name: "Docente", desc: "El profesor como sujeto de análisis — calibración, agencia, notificaciones",
+    color: "#ffd60a", num: 3,
+    modules: [
+      {name:"teacher_calibration.py",lines:893,desc:"IFS score",star:1},
+      {name:"teacher_agency_longitudinal.py",lines:1123,desc:"Priestley/Biesta",star:0},
+      {name:"teacher_notification_engine.py",lines:405,desc:"Alertas → docente",star:0},
+      {name:"learning_design_generator.py",lines:957,desc:"Analytics → diseño",star:0},
+      {name:"metacognitive_nudges.py",lines:727,desc:"6 tipos × 3 tonos",star:0},
+    ]
+  },
+  {
+    name: "Ecosistema", desc: "6 sensores distribuidos — eventos, genoma, RAG, cross-node, temporal",
+    color: "#30d158", num: 4,
+    modules: [
+      {name:"system_event_logger.py",lines:783,desc:"Sistema nervioso",star:1},
+      {name:"config_genome.py",lines:539,desc:"Fingerprint docente",star:0},
+      {name:"rag_quality_sensor.py",lines:521,desc:"Rephrase → fallo RAG",star:0},
+      {name:"cross_node_signal.py",lines:640,desc:"UC3M↔UVa↔UPF",star:0},
+      {name:"temporal_config_advisor.py",lines:617,desc:"Calendario académico",star:0},
+      {name:"ecosystem_dashboard.py",lines:501,desc:"Hub 6 módulos",star:0},
+    ]
+  },
+  {
+    name: "Epistémico", desc: "Teoría en código: autonomía, ecología, semiótica, silencio, temporal",
+    color: "#ff375f", num: 5,
+    modules: [
+      {name:"epistemic_autonomy.py",lines:473,desc:"ZPD adaptativa",star:1},
+      {name:"epistemic_ecology.py",lines:545,desc:"4E cognition",star:0},
+      {name:"epistemic_silence_detector.py",lines:847,desc:"Lo que NO preguntan",star:0},
+      {name:"interaction_semiotics.py",lines:599,desc:"Grice, actos de habla",star:0},
+      {name:"temporal_dynamics.py",lines:586,desc:"Micro/meso/macro",star:0},
+      {name:"hhh_alignment_detector.py",lines:736,desc:"Helpful, Honest, Harmless",star:0},
+    ]
+  },
+  {
+    name: "Investigación", desc: "Del dato al paper: piloto, ACH, neurodivergencia, drafting",
+    color: "#ff453a", num: 6,
+    modules: [
+      {name:"pilot_design.py",lines:1274,desc:"Power analysis + clustering",star:0},
+      {name:"paper_drafting_engine.py",lines:800,desc:"Auto-genera paper",star:1},
+      {name:"ach_diagnostic.py",lines:450,desc:"Hipótesis competitivas",star:0},
+      {name:"researcher_view.py",lines:380,desc:"Vista investigador",star:0},
+      {name:"llm_judge.py",lines:350,desc:"LLM-as-judge",star:0},
+    ]
+  },
+  {
+    name: "Plataforma", desc: "Producción: API, auth, DB, LTI, GDPR, analytics bridge",
+    color: "#86868b", num: 7,
+    modules: [
+      {name:"api.py",lines:849,desc:"FastAPI 32 endpoints",star:0},
+      {name:"api__2_.py",lines:720,desc:"API v2 + LTI",star:0},
+      {name:"database.py",lines:310,desc:"SQLite + migraciones",star:0},
+      {name:"auth.py",lines:280,desc:"JWT + roles",star:0},
+      {name:"lti_integration.py",lines:320,desc:"LTI 1.3 Moodle",star:0},
+      {name:"gdpr_anonymizer.py",lines:410,desc:"Anonimización GDPR",star:0},
+    ]
+  },
+  {
+    name: "Meta", desc: "Auto-observación: reflexividad, impact, interaction, effect, config viz",
+    color: "#ac8eff", num: 8,
+    modules: [
+      {name:"system_reflexivity.py",lines:721,desc:"Audita sus principios",star:1},
+      {name:"config_impact_panel.py",lines:832,desc:"Impacto de cambios",star:0},
+      {name:"config_interaction_analyzer.py",lines:866,desc:"Interacción entre configs",star:0},
+      {name:"effect_latency_analyzer.py",lines:580,desc:"Latencia de efectos",star:0},
+      {name:"autonomy_viz.py",lines:770,desc:"Timeline de autonomía",star:0},
+      {name:"integration.py",lines:420,desc:"Enhanced Analytics Layer",star:0},
+      {name:"o1_feedback_engine.py",lines:1818,desc:"Feedback engine o1",star:0},
+    ]
+  }
+];
+
+const TESTS = [
+  "test_cognitive.py","test_middleware.py","test_nd_patterns.py",
+  "test_cognitive_gap_detector.py","test_config_interaction_analyzer.py",
+  "test_consolidation_detector.py","test_effect_latency_analyzer.py",
+  "test_integration__1_.py"
+];
+
+const PAPERS = [
+  {id:"01",title:"Villa-Torrano — SSRL · Computers & Education",color:"#64d2ff"},
+  {id:"02",title:"Alonso-Prieto — Teacher Agency · LASI",color:"#ffd60a"},
+  {id:"03",title:"Martínez-Monés — QUALAS · LASI",color:"#30d158"},
+  {id:"04",title:"Rodríguez-Triana — SNOLA · LASI",color:"#bf5af2"},
+  {id:"05",title:"Alonso-Prieto — Multicase · LASI",color:"#ffd60a"},
+  {id:"06",title:"Preface LASI Spain 2025",color:"#86868b"},
+  {id:"07",title:"Delgado-Kloos — GENIE Learn · CSEDU 2025",color:"#ff375f"},
+  {id:"08",title:"Pishtari — ReflectionApp · LAK25",color:"#64d2ff"},
+  {id:"09",title:"García-Zarza — CHEST · IEEE TLT",color:"#30d158"},
+  {id:"10",title:"Arias-Herguedas — Games · CAEE",color:"#ff453a"},
+  {id:"13",title:"Topali — HCLA/HCAI SLR · BIT",color:"#bf5af2"},
+  {id:"14",title:"Ortega-Arranz — GenAI Analytics · LAK 2026",color:"#ff375f"},
+  {id:"—",title:"JITEL 2025",color:"#86868b"},
+  {id:"—",title:"TESIS-2198 (referencia doctoral)",color:"#86868b"},
+  {id:"—",title:"TFG González Arranz — Chatbot EII",color:"#ac8eff"},
+  {id:"—",title:"TFG Pablo de Arriba — RAG Moodle",color:"#ac8eff"},
+  {id:"—",title:"TFMG2270 (referencia TFM)",color:"#86868b"},
+  {id:"—",title:"Knowledge Elicitation Handbook",color:"#ffd60a"},
+  {id:"—",title:"Tema 1 — Funciones y recursión",color:"#64d2ff"},
+  {id:"—",title:"Tema 2 — Bucles y listas",color:"#64d2ff"},
+];
+
+const DOCS = [
+  {name:"README.md",type:"Markdown",icon:"📄"},
+  {name:"ECOSYSTEM_README.md",type:"Markdown",icon:"🗺️"},
+  {name:"THEORETICAL_FOUNDATIONS.md",type:"Markdown",icon:"📚"},
+  {name:"DESIGN_DECISIONS.md",type:"Markdown",icon:"⚖️"},
+  {name:"DESIGN_RATIONALE.py",type:"Python doc",icon:"💡"},
+  {name:"PROTO_README.md",type:"Markdown",icon:"🔧"},
+  {name:"DIA1_README.md",type:"Markdown",icon:"📅"},
+  {name:"PROMPT_CURSOR_COMPOSER.md",type:"Markdown",icon:"🤖"},
+  {name:"dimensiones_invisibles.docx",type:"Word",icon:"🔮"},
+  {name:"Briefing_Forense.docx",type:"Word",icon:"🔍"},
+  {name:"Tractatus_de_Limitibus_IA.docx",type:"Word",icon:"📜"},
+  {name:"Bloque2_Analisis_Datos.docx",type:"Word",icon:"📊"},
+  {name:"genie_demo.jsx",type:"React",icon:"⚛️"},
+  {name:"genie_learn_frontend.jsx",type:"React",icon:"⚛️"},
+  {name:"Dockerfile",type:"Docker",icon:"🐳"},
+  {name:"docker-compose.yml",type:"Docker",icon:"🐳"},
+  {name:"Makefile",type:"Build",icon:"🔨"},
+  {name:"requirements.txt",type:"Python deps",icon:"📦"},
+];
+
+// ════════════════════════════════════════
+// RENDER LAYERS
+// ════════════════════════════════════════
+const maxLines = 1818;
+const lc = document.getElementById('layers-container');
+
+LAYERS.forEach((layer, li) => {
+  const totalLines = layer.modules.reduce((s,m)=>s+m.lines,0);
+  const div = document.createElement('div');
+  div.className = 'layer';
+  div.innerHTML = `
+    <div class="layer-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="layer-num" style="background:${layer.color}15;color:${layer.color}">${layer.num}</div>
+      <div class="layer-name" style="color:${layer.color}">${layer.name}</div>
+      <div class="layer-desc">${layer.desc}</div>
+      <div class="layer-count"><strong>${layer.modules.length}</strong> mód · <span class="mono" style="font-size:12px">${(totalLines/1000).toFixed(1)}K</span></div>
+      <svg class="layer-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+    </div>
+    <div class="layer-body">
+      ${layer.modules.map(m => `
+        <div class="mod">
+          ${m.star ? '<div class="mod-star">⭐</div>' : ''}
+          <div class="mod-name" style="color:${layer.color}">${m.name}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:4px">${m.desc}</div>
+          <div class="mod-lines mono">${m.lines} líneas</div>
+          <div class="mod-bar"><div class="mod-bar-fill" style="width:${(m.lines/maxLines)*100}%;background:${layer.color};opacity:.5"></div></div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  lc.appendChild(div);
+});
+
+// Add tests layer
+const testDiv = document.createElement('div');
+testDiv.className = 'layer';
+testDiv.innerHTML = `
+  <div class="layer-header" onclick="this.parentElement.classList.toggle('open')">
+    <div class="layer-num" style="background:rgba(255,255,255,.05);color:rgba(255,255,255,.3)">T</div>
+    <div class="layer-name" style="color:rgba(255,255,255,.3)">Tests</div>
+    <div class="layer-desc">Suite de verificación</div>
+    <div class="layer-count"><strong>8</strong> tests</div>
+    <svg class="layer-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+  </div>
+  <div class="layer-body">
+    ${TESTS.map(t => `<div class="mod"><div class="mod-name" style="color:rgba(255,255,255,.35)">${t}</div></div>`).join('')}
+  </div>
+`;
+lc.appendChild(testDiv);
+
+// ════════════════════════════════════════
+// RENDER PAPERS
+// ════════════════════════════════════════
+const pg = document.getElementById('papers-grid');
+PAPERS.forEach(p => {
+  pg.innerHTML += `<div class="paper"><div class="paper-id mono" style="color:${p.color}">${p.id}</div><div class="paper-title">${p.title}</div></div>`;
+});
+
+// ════════════════════════════════════════
+// RENDER DOCS
+// ════════════════════════════════════════
+const dg = document.getElementById('docs-grid');
+DOCS.forEach(d => {
+  dg.innerHTML += `<div class="doc"><div class="doc-icon">${d.icon}</div><div class="doc-name">${d.name}</div><div class="doc-type">${d.type}</div></div>`;
+});
+
+// ════════════════════════════════════════
+// CONNECTION MAP
+// ════════════════════════════════════════
+const starModules = [
+  {name:"middleware.py",x:50,y:50,color:"#64d2ff"},
+  {name:"cognitive_gap_detector.py",x:25,y:30,color:"#bf5af2"},
+  {name:"system_event_logger.py",x:75,y:30,color:"#30d158"},
+  {name:"teacher_calibration.py",x:30,y:70,color:"#ffd60a"},
+  {name:"epistemic_autonomy.py",x:70,y:70,color:"#ff375f"},
+  {name:"paper_drafting_engine.py",x:50,y:88,color:"#ff453a"},
+  {name:"system_reflexivity.py",x:85,y:55,color:"#ac8eff"},
+  {name:"cognitive_profiler.py",x:15,y:55,color:"#bf5af2"},
+];
+
+const connections = [
+  [0,1],[0,2],[0,3],[0,4],[0,5],
+  [1,7],[2,5],[2,6],[3,2],[3,4],
+  [4,7],[5,2],[6,0],[6,2]
+];
+
+const cmap = document.getElementById('conn-map');
+const canvas = document.getElementById('conn-canvas');
+const ctx = canvas.getContext('2d');
+
+function drawConnections() {
+  const w = cmap.clientWidth;
+  const h = cmap.clientHeight;
+  canvas.width = w * 2;
+  canvas.height = h * 2;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  ctx.scale(2, 2);
+
+  // Clear existing nodes
+  cmap.querySelectorAll('.conn-node').forEach(n => n.remove());
+
+  // Draw connections
+  connections.forEach(([a,b]) => {
+    const ax = starModules[a].x/100*w, ay = starModules[a].y/100*h;
+    const bx = starModules[b].x/100*w, by = starModules[b].y/100*h;
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(bx, by);
+    ctx.strokeStyle = 'rgba(255,255,255,.04)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Draw nodes
+  starModules.forEach(m => {
+    const node = document.createElement('div');
+    node.className = 'conn-node';
+    node.style.cssText = `left:${m.x}%;top:${m.y}%;transform:translate(-50%,-50%);background:${m.color}12;border:1px solid ${m.color}30;color:${m.color}`;
+    node.textContent = m.name.replace('.py','');
+    cmap.appendChild(node);
+  });
+}
+
+drawConnections();
+window.addEventListener('resize', drawConnections);
+
+// Open first layer by default
+document.querySelector('.layer').classList.add('open');
+</script>
+</body>
+</html>

@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GENIE Learn — Mapa de Papers y Relaciones</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: linear-gradient(180deg, #1a1d2e 0%, #0f1117 100%);
+  }
+  .header h1 {
+    font-size: 2.2em;
+    font-weight: 800;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header p { color: #94a3b8; font-size: 0.95em; }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 16px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8em;
+    color: #94a3b8;
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px 20px;
+    flex-wrap: wrap;
+  }
+  .tab {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1px solid #2d3348;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85em;
+    transition: all 0.3s;
+  }
+  .tab:hover { border-color: #60a5fa; color: #60a5fa; }
+  .tab.active { background: #60a5fa; color: #0f1117; border-color: #60a5fa; font-weight: 600; }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* ── FLOW SECTION ── */
+  .flow-section {
+    margin-bottom: 40px;
+  }
+  .flow-title {
+    font-size: 1.1em;
+    font-weight: 700;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .flow-title .num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85em;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  /* ── CARDS ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .card {
+    background: #1a1d2e;
+    border: 1px solid #2d3348;
+    border-radius: 12px;
+    padding: 18px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+  }
+  .card:hover {
+    border-color: #4a5568;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .card-ref {
+    font-size: 0.7em;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .card-pages {
+    font-size: 0.7em;
+    color: #64748b;
+    padding: 3px 8px;
+    background: #0f1117;
+    border-radius: 4px;
+  }
+  .card-title {
+    font-size: 0.95em;
+    font-weight: 700;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .card-desc {
+    font-size: 0.82em;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .tag {
+    font-size: 0.68em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid;
+    font-weight: 500;
+  }
+  .card-filename {
+    font-size: 0.7em;
+    color: #475569;
+    margin-top: 8px;
+    font-family: monospace;
+    word-break: break-all;
+  }
+
+  /* ── CONNECTION ARROWS ── */
+  .connection-box {
+    background: #12141f;
+    border: 1px dashed #2d3348;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 10px 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .conn-arrow {
+    color: #60a5fa;
+    font-size: 1.2em;
+    flex-shrink: 0;
+  }
+  .conn-text {
+    font-size: 0.82em;
+    color: #cbd5e1;
+    line-height: 1.5;
+  }
+  .conn-text strong { color: #f472b6; }
+
+  /* ── COLORS PER CATEGORY ── */
+  .cat-nuclear .card::before { background: #f43f5e; }
+  .cat-nuclear .card-ref { background: #f43f5e22; color: #f43f5e; }
+  .cat-nuclear .tag { border-color: #f43f5e44; color: #f43f5e; }
+  
+  .cat-tfg .card::before { background: #f59e0b; }
+  .cat-tfg .card-ref { background: #f59e0b22; color: #f59e0b; }
+  .cat-tfg .tag { border-color: #f59e0b44; color: #f59e0b; }
+  
+  .cat-theory .card::before { background: #8b5cf6; }
+  .cat-theory .card-ref { background: #8b5cf622; color: #8b5cf6; }
+  .cat-theory .tag { border-color: #8b5cf644; color: #8b5cf6; }
+
+  .cat-context .card::before { background: #06b6d4; }
+  .cat-context .card-ref { background: #06b6d422; color: #06b6d4; }
+  .cat-context .tag { border-color: #06b6d444; color: #06b6d4; }
+
+  .cat-extra .card::before { background: #64748b; }
+  .cat-extra .card-ref { background: #64748b22; color: #64748b; }
+  .cat-extra .tag { border-color: #64748b44; color: #64748b; }
+
+  /* ── FLOW DIAGRAM ── */
+  .megaflow {
+    background: #12141f;
+    border: 1px solid #2d3348;
+    border-radius: 16px;
+    padding: 30px;
+    margin: 30px 0;
+    overflow-x: auto;
+  }
+  .flow-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .flow-node {
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.78em;
+    font-weight: 600;
+    text-align: center;
+    min-width: 140px;
+    max-width: 200px;
+    line-height: 1.3;
+    position: relative;
+  }
+  .flow-arrow {
+    font-size: 1.5em;
+    color: #4a5568;
+    padding: 0 6px;
+    flex-shrink: 0;
+  }
+  .flow-arrow-down {
+    text-align: center;
+    font-size: 1.5em;
+    color: #4a5568;
+    margin: 4px 0;
+  }
+  .flow-label {
+    font-size: 0.7em;
+    color: #64748b;
+    text-align: center;
+    margin: 2px 0;
+    font-style: italic;
+  }
+
+  .fn-red { background: #f43f5e22; border: 1px solid #f43f5e55; color: #fda4af; }
+  .fn-orange { background: #f59e0b22; border: 1px solid #f59e0b55; color: #fcd34d; }
+  .fn-purple { background: #8b5cf622; border: 1px solid #8b5cf655; color: #c4b5fd; }
+  .fn-blue { background: #3b82f622; border: 1px solid #3b82f655; color: #93c5fd; }
+  .fn-teal { background: #06b6d422; border: 1px solid #06b6d455; color: #67e8f9; }
+  .fn-green { background: #10b98122; border: 1px solid #10b98155; color: #6ee7b7; }
+  .fn-pink { background: #ec489922; border: 1px solid #ec489955; color: #f9a8d4; }
+  .fn-gray { background: #64748b22; border: 1px solid #64748b55; color: #94a3b8; }
+  .fn-you { background: #f472b622; border: 2px solid #f472b6; color: #f9a8d4; box-shadow: 0 0 15px #f472b633; }
+
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #2d3348, transparent);
+    margin: 40px 0;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, #1e1b4b, #1a1d2e);
+    border: 1px solid #4338ca;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .highlight-box h3 {
+    color: #a78bfa;
+    font-size: 0.95em;
+    margin-bottom: 10px;
+  }
+  .highlight-box p {
+    font-size: 0.85em;
+    color: #c4b5fd;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 768px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .flow-row { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+    .header h1 { font-size: 1.5em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>GENIE LEARN</h1>
+  <p>Mapa completo de papers, relaciones y flujo del proyecto — Entrevista GSIC/EMIC</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#f43f5e"></div>Nuclear (te preguntan)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>TFGs (heredas código)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div>Teoría fundacional</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#06b6d4"></div>Contexto grupo</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#64748b"></div>Lectura complementaria</div>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- MEGA FLOW DIAGRAM -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="megaflow">
+  <div style="text-align:center; margin-bottom:20px;">
+    <span style="font-size:1.1em; font-weight:700; color:#e2e8f0;">FLUJO: Cómo se conecta todo</span>
+  </div>
+
+  <!-- Row 1: Foundations -->
+  <div class="flow-label">CAPA 1 — Fundamentos teóricos (el suelo)</div>
+  <div class="flow-row">
+    <div class="flow-node fn-purple">🟣 Peffers 2007<br>DSRM</div>
+    <div class="flow-arrow">+</div>
+    <div class="flow-node fn-purple">🟣 Shneiderman<br>HCAI</div>
+    <div class="flow-arrow">+</div>
+    <div class="flow-node fn-purple">🟣 Friedman<br>VSD</div>
+    <div class="flow-arrow">+</div>
+    <div class="flow-node fn-purple">🟣 Askell 2021<br>HHH</div>
+    <div class="flow-arrow">+</div>
+    <div class="flow-node fn-purple">🟣 Lewis 2020<br>RAG</div>
+  </div>
+  
+  <div class="flow-arrow-down">▼</div>
+  <div class="flow-label">fundamentan</div>
+
+  <!-- Row 2: Project definition -->
+  <div class="flow-label">CAPA 2 — Definición del proyecto</div>
+  <div class="flow-row">
+    <div class="flow-node fn-red" style="min-width:300px;">🔴 Delgado-Kloos CSEDU 2025<br><small>Paper fundacional: 6 WPs, DSRM, HCAI</small></div>
+  </div>
+
+  <div class="flow-arrow-down">▼</div>
+  <div class="flow-label">define la arquitectura que</div>
+
+  <!-- Row 3: Reviews that shape design -->
+  <div class="flow-label">CAPA 3 — Reviews que dan forma al diseño</div>
+  <div class="flow-row">
+    <div class="flow-node fn-red">🔴 Topali BIT 2024<br><small>SLR HCLA/HCAI<br>→ 3 gaps</small></div>
+    <div class="flow-arrow">+</div>
+    <div class="flow-node fn-red">🔴 Villa-Torrano C&E<br><small>SLR Autorregulación<br>→ SRL+LD+LA</small></div>
+    <div class="flow-arrow">+</div>
+    <div class="flow-node fn-red">🔴 Alonso-Prieto LASI<br><small>Teacher Agency<br>→ constructo ecológico</small></div>
+  </div>
+
+  <div class="flow-arrow-down">▼</div>
+  <div class="flow-label">informan el diseño del</div>
+
+  <!-- Row 4: The prototype -->
+  <div class="flow-label">CAPA 4 — El artefacto técnico</div>
+  <div class="flow-row">
+    <div class="flow-node fn-orange">🟠 TFG Pablo de Arriba<br><small>Chatbot RAG + Moodle LTI<br>= prototipo Ciclo 2</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node fn-red" style="min-width:250px;">🔴 Ortega-Arranz LAK 2026<br><small>+ GenAI Analytics<br>+ Pedagogical Configs<br>+ evaluación 16 profes</small></div>
+  </div>
+
+  <div class="flow-arrow-down">▼</div>
+  <div class="flow-label">el paper identifica limitaciones que</div>
+
+  <!-- Row 5: YOU -->
+  <div class="flow-row">
+    <div class="flow-node fn-you" style="min-width:350px; font-size:0.9em;">
+      ⭐ TU CONTRIBUCIÓN (CP25/152)<br>
+      <small>cognitive_profiler · middleware · trust_dynamics<br>
+      config_genome · ach_diagnostic · nd_patterns<br>
+      Analytics de alto nivel + 3ª y 4ª dimensión</small>
+    </div>
+  </div>
+
+  <div class="flow-arrow-down">▼</div>
+  <div class="flow-label">alimenta datos a</div>
+
+  <!-- Row 6: Parallel lines -->
+  <div class="flow-label">CAPA 6 — Líneas paralelas del grupo</div>
+  <div class="flow-row">
+    <div class="flow-node fn-teal">🔵 Pishtari LAK25<br><small>ReflectionApp<br>Scaffolding reflexivo</small></div>
+    <div class="flow-arrow">‖</div>
+    <div class="flow-node fn-teal">🔵 García-Zarza TLT<br><small>CHEST + LOD<br>→ posible paper conjunto</small></div>
+    <div class="flow-arrow">‖</div>
+    <div class="flow-node fn-teal">🔵 Martínez-Monés<br><small>QUALAS<br>LA en secundaria</small></div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION 1: NUCLEAR -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="flow-section">
+  <div class="flow-title" style="background:#f43f5e15; border:1px solid #f43f5e33;">
+    <div class="num" style="background:#f43f5e; color:#fff;">6</div>
+    <span style="color:#fda4af;">PAPERS NUCLEARES — Te van a preguntar sobre estos</span>
+  </div>
+  
+  <div class="cards-grid cat-nuclear">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-ref">LAK 2026</span>
+        <span class="card-pages">7 pp · IMPRIMIR</span>
+      </div>
+      <div class="card-title">Ortega-Arranz et al. — GenAI Analytics</div>
+      <div class="card-desc"><strong>Qué es:</strong> Estudio de evaluación con 16 profesores. Valoran GenAI Analytics + Pedagogical Configurations. NPS +6.25 vs ChatGPT −25.<br><strong>Lo nombras:</strong> "el paper de LAK", "el estudio con los 16 profesores"<br><strong>Te sirve para:</strong> Justificar que tus analytics de alto nivel atacan la limitación explícita que declara.</div>
+      <div class="card-tags">
+        <span class="tag">WP2-WP3</span><span class="tag">E3 Middleware</span><span class="tag">E5 Analytics</span>
+      </div>
+      <div class="card-filename">14_Ortega-Arranz_2026_GenAI_Analytics_...</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-ref">CSEDU 2025</span>
+        <span class="card-pages">12 pp · IMPRIMIR</span>
+      </div>
+      <div class="card-title">Delgado-Kloos et al. — GENIE Learn (Best Paper)</div>
+      <div class="card-desc"><strong>Qué es:</strong> Paper fundacional. 6 WPs, 3 nodos (UC3M, UVa, UPF), DSRM en 3 ciclos, visión HCAI.<br><strong>Lo nombras:</strong> "el paper fundacional", "el paper de CSEDU"<br><strong>Te sirve para:</strong> Ubicar dónde encajas (WP3+WP4, ciclos 2-3).</div>
+      <div class="card-tags">
+        <span class="tag">Arquitectura</span><span class="tag">DSRM</span><span class="tag">HCAI</span>
+      </div>
+      <div class="card-filename">07_Delgado-Kloos_2025_GENIE_Learn_CS...</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-ref">C&E 2025</span>
+        <span class="card-pages">19 pp · IMPRIMIR</span>
+      </div>
+      <div class="card-title">Villa-Torrano et al. — SSRL + LD + LA</div>
+      <div class="card-desc"><strong>Qué es:</strong> SLR sobre autorregulación (SRL/SSRL) + Learning Design + Learning Analytics. Marco Winne & Hadwin.<br><strong>Lo nombras:</strong> "la revisión de Villa-Torrano", "el SLR de autorregulación"<br><strong>Te sirve para:</strong> Justificar que tu middleware implementa affordances de autorregulación.</div>
+      <div class="card-tags">
+        <span class="tag">SRL</span><span class="tag">Winne&Hadwin</span><span class="tag">E3 Middleware</span>
+      </div>
+      <div class="card-filename">01_Villa-Torrano_2025_SSRL_ComputersE...</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-ref">LASI 2025</span>
+        <span class="card-pages">10 pp · IMPRIMIR</span>
+      </div>
+      <div class="card-title">Alonso-Prieto et al. — Teacher Agency</div>
+      <div class="card-desc"><strong>Qué es:</strong> Estudio multicaso de agencia docente frente a tecnologías inteligentes. Marco Priestley/Biesta/Robinson.<br><strong>Lo nombras:</strong> "el estudio de agencia docente", "el multicaso de teacher agency"<br><strong>Te sirve para:</strong> Tu middleware materializa agencia. config_genome.py genera datos para su línea.</div>
+      <div class="card-tags">
+        <span class="tag">Agencia</span><span class="tag">Co-diseño</span><span class="tag">config_genome</span>
+      </div>
+      <div class="card-filename">02_Alonso-Prieto_2025_TeacherAgency_L...</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-ref">BIT 2024</span>
+        <span class="card-pages">29 pp · IMPRIMIR</span>
+      </div>
+      <div class="card-title">Topali et al. — HCLA / HCAI Review</div>
+      <div class="card-desc"><strong>Qué es:</strong> SLR de 47 estudios empíricos. Identifica 3 gaps: falta evaluación impacto, diseño sin co-diseño, sin teorías del aprendizaje.<br><strong>Lo nombras:</strong> "la revisión de Topali", "el SLR de HCLA/HCAI"<br><strong>Te sirve para:</strong> Tu sistema cierra el gap 3 — cada módulo encapsula una teoría explícita.</div>
+      <div class="card-tags">
+        <span class="tag">3 gaps</span><span class="tag">HCAI</span><span class="tag">THEORETICAL_FOUNDS</span>
+      </div>
+      <div class="card-filename">13_Topali_2024_HCLA_HCAI_SLR_BIT</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-ref">IEEE TLT 2025</span>
+        <span class="card-pages">15 pp · IMPRIMIR</span>
+      </div>
+      <div class="card-title">García-Zarza et al. — CHEST</div>
+      <div class="card-desc"><strong>Qué es:</strong> Herramienta u-learning + Linked Open Data para patrimonio cultural. REST + ontología propia.<br><strong>Lo nombras:</strong> "el paper de CHEST", "el paper de LOD"<br><strong>Te sirve para:</strong> Convergencia GenAI+LOD → posible paper conjunto. Mismo patrón de agencia docente.</div>
+      <div class="card-tags">
+        <span class="tag">LOD</span><span class="tag">u-learning</span><span class="tag">paper conjunto</span>
+      </div>
+      <div class="card-filename">09_Garcia-Zarza_2025_CHEST_IEEE-TLT</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION 2: TFGs -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="flow-section">
+  <div class="flow-title" style="background:#f59e0b15; border:1px solid #f59e0b33;">
+    <div class="num" style="background:#f59e0b; color:#fff;">2</div>
+    <span style="color:#fcd34d;">TFGs — El código que heredas</span>
+  </div>
+  
+  <div class="cards-grid cat-tfg">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-ref">TFG UVa 2025</span>
+        <span class="card-pages">100 pp · IMPRIMIR PARCIAL (~35pp)</span>
+      </div>
+      <div class="card-title">Pablo de Arriba — Chatbot RAG + Moodle</div>
+      <div class="card-desc"><strong>Qué es:</strong> EL CODEBASE QUE HEREDAS. Pipeline RAG completo + integración Moodle vía LTI + ChromaDB + interfaz chat.<br><strong>Lo nombras:</strong> "el TFG de Pablo", "el prototipo base"<br><strong>Te sirve para:</strong> Es tu punto de partida técnico. Lo extiendes con middleware + analytics.</div>
+      <div class="card-tags">
+        <span class="tag">E1 Infra</span><span class="tag">E2 RAG</span><span class="tag">LTI</span><span class="tag">ChromaDB</span>
+      </div>
+      <div class="card-filename">TFG_Pablo_de_Arriba_Chatbot_RAG_Moo...</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-ref">TFG UVa</span>
+        <span class="card-pages">? pp · ARCHIVO CORRUPTO</span>
+      </div>
+      <div class="card-title">González Arranz — Chatbot EII</div>
+      <div class="card-desc"><strong>Qué es:</strong> Otro chatbot para la Escuela de Informática. Referencia secundaria.<br><strong>Lo nombras:</strong> No necesitas nombrarlo.<br><strong>Te sirve para:</strong> Comparación de enfoques si te lo preguntan.</div>
+      <div class="card-tags">
+        <span class="tag">secundario</span>
+      </div>
+      <div class="card-filename">TFG_Gonzalez_Arranz_Chatbot_EII</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION 3: THEORY -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="flow-section">
+  <div class="flow-title" style="background:#8b5cf615; border:1px solid #8b5cf633;">
+    <div class="num" style="background:#8b5cf6; color:#fff;">7</div>
+    <span style="color:#c4b5fd;">FUNDAMENTOS TEÓRICOS — El andamiaje intelectual</span>
+  </div>
+  
+  <div class="cards-grid cat-theory">
+    <div class="card">
+      <div class="card-header"><span class="card-ref">CANÓNICO</span><span class="card-pages">~18 pp · IMPRIMIR</span></div>
+      <div class="card-title">Peffers et al. 2007 — DSRM</div>
+      <div class="card-desc"><strong>Qué es:</strong> Paper canónico de Design Science Research Methodology. Las 6 fases que GENIE Learn replica en cada ciclo.<br><strong>Fundamenta:</strong> Toda la metodología del proyecto.</div>
+      <div class="card-tags"><span class="tag">E7 Marco</span><span class="tag">metodología</span></div>
+      <div class="card-filename">15_Peffers_2007_DSRM</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-ref">CANÓNICO</span><span class="card-pages">~18 pp · IMPRIMIR</span></div>
+      <div class="card-title">Lewis et al. 2020 — RAG</div>
+      <div class="card-desc"><strong>Qué es:</strong> Paper fundacional de Retrieval-Augmented Generation. Define la arquitectura que todo el pipeline implementa.<br><strong>Fundamenta:</strong> E2 RAG Pipeline completo.</div>
+      <div class="card-tags"><span class="tag">E2 RAG</span><span class="tag">embeddings</span></div>
+      <div class="card-filename">20_Lewis_2020_RAG</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-ref">CANÓNICO</span><span class="card-pages">~65 pp · NO IMPRIMIR (leer §1-3)</span></div>
+      <div class="card-title">Askell et al. 2021 — HHH Alignment</div>
+      <div class="card-desc"><strong>Qué es:</strong> Marco de alineamiento: Helpful, Honest, Harmless. Evaluación de comportamiento de modelos de lenguaje.<br><strong>Fundamenta:</strong> hhh_alignment_detector.py</div>
+      <div class="card-tags"><span class="tag">E7 Marco</span><span class="tag">alineamiento</span></div>
+      <div class="card-filename">13_Askell_2021_HHH</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-ref">REFERENCIA</span><span class="card-pages">~90 pp · NO IMPRIMIR</span></div>
+      <div class="card-title">VSD Survey — Value-Sensitive Design</div>
+      <div class="card-desc"><strong>Qué es:</strong> Survey completo de métodos VSD. Cada slider del panel docente es VSD en acción.<br><strong>Fundamenta:</strong> La filosofía de diseño: el docente configura, no el ingeniero.</div>
+      <div class="card-tags"><span class="tag">E7 Marco</span><span class="tag">diseño</span></div>
+      <div class="card-filename">A Survey of Value Sensitive Design Metho...</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-ref">REFERENCIA</span><span class="card-pages">~45 pp · NO IMPRIMIR</span></div>
+      <div class="card-title">HLEG 2019 — Ethics Guidelines for AI</div>
+      <div class="card-desc"><strong>Qué es:</strong> Directrices éticas de la UE para IA confiable. 7 requisitos.<br><strong>Fundamenta:</strong> Perspectiva ética europea del proyecto.</div>
+      <div class="card-tags"><span class="tag">E7 Marco</span><span class="tag">ética</span></div>
+      <div class="card-filename">16_HLEG_AI_2019_Ethics</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-ref">REFERENCIA</span><span class="card-pages">~100+ pp · NO IMPRIMIR</span></div>
+      <div class="card-title">EU AI Act 2024</div>
+      <div class="card-desc"><strong>Qué es:</strong> Regulación europea de IA. Marco legal que contextualiza la necesidad de HCAI.<br><strong>Fundamenta:</strong> Contexto regulatorio. Mencionar si preguntan "¿por qué importa HCAI?"</div>
+      <div class="card-tags"><span class="tag">contexto</span><span class="tag">regulación</span></div>
+      <div class="card-filename">25_EU_AI_Act_2024</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-ref">LIBRO</span><span class="card-pages">6.5 MB · CONSULTA DIGITAL</span></div>
+      <div class="card-title">Shneiderman — Human-Centered AI</div>
+      <div class="card-desc"><strong>Qué es:</strong> El libro de referencia para HCAI. IA que amplifica, no sustituye.<br><strong>Fundamenta:</strong> El principio rector de todo GENIE Learn.</div>
+      <div class="card-tags"><span class="tag">E7 Marco</span><span class="tag">HCAI</span></div>
+      <div class="card-filename">human-centered-ai-9780192845290-0192...</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION 4: CONTEXT -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="flow-section">
+  <div class="flow-title" style="background:#06b6d415; border:1px solid #06b6d433;">
+    <div class="num" style="background:#06b6d4; color:#fff;">+</div>
+    <span style="color:#67e8f9;">CONTEXTO DEL GRUPO — Líneas paralelas</span>
+  </div>
+  
+  <div class="cards-grid cat-context">
+    <div class="card">
+      <div class="card-header"><span class="card-ref">LAK 2025</span><span class="card-pages">4 pp · IMPRIMIR</span></div>
+      <div class="card-title">Pishtari et al. — ReflectionApp</div>
+      <div class="card-desc"><strong>Qué es:</strong> Scaffolding de reflexión con GPT-4o. Framework 5R. Línea paralela con Ortega-Arranz.<br><strong>Te sirve para:</strong> Mostrar que conoces las otras líneas del grupo. Tu 3ª dimensión conecta con scaffolding reflexivo.</div>
+      <div class="card-filename">08_Pishtari_2025_ReflectionApp_LAK25</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-ref">LASI 2025</span><span class="card-pages">~8 pp</span></div>
+      <div class="card-title">Martínez-Monés — QUALAS</div>
+      <div class="card-desc"><strong>Qué es:</strong> Quality Assurance + LA en educación secundaria. Nivel meso.<br><strong>Te sirve para:</strong> Demostrar que mapeas todo el grupo, no solo tu línea.</div>
+      <div class="card-filename">03_Martinez-Mones_2025_QUALAS_LASI</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-ref">LASI 2025</span><span class="card-pages">~10 pp</span></div>
+      <div class="card-title">Alonso-Prieto — Multicase</div>
+      <div class="card-desc"><strong>Qué es:</strong> Versión expandida del estudio multicaso de teacher agency.<br><strong>Te sirve para:</strong> Profundizar en la línea de agencia si te preguntan.</div>
+      <div class="card-filename">05_Alonso-Prieto_2025_Multicase_LASI</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-ref">ECTEL 2022</span><span class="card-pages">~10 pp</span></div>
+      <div class="card-title">Ortega-Arranz — eFeeD4Mi</div>
+      <div class="card-desc"><strong>Qué es:</strong> Trabajo previo de Ortega-Arranz sobre feedback en educación.<br><strong>Te sirve para:</strong> Conocer la trayectoria de tu colaborador más directo.</div>
+      <div class="card-filename">11_Ortega-Arranz_2022_eFeeD4Mi_ECTEL</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- SECTION 5: EXTRA -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="flow-section">
+  <div class="flow-title" style="background:#64748b15; border:1px solid #64748b33;">
+    <div class="num" style="background:#64748b; color:#fff;">~</div>
+    <span style="color:#94a3b8;">LECTURAS COMPLEMENTARIAS — Cultura general IA + Educación</span>
+  </div>
+  
+  <div class="cards-grid cat-extra">
+    <div class="card">
+      <div class="card-header"><span class="card-ref">REFERENCIA</span></div>
+      <div class="card-title">Vaswani 2017 — Transformers</div>
+      <div class="card-desc">La arquitectura fundacional. "Attention Is All You Need". Entender por qué los LLMs funcionan.</div>
+      <div class="card-filename">19_Vaswani_2017_Transformer</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-ref">CONTEXTO</span></div>
+      <div class="card-title">Acemoglu 2024 — Macroeconomics AI</div>
+      <div class="card-desc">Impacto macroeconómico de la IA. Perspectiva de un Nobel. Contexto amplio.</div>
+      <div class="card-filename">Acemoglu_2024_Macroeconomics_AI_N...</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-ref">CONTEXTO</span></div>
+      <div class="card-title">Brynjolfsson 2023 — Generative AI Work</div>
+      <div class="card-desc">IA generativa y productividad laboral. Complemento a la visión HCAI.</div>
+      <div class="card-filename">Brynjolfsson_2023_Generative_AI_Work_...</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-ref">CONTEXTO</span></div>
+      <div class="card-title">Dell'Acqua 2023 — Jagged Frontier (HBS)</div>
+      <div class="card-desc">Estudio HBS sobre la "frontera dentada" de la IA: tareas donde ayuda vs. donde daña.</div>
+      <div class="card-filename">Dell_Acqua_2023_Jagged_Frontier_HBS</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-ref">REFERENCIA</span></div>
+      <div class="card-title">DigComp 2.2 / 3.0 (JRC)</div>
+      <div class="card-desc">Marco europeo de competencias digitales. Contextualiza habilidades del estudiante.</div>
+      <div class="card-filename">DigComp_2.2_2022_JRC / DigComp_3.0_2025_JRC</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-ref">REFERENCIA</span></div>
+      <div class="card-title">Chi & Wylie — ICAP Framework</div>
+      <div class="card-desc">Interactive, Constructive, Active, Passive. Clasificador secundario en cognitive_profiler.</div>
+      <div class="card-filename">The_ICAP_Framework_Linking_Cognitive...</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-ref">CONTEXTO</span></div>
+      <div class="card-title">Gerlich 2025 — Cognitive Offloading</div>
+      <div class="card-desc">Descarga cognitiva en IA. Fundamenta por qué las desirable difficulties importan.</div>
+      <div class="card-filename">Gerlich_2025_Cognitive_Offloading_MDPI</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-ref">CONTEXTO</span></div>
+      <div class="card-title">Kosmyna 2025 — Brain + ChatGPT (MIT)</div>
+      <div class="card-desc">Estudio MIT sobre efectos neurológicos de ChatGPT. Conexión con trust dynamics.</div>
+      <div class="card-filename">Kosmyna_2025_Brain_ChatGPT_MIT_arXiv</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-ref">CONTEXTO</span></div>
+      <div class="card-title">Peng 2023 — GitHub Copilot</div>
+      <div class="card-desc">Estudio sobre productividad con Copilot. Evidencia empírica de IA en programación.</div>
+      <div class="card-filename">Peng_2023_GitHub_Copilot_arXiv</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-ref">CONTEXTO</span></div>
+      <div class="card-title">Eloundou 2024 — GPTs Labor Market</div>
+      <div class="card-desc">Impacto de GPTs en el mercado laboral. OpenAI + UPenn.</div>
+      <div class="card-filename">Eloundou_2024_GPTs_Labor_Market_arXiv</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- HIGHLIGHT: HOW EVERYTHING CONNECTS -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="highlight-box">
+  <h3>🔗 LA CADENA ARGUMENTAL EN UNA FRASE</h3>
+  <p>
+    <strong>Topali</strong> identifica que falta teoría del aprendizaje en HCLA →
+    <strong>Delgado-Kloos</strong> estructura un proyecto DSRM para resolverlo →
+    <strong>Villa-Torrano</strong> aporta el marco de autorregulación →
+    <strong>Alonso-Prieto</strong> define la agencia docente como constructo ecológico →
+    el <strong>TFG de Pablo</strong> construye el prototipo RAG →
+    <strong>Ortega-Arranz</strong> lo evalúa con profesores y detecta que faltan analytics de alto nivel →
+    <strong>TÚ</strong> entras con el middleware pedagógico que materializa la agencia + analytics cognitivos que cierran el gap →
+    <strong>García-Zarza</strong> abre la puerta a GenAI+LOD como extensión futura.
+  </p>
+</div>
+
+<div class="highlight-box" style="border-color: #f472b6; background: linear-gradient(135deg, #2d1b3d, #1a1d2e);">
+  <h3 style="color: #f9a8d4;">⭐ TU POSICIÓN EN EL ECOSISTEMA</h3>
+  <p style="color: #f9a8d4;">
+    No eres el que escribió los papers. No eres el que construyó el prototipo. Eres el que llega cuando el prototipo existe y la evaluación dice "necesitamos más" — y traes exactamente lo que falta: middleware que materializa agencia, analytics que van más allá de datos brutos, y un marco teórico que ningún ingeniero puro aporta. Entras en la fase de producción y pilotos. La fase donde se demuestra si funciona de verdad.
+  </p>
+</div>
+
+</div>
+</body>
+</html>

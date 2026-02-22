@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GENIE Learn — CP25/152 · GSIC/EMIC</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#000;color:#f5f5f7;font-family:'DM Sans',sans-serif;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
+.mono{font-family:'JetBrains Mono',monospace}.pixel{font-family:'Press Start 2P',monospace}
+.rv{opacity:0;transform:translateY(44px);transition:opacity 1s cubic-bezier(.25,.46,.45,.94),transform 1s cubic-bezier(.25,.46,.45,.94)}
+.rv.vis{opacity:1;transform:translateY(0)}
+.rv-d1{transition-delay:.12s}.rv-d2{transition-delay:.24s}.rv-d3{transition-delay:.36s}.rv-d4{transition-delay:.48s}.rv-d5{transition-delay:.6s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes glow-pulse{0%,100%{filter:blur(80px) brightness(1)}50%{filter:blur(100px) brightness(1.3)}}
+@keyframes gradient-x{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+@keyframes rgb-shift{0%{text-shadow:3px 0 #ff0040,-3px 0 #00ff9f}25%{text-shadow:-3px 0 #ff0040,3px 0 #4060ff}50%{text-shadow:3px 0 #00ff9f,-3px 0 #ff0040}75%{text-shadow:-3px 0 #4060ff,3px 0 #00ff9f}100%{text-shadow:3px 0 #ff0040,-3px 0 #00ff9f}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes flicker{0%,100%{opacity:1}93%{opacity:.6}94%{opacity:1}96%{opacity:.8}97%{opacity:1}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 40px;position:relative;overflow:hidden}
+.hero-orb{position:absolute;border-radius:50%;pointer-events:none;animation:glow-pulse 6s ease-in-out infinite}
+.hero-orb-1{top:15%;left:35%;width:800px;height:800px;background:radial-gradient(circle,rgba(139,92,246,.14) 0%,transparent 70%)}
+.hero-orb-2{top:55%;left:55%;width:600px;height:600px;background:radial-gradient(circle,rgba(59,130,246,.1) 0%,transparent 70%);animation-delay:2s}
+.hero-orb-3{top:30%;left:25%;width:500px;height:500px;background:radial-gradient(circle,rgba(236,72,153,.07) 0%,transparent 70%);animation-delay:4s}
+.hero-title{font-size:clamp(72px,12vw,140px);font-weight:900;line-height:.95;letter-spacing:-.05em;text-align:center;background:linear-gradient(135deg,#c084fc 0%,#a78bfa 20%,#818cf8 40%,#6366f1 60%,#8b5cf6 80%,#c084fc 100%);background-size:300% 300%;animation:gradient-x 6s ease infinite;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:clamp(24px,3.5vw,38px);font-weight:400;color:rgba(255,255,255,.42);margin-top:28px;line-height:1.4;text-align:center;max-width:740px}
+.hero-stats{margin-top:64px;display:flex;gap:56px;flex-wrap:wrap;justify-content:center}
+.hero-stat-n{font-size:56px;font-weight:900;letter-spacing:-.02em}
+.hero-stat-l{font-size:15px;color:rgba(255,255,255,.3);margin-top:6px}
+
+.statement{min-height:50vh;display:flex;flex-direction:column;justify-content:center;padding:100px 40px;max-width:900px;margin:0 auto}
+.statement h2{font-size:clamp(34px,5vw,54px);font-weight:800;line-height:1.2;letter-spacing:-.02em}
+.statement p{font-size:20px;color:rgba(255,255,255,.35);margin-top:24px;line-height:1.7;max-width:700px}
+
+.demo-sec{padding:100px 40px;max-width:960px;margin:0 auto}
+.demo-sec h2{font-size:clamp(38px,5vw,58px);font-weight:800;line-height:1.08;letter-spacing:-.02em;margin-bottom:8px}
+.demo-sec .sub{font-size:19px;color:rgba(255,255,255,.4);line-height:1.6;margin-bottom:44px;max-width:720px}
+.demo-box{border-radius:24px;overflow:hidden;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);backdrop-filter:blur(40px)}
+.demo-pad{padding:28px}
+
+.cb{display:flex;margin-bottom:12px}.cb.u{justify-content:flex-end}
+.cb .bbl{max-width:82%;padding:14px 18px;font-size:15px;color:rgba(255,255,255,.75);line-height:1.7;white-space:pre-wrap}
+.bbl.ub{border-radius:20px 20px 4px 20px;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.18)}
+.bbl.ab{border-radius:20px 20px 20px 4px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)}
+.bbl .lbl{font-size:11px;font-weight:700;letter-spacing:.8px;margin-bottom:8px;text-transform:uppercase}
+
+.mbtn{flex:1;padding:12px 10px;border:1px solid rgba(255,255,255,.06);border-radius:12px;cursor:pointer;background:transparent;font-size:14px;font-weight:600;font-family:inherit;color:rgba(255,255,255,.3);transition:all .25s}
+.mbtn.act{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2)}
+
+.tgl{width:50px;height:28px;border-radius:14px;cursor:pointer;padding:2px;transition:background .3s;display:inline-block}
+.tgl .th{width:24px;height:24px;border-radius:12px;background:#fff;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+
+.pbar{height:4px;border-radius:2px;background:rgba(255,255,255,.06);overflow:hidden;flex:1}
+.pfill{height:100%;border-radius:2px;transition:width .5s ease}
+
+.pstep{display:flex;align-items:center;gap:14px;padding:12px 16px;margin-bottom:3px;border-radius:12px;border-left:3px solid transparent;transition:all .4s}
+.pstep.act{background:rgba(255,255,255,.04);border-left-color:rgba(139,92,246,.7)}
+
+.bloom-wrap{display:flex;gap:6px;height:170px;align-items:flex-end}
+.bloom-bar{flex:1;border-radius:12px 12px 4px 4px;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;padding:10px 8px;transition:all .3s;transform-origin:bottom}
+.bloom-bar:hover{transform:scaleY(1.1)}
+
+.kma{padding:16px 20px;border-radius:16px;margin-top:16px;background:rgba(255,69,58,.04);border:1px solid rgba(255,69,58,.08);font-size:15px;color:rgba(255,255,255,.5);line-height:1.7}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:48px}
+.lcard{padding:24px;border-radius:18px;background:rgba(255,255,255,.025);transition:all .35s;cursor:default}
+.lcard:hover{transform:translateY(-4px);box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.dcard{display:flex;gap:24px;padding:28px;border-radius:20px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);transition:all .35s;cursor:default;margin-bottom:18px}
+.dcard:hover{transform:translateY(-4px);box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.dicon{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.fp-col{flex:1;padding:20px;border-radius:16px;background:rgba(255,255,255,.02)}
+.fp-trk{height:4px;border-radius:2px;background:rgba(255,255,255,.04);margin-top:5px}
+.fp-fl{height:100%;border-radius:2px;opacity:.5;transition:width .8s}
+.aleg{display:flex;justify-content:center;gap:20px;margin-top:16px}
+
+/* EXPLORER */
+.explorer{background:#06080f;border-top:1px solid rgba(139,92,246,.15)}
+.explorer-inner{max-width:960px;margin:0 auto;padding:80px 40px 60px}
+.explorer h2{font-size:clamp(36px,5vw,52px);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:8px;background:linear-gradient(135deg,#a78bfa,#818cf8,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.search-box{width:100%;padding:14px 18px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:14px;color:#e2e8f0;font-size:15px;outline:none;font-family:inherit;margin-bottom:24px;transition:border-color .3s}
+.search-box:focus{border-color:rgba(139,92,246,.4)}
+.ly-hdr{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;border-radius:10px;margin-bottom:4px;transition:background .2s}
+.ly-hdr:hover{background:rgba(255,255,255,.02)}
+.ly-body{border-left:2px solid rgba(255,255,255,.04);margin-left:20px;padding-left:16px;margin-bottom:16px}
+.md-hdr{padding:10px 14px;cursor:pointer;border-radius:8px;transition:background .2s}
+.md-hdr:hover{background:rgba(255,255,255,.02)}
+.md-body{padding:0 14px 16px}
+.md-badge{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:700;display:inline-block;margin-right:6px;margin-bottom:4px}
+.code-blk{font-family:'JetBrains Mono',monospace;font-size:12px;background:rgba(0,0,0,.35);border-radius:6px;padding:8px 12px;margin:5px 0;line-height:1.8;overflow-x:auto;white-space:pre-wrap}
+.mtag{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);padding:2px 7px;background:rgba(255,255,255,.04);border-radius:4px;display:inline-block;margin:2px}
+.rtag{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.04);color:rgba(255,255,255,.35);display:inline-block;margin:2px}
+
+/* RPG */
+.rpg{position:relative;overflow:hidden;background:#0a0a12;border-top:4px solid #00ff9f;border-bottom:4px solid #ff0040}
+.rpg::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,159,.015) 2px,rgba(0,255,159,.015) 4px);pointer-events:none;z-index:1}
+.rpg::after{content:'';position:absolute;top:0;left:0;right:0;height:200%;background:linear-gradient(180deg,rgba(0,255,159,.03) 0%,transparent 10%,transparent 90%,rgba(255,0,64,.03) 100%);animation:scanline 8s linear infinite;pointer-events:none;z-index:1}
+.rpg-inner{position:relative;z-index:2;max-width:960px;margin:0 auto;padding:100px 40px}
+.enc{border:3px solid #00ff9f;border-radius:4px;overflow:hidden;background:#0c0c1a;box-shadow:0 0 50px rgba(0,255,159,.08),inset 0 0 60px rgba(0,0,0,.5);margin:50px 0}
+.enc-hdr{padding:14px 18px;background:rgba(0,255,159,.05);border-bottom:2px solid rgba(0,255,159,.15);display:flex;justify-content:space-between}
+.sprite-area{display:flex;justify-content:center;padding:48px 20px 24px;position:relative}
+.sprite{width:120px;height:120px;animation:float 3s ease-in-out infinite;text-align:center;font-size:80px;filter:drop-shadow(0 0 24px rgba(0,255,159,.3))}
+.uro-ring{position:absolute;top:50%;left:50%;width:170px;height:170px;margin:-85px 0 0 -85px;border:2px dashed rgba(0,255,159,.2);border-radius:50%;animation:spin 20s linear infinite}
+.uro-ring::after{content:'🐍';position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:22px}
+.hp-row{display:flex;align-items:center;gap:12px;padding:0 22px;margin-bottom:10px}
+.hp-trk{flex:1;height:10px;background:#1a1a2e;border:1px solid #333;overflow:hidden}
+.hp-fl{height:100%;transition:width 1.5s}
+.dlg{border:3px solid #333;border-radius:4px;margin:16px 22px;padding:22px;background:#0a0a16;position:relative;min-height:100px}
+.dlg::before{content:'▼';position:absolute;bottom:10px;right:14px;font-size:8px;color:#00ff9f;animation:blink 1s infinite}
+.mv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 22px 22px}
+.mv-btn{padding:14px;background:#0c0c1a;border:2px solid #222;border-radius:4px;cursor:pointer;transition:all .2s;text-align:left}
+.mv-btn:hover{border-color:#00ff9f;background:rgba(0,255,159,.04);box-shadow:0 0 20px rgba(0,255,159,.1)}
+.mv-btn.act{border-color:#00ff9f;background:rgba(0,255,159,.07)}
+.px-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:48px}
+.px-card{padding:22px;background:rgba(0,255,159,.02);border:1px solid rgba(0,255,159,.08);border-radius:4px;position:relative;overflow:hidden;transition:all .3s}
+.px-card:hover{border-color:rgba(0,255,159,.25)}
+.px-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#00ff9f,#4060ff,#ff0040);background-size:200% 100%;animation:gradient-x 3s ease infinite}
+.rpg-quote{text-align:center;margin-top:64px;padding:36px;border:1px solid rgba(0,255,159,.06);border-radius:4px;background:rgba(0,255,159,.01)}
+footer{padding:72px 40px 48px;text-align:center;border-top:1px solid rgba(255,255,255,.04)}
+</style>
+</head>
+<body>
+
+<section class="hero">
+<div class="hero-orb hero-orb-1"></div><div class="hero-orb hero-orb-2"></div><div class="hero-orb hero-orb-3"></div>
+<div class="rv" style="text-align:center;position:relative">
+<div class="mono" style="font-size:15px;font-weight:700;letter-spacing:5px;color:rgba(255,255,255,.28);margin-bottom:36px;text-transform:uppercase">CP25/152 · GSIC/EMIC · Universidad de Valladolid</div>
+<h1 class="hero-title">GENIE Learn</h1>
+<p class="hero-sub">Un chatbot educativo donde el docente<br>decide cómo piensa la IA.</p>
+<div class="hero-stats">
+<div class="rv rv-d2" style="text-align:center"><div class="hero-stat-n" style="background:linear-gradient(135deg,#c084fc,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">47</div><div class="hero-stat-l">módulos</div></div>
+<div class="rv rv-d3" style="text-align:center"><div class="hero-stat-n" style="background:linear-gradient(135deg,#818cf8,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">30K+</div><div class="hero-stat-l">líneas</div></div>
+<div class="rv rv-d4" style="text-align:center"><div class="hero-stat-n" style="background:linear-gradient(135deg,#a78bfa,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">89</div><div class="hero-stat-l">dataclasses</div></div>
+<div class="rv rv-d5" style="text-align:center"><div class="hero-stat-n" style="background:linear-gradient(135deg,#c084fc,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent">8</div><div class="hero-stat-l">capas</div></div>
+</div></div>
+<div class="scroll-hint"><div style="width:28px;height:46px;border-radius:14px;border:2px solid rgba(255,255,255,.15);display:flex;justify-content:center;padding-top:10px"><div style="width:3px;height:10px;border-radius:2px;background:rgba(255,255,255,.3);animation:pulse 2s ease-in-out infinite"></div></div></div>
+</section>
+
+<section class="statement"><div class="rv"><h2>Los chatbots educativos actuales son cajas negras.<br><span style="color:rgba(255,255,255,.3)">El docente no controla nada.</span></h2><p>GENIE Learn invierte esa relación. Cada slider, cada toggle, cada decisión pedagógica del profesor se convierte en una instrucción ejecutable que modifica cómo piensa, responde y se comporta la IA.</p></div></section>
+
+<section class="demo-sec"><div class="rv"><h2>Pipeline completo.</h2><p class="sub">Una interacción atraviesa 8 módulos en milisegundos.</p></div><div class="demo-box rv rv-d1"><div class="demo-pad" id="pipe-el"></div></div></section>
+
+<section class="demo-sec"><div class="rv"><h2>Scaffolding adaptativo.</h2><p class="sub">La misma pregunta, cuatro respuestas radicalmente distintas.</p></div><div class="demo-box rv rv-d1"><div style="padding:22px 28px 14px;display:flex;gap:8px" id="sc-btns"></div><div class="demo-pad" id="sc-chat"></div></div></section>
+
+<section class="demo-sec"><div class="rv"><h2>Errores deliberados.</h2><p class="sub">Las dificultades deseables de Bjork convertidas en feature.</p></div><div class="demo-box rv rv-d1"><div style="padding:22px 28px 10px;display:flex;align-items:center;gap:14px"><span style="font-size:16px;color:rgba(255,255,255,.5)">Alucinación pedagógica</span><div class="tgl" id="h-tgl" style="background:rgba(255,255,255,.1)"><div class="th" id="h-th"></div></div><span class="mono" id="h-lbl" style="font-size:13px;color:rgba(255,255,255,.25)">OFF</span></div><div class="demo-pad" id="h-chat"></div></div></section>
+
+<section class="demo-sec"><div class="rv"><h2>RAG transparente.</h2><p class="sub">Tres chunks, tres scores, trazabilidad total.</p></div><div class="demo-box rv rv-d1"><div class="demo-pad"><div style="display:flex;gap:3px;margin-bottom:22px" id="r-prog"></div><div class="mono" style="font-size:12px;color:rgba(255,255,255,.3);margin-bottom:18px" id="r-lbl"></div><div style="display:flex;gap:12px" id="r-ch"></div></div></div></section>
+
+<section class="demo-sec"><div class="rv"><h2>Taxonomía de Bloom.</h2><p class="sub">Seis niveles que alimentan el scaffolding adaptativo.</p></div><div class="demo-box rv rv-d1"><div class="demo-pad"><div class="bloom-wrap" id="bl-bars"></div><div id="bl-info" style="margin-top:16px;text-align:center;min-height:52px"><span style="font-size:14px;color:rgba(255,255,255,.2)">Pasa el cursor sobre cada nivel</span></div></div></div></section>
+
+<section class="demo-sec"><div class="rv"><h2>Mapa de conocimiento.</h2><p class="sub">Lo que el estudiante no sabe que no sabe.</p></div><div class="demo-box rv rv-d1"><div class="demo-pad"><svg id="km-svg" viewBox="0 0 400 180" style="width:100%;height:200px"></svg><div class="kma"><span style="color:#ff453a;font-weight:700">Gap crítico:</span> <em>arrays</em> es prerequisito de recursión. Sonda epistémica generada.</div></div></div></section>
+
+<section class="demo-sec"><div class="rv"><h2>Trayectoria de autonomía.</h2><p class="sub">Cuatro fases, una ZPD adaptativa.</p></div><div class="demo-box rv rv-d1"><div class="demo-pad"><svg id="au-svg" viewBox="0 0 400 130" style="width:100%;height:130px"></svg><div class="aleg" id="au-leg"></div></div></div></section>
+
+<section class="demo-sec"><div class="rv"><h2>Fingerprint pedagógico.</h2><p class="sub">Tres arquetipos docentes identificados.</p></div><div class="demo-box rv rv-d1"><div class="demo-pad" style="display:flex;gap:14px" id="fp-el"></div></div></section>
+
+<section class="demo-sec"><div class="rv"><h2>Ocho capas.<br><span style="color:rgba(255,255,255,.3)">Un ecosistema.</span></h2></div><div class="lgrid" id="lg-el"></div></section>
+
+<section class="demo-sec"><div class="rv"><h2>Qué lo hace<br><span style="color:rgba(255,255,255,.3)">diferente.</span></h2></div><div id="df-el" style="margin-top:52px"></div></section>
+
+<section class="statement"><div class="rv"><h2>Un sistema que se observa<br><span style="color:rgba(255,255,255,.3)">a sí mismo.</span></h2><p>GENIE Learn es el primer chatbot educativo con auto-reflexividad. El sistema audita si cumple sus propios principios. El paper se escribe solo.</p></div></section>
+
+<!-- EXPLORER -->
+<section class="explorer" id="explorer">
+<div class="explorer-inner">
+<div class="rv"><h2>Explorador del ecosistema.</h2><p style="font-size:17px;color:rgba(255,255,255,.3);margin-bottom:28px">47 módulos · 30K+ líneas · Abre cualquier módulo para ver clases, dataclasses, funciones y <span style="color:#F59E0B">demos interactivas</span>.</p></div>
+<input type="text" class="search-box" id="exp-search" placeholder="Buscar módulo, clase, función, dataclass...">
+<div id="exp-layers"></div>
+</div>
+</section>
+
+<!-- RPG UROBOROS -->
+<section class="rpg"><div class="rpg-inner">
+<div class="rv" style="text-align:center;margin-bottom:60px">
+<div class="pixel" style="font-size:11px;letter-spacing:5px;color:#00ff9f;margin-bottom:20px;animation:flicker 4s infinite">BONUS STAGE</div>
+<h2 style="font-size:clamp(40px,7vw,64px);animation:rgb-shift 3s ease-in-out infinite;color:#fff;font-weight:800;letter-spacing:-.02em">Uroboros</h2>
+<p style="font-size:16px;color:rgba(255,255,255,.25);margin-top:20px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.7">El caso fundacional. Sócrates como primer arquitecto del auto-aprendizaje.</p>
+</div>
+
+<div class="enc rv rv-d1" id="enc-box">
+<div class="enc-hdr"><span class="pixel" style="font-size:9px;color:#00ff9f">⚔ ENCUENTRO FILOSÓFICO</span><span class="pixel" style="font-size:8px;color:rgba(255,255,255,.3)">LV. ∞</span></div>
+<div class="sprite-area"><div class="uro-ring"></div><div class="sprite">🏛️</div></div>
+<div style="padding:6px 0">
+<div class="hp-row"><span class="pixel" style="width:110px;font-size:10px;letter-spacing:1.5px;text-align:right;color:#00ff9f">SÓCRATES</span><div class="hp-trk"><div class="hp-fl" style="background:linear-gradient(90deg,#00ff9f,#4060ff);width:100%"></div></div><span class="pixel" style="width:70px;font-size:10px;color:#00ff9f">∞ / ∞</span></div>
+<div class="hp-row"><span class="pixel" style="width:110px;font-size:10px;letter-spacing:1.5px;text-align:right;color:#ff0040">CERTEZA</span><div class="hp-trk"><div class="hp-fl" id="hp-c" style="background:linear-gradient(90deg,#ff0040,#ff9f0a);width:85%"></div></div><span class="pixel" id="hp-cv" style="width:70px;font-size:10px;color:#ff0040">85 / 100</span></div>
+</div>
+<div class="dlg"><div class="pixel" style="font-size:11px;line-height:2.4;letter-spacing:.5px;color:rgba(255,255,255,.8)" id="dlg-t"><span style="color:#00ff9f">SÓCRATES</span> aparece.<br><br>«<span style="color:#ffd700">Solo sé que no sé nada</span>» — no es humildad retórica. Es el resultado operativo de alguien que ha utilizado su propia mente como <span style="color:#00ff9f">laboratorio</span>.</div></div>
+<div class="mv-grid">
+<div class="mv-btn" data-m="0"><div class="pixel" style="font-size:10px;color:#00ff9f;letter-spacing:1px;margin-bottom:4px">MAYÉUTICA</div><div style="font-size:12px;color:rgba(255,255,255,.35);line-height:1.5">Hacer parir ideas. Al preguntar, descubrir los límites de la propia ignorancia.</div><span class="pixel" style="font-size:7px;padding:2px 6px;border-radius:2px;margin-top:6px;display:inline-block;background:rgba(0,255,159,.1);color:#00ff9f;letter-spacing:1px">EPISTÉMICO</span></div>
+<div class="mv-btn" data-m="1"><div class="pixel" style="font-size:10px;color:#ff0040;letter-spacing:1px;margin-bottom:4px">IRONÍA</div><div style="font-size:12px;color:rgba(255,255,255,.35);line-height:1.5">Fingir ignorancia para que el otro revele las grietas de su certeza.</div><span class="pixel" style="font-size:7px;padding:2px 6px;border-radius:2px;margin-top:6px;display:inline-block;background:rgba(255,0,64,.1);color:#ff0040;letter-spacing:1px">DIALÉCTICO</span></div>
+<div class="mv-btn" data-m="2"><div class="pixel" style="font-size:10px;color:#ffd700;letter-spacing:1px;margin-bottom:4px">ELENCHUS</div><div style="font-size:12px;color:rgba(255,255,255,.35);line-height:1.5">Refutación por contradicción interna. Tus premisas se contradicen.</div><span class="pixel" style="font-size:7px;padding:2px 6px;border-radius:2px;margin-top:6px;display:inline-block;background:rgba(255,215,0,.1);color:#ffd700;letter-spacing:1px">LÓGICO</span></div>
+<div class="mv-btn" data-m="3"><div class="pixel" style="font-size:10px;color:#4060ff;letter-spacing:1px;margin-bottom:4px">APORIA</div><div style="font-size:12px;color:rgba(255,255,255,.35);line-height:1.5">Perplejidad donde toda certeza colapsa. El vacío fértil.</div><span class="pixel" style="font-size:7px;padding:2px 6px;border-radius:2px;margin-top:6px;display:inline-block;background:rgba(64,96,255,.1);color:#4060ff;letter-spacing:1px">ONTOLÓGICO</span></div>
+</div>
+</div>
+
+<div class="rv"><h3 style="font-size:30px;font-weight:800;margin-bottom:10px">La paradoja del Uroboros.</h3><p style="font-size:16px;color:rgba(255,255,255,.35);line-height:1.7;max-width:620px">Sócrates aprende de sí mismo porque descubre que el sí mismo no contiene respuestas — contiene mejores preguntas.</p></div>
+<div class="px-grid">
+<div class="px-card rv rv-d1"><div class="pixel" style="font-size:9px;color:#00ff9f;letter-spacing:2px;margin-bottom:8px">I</div><div style="font-size:17px;font-weight:700;margin-bottom:8px">Conócete a ti mismo</div><div style="font-size:14px;color:rgba(255,255,255,.4);line-height:1.7">El mandato délfico. No aprender <em>de</em> sí mismo — aprender <em>a través</em> de sí mismo como instrumento de interrogación.</div></div>
+<div class="px-card rv rv-d2"><div class="pixel" style="font-size:9px;color:#00ff9f;letter-spacing:2px;margin-bottom:8px">II</div><div style="font-size:17px;font-weight:700;margin-bottom:8px">Doble dirección</div><div style="font-size:14px;color:rgba(255,255,255,.4);line-height:1.7">La mayéutica opera en doble dirección: al hacer parir ideas en el interlocutor, Sócrates descubre sus propios límites. La serpiente se muerde la cola.</div></div>
+<div class="px-card rv rv-d3"><div class="pixel" style="font-size:9px;color:#00ff9f;letter-spacing:2px;margin-bottom:8px">III</div><div style="font-size:17px;font-weight:700;margin-bottom:8px">Vacío fértil</div><div style="font-size:14px;color:rgba(255,255,255,.4);line-height:1.7">En el fondo de cada certeza, un vacío. No estéril — fértil. El «no sé nada» es condición de posibilidad de todo conocimiento genuino.</div></div>
+<div class="px-card rv rv-d4"><div class="pixel" style="font-size:9px;color:#00ff9f;letter-spacing:2px;margin-bottom:8px">IV</div><div style="font-size:17px;font-weight:700;margin-bottom:8px">GENIE como Mayéutica</div><div style="font-size:14px;color:rgba(255,255,255,.4);line-height:1.7">El scaffolding socrático reproduce esta estructura: no dar respuestas, sino generar preguntas. La auto-reflexividad es el oráculo de Delfos.</div></div>
+</div>
+
+<div class="rpg-quote rv"><q style="font-size:20px;font-style:italic;color:rgba(255,255,255,.55);line-height:1.8;max-width:640px;display:block;margin:0 auto 18px">La paradoja: Sócrates aprende de sí mismo precisamente porque descubre que el sí mismo no contiene respuestas — contiene mejores preguntas.</q><div class="pixel" style="font-size:10px;color:#00ff9f;letter-spacing:2px">GENIE LEARN · SISTEMA REFLEXIVO</div></div>
+</div></section>
+
+<footer><div class="rv"><div style="font-weight:700;color:rgba(255,255,255,.35);font-size:15px">Diego Elvira Vásquez</div><div style="font-size:14px;color:rgba(255,255,255,.2);margin-top:6px">CP25/152 · GSIC/EMIC · Universidad de Valladolid</div><div class="mono" style="margin-top:10px;font-size:12px;color:rgba(255,255,255,.15)">47 módulos · 30K+ líneas · 89 dataclasses · 47 clases · 67 funciones · 300+ métodos</div><div style="margin-top:18px;font-size:12px;color:rgba(255,255,255,.1)">Febrero 2026</div></div></footer>
+
+
+<script>
+// REVEAL
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')})},{threshold:.1});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+
+// PIPELINE
+const PS=[{i:'👤',l:'Prompt estudiante',s:'"¿cómo sumo pares?"'},{i:'⚙️',l:'middleware.pre_process()',s:'scaffolding · copy-paste · topics'},{i:'🔍',l:'rag.retrieve()',s:'3 chunks × coseno > 0.25'},{i:'🤖',l:'llm.chat()',s:'System prompt dinámico'},{i:'⚙️',l:'middleware.post_process()',s:'Truncado · alucinación · escalación'},{i:'🧠',l:'cognitive.analyze()',s:'Bloom=3 · ICAP=Constructive'},{i:'📊',l:'event_logger.log()',s:'4 columnas diferenciales'},{i:'💬',l:'→ Respuesta',s:'Con fuentes RAG + badges'}];
+const pe=document.getElementById('pipe-el');PS.forEach((s,i)=>{const d=document.createElement('div');d.className='pstep';d.id='ps'+i;d.innerHTML=`<span style="font-size:20px;width:30px;text-align:center">${s.i}</span><div><div class="mono" style="font-size:14px;font-weight:600;color:rgba(255,255,255,.7)">${s.l}</div><div style="font-size:13px;color:rgba(255,255,255,.3)">${s.s}</div></div>`;pe.appendChild(d)});
+let pa=0;setInterval(()=>{document.querySelectorAll('.pstep').forEach((el,i)=>{el.classList.toggle('act',i===pa);el.style.opacity=i<=pa?1:.3});pa=(pa+1)%8},1400);
+
+// SCAFFOLDING
+const SM=[{k:'Socrático',a:'#c084fc',r:'Interesante pregunta. Piensa:\n\n¿Qué valores genera range(5)?\n¿Cuál es el primer valor? ¿Y el último?\n\nCuando lo descubras, la solución aparecerá sola.'},{k:'Pistas',a:'#ff9f0a',r:'El problema está en el rango. range(n) genera 0 hasta n-1.\n\nPista: si quieres incluir el 5, el argumento debe ser mayor que 5.'},{k:'Ejemplo',a:'#ff453a',r:'Caso análogo:\n\nfor i in range(1, 4):\n    print(i)  # → 1, 2, 3\n\nEl segundo argumento es exclusivo. Aplícalo al 5.'},{k:'Directo',a:'#30d158',r:'El error está en range(5):\n\nfor i in range(1, 6):\n    print(i)  # → 1, 2, 3, 4, 5'}];
+let sl=0;function rsc(){const m=SM[sl];document.getElementById('sc-btns').innerHTML=SM.map((md,i)=>`<button class="mbtn ${i===sl?'act':''}" onclick="sl=${i};rsc()" style="${i===sl?`color:${md.a};border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.08)`:''}">${md.k}</button>`).join('');document.getElementById('sc-chat').innerHTML=`<div class="cb u"><div class="bbl ub">Mi bucle for no imprime el 5, solo llega hasta el 4. ¿Qué hago mal?</div></div><div class="cb"><div class="bbl ab"><div class="lbl mono" style="color:${m.a}">Nivel ${sl+1} · ${m.k}</div>${m.r.replace(/\n/g,'<br>')}</div></div>`}rsc();
+
+// HALLUCINATION
+let ho=false;const ht=document.getElementById('h-tgl'),hth=document.getElementById('h-th'),hlb=document.getElementById('h-lbl'),hch=document.getElementById('h-chat');
+function rh(){ht.style.background=ho?'#ff453a':'rgba(255,255,255,.1)';hth.style.transform=ho?'translateX(22px)':'translateX(0)';hlb.textContent=ho?'20%':'OFF';hlb.style.color=ho?'#ff453a':'rgba(255,255,255,.25)';
+hch.innerHTML=`<div class="cb u"><div class="bbl ub">¿Qué es una lista en Python?</div></div><div class="cb"><div class="bbl ab"><div class="lbl mono" style="color:${ho?'#ff453a':'#30d158'}">${ho?'Error deliberado insertado':'Respuesta estándar'}</div>${ho?"Una lista es una estructura ordenada y mutable. [1, 'hola', 3.14]<br><br>Las listas son inmutables una vez creadas. ⚠️ [Verifica esto]":"Una lista es una estructura ordenada y mutable que puede contener distintos tipos.<br><br>Se define con corchetes: [1, 'hola', 3.14]"}</div></div>${ho?'<div style="margin:0;padding:14px 18px;border-radius:14px;background:rgba(255,69,58,.06);border:1px solid rgba(255,69,58,.1);font-size:14px;color:rgba(255,255,255,.5);line-height:1.6">Dificultades deseables <span style="color:rgba(255,255,255,.3)">(Bjork, 1994)</span>. Error deliberado y señalizado.</div>':''}`}ht.onclick=()=>{ho=!ho;rh()};rh();
+
+// RAG
+const RP=['Query','Retrieval','Context','Response'];const RC=[{s:'tema1.pdf §2.3',t:'range(n) genera enteros: 0, 1, …, n-1.',sc:.89},{s:'tema2.pdf §1.1',t:'range(start, stop, step) — stop es exclusivo.',sc:.82},{s:'tema1.pdf §3.5',t:'Los bucles for iteran sobre secuencias.',sc:.71}];
+const rp=document.getElementById('r-prog'),rl=document.getElementById('r-lbl'),rce=document.getElementById('r-ch');
+RP.forEach((_,i)=>{const d=document.createElement('div');d.className='pbar';d.id='rp'+i;d.innerHTML='<div class="pfill" style="background:#30d158;width:0%"></div>';rp.appendChild(d)});
+RC.forEach((c,i)=>{const d=document.createElement('div');d.id='rc'+i;d.style.cssText='flex:1;padding:18px;border-radius:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);opacity:.3;transition:all .6s';d.innerHTML=`<div class="mono" style="font-size:11px;color:rgba(48,209,88,.7);margin-bottom:10px">${c.s}</div><div style="font-size:14px;color:rgba(255,255,255,.5);line-height:1.6">${c.t}</div><div class="mono" style="font-size:12px;color:rgba(48,209,88,.4);margin-top:12px">coseno ${c.sc}</div>`;rce.appendChild(d)});
+let rs=0;setInterval(()=>{rl.textContent=`FASE ${rs+1}/4 — ${RP[rs].toUpperCase()}`;RP.forEach((_,i)=>{document.querySelector('#rp'+i+' .pfill').style.width=i<=rs?'100%':'0%'});RC.forEach((_,i)=>{const el=document.getElementById('rc'+i);el.style.opacity=rs>=1?1:.3;el.style.background=rs>=1?'rgba(48,209,88,.04)':'rgba(255,255,255,.02)';el.style.borderColor=rs>=1?'rgba(48,209,88,.12)':'rgba(255,255,255,.04)'});rs=(rs+1)%4},2200);
+
+// BLOOM
+const BL=[{n:'Recordar',e:'¿Qué es una variable?',c:'#86868b'},{n:'Comprender',e:'¿Por qué lista ≠ tupla?',c:'#64d2ff'},{n:'Aplicar',e:'¿Cómo recorro un dict?',c:'#30d158'},{n:'Analizar',e:'¿Por qué stack overflow?',c:'#ffd60a'},{n:'Evaluar',e:'¿Recursión o iteración?',c:'#ff9f0a'},{n:'Crear',e:'Diseña un gestor de tareas',c:'#ff453a'}];
+const bb=document.getElementById('bl-bars'),bi=document.getElementById('bl-info');
+BL.forEach((l,i)=>{const h=35+i*22;const d=document.createElement('div');d.className='bloom-bar';d.style.cssText=`height:${h}px;background:linear-gradient(180deg,${l.c}22,${l.c}08);border:1px solid ${l.c}15`;d.innerHTML=`<div class="mono" style="font-size:12px;font-weight:700;color:${l.c};text-align:center">${i+1}</div>`;d.onmouseenter=()=>{d.style.background=`linear-gradient(180deg,${l.c}55,${l.c}22)`;d.style.borderColor=l.c+'55';bi.innerHTML=`<div style="font-size:18px;font-weight:700;color:${l.c}">${l.n}</div><div style="font-size:14px;color:rgba(255,255,255,.4);font-style:italic;margin-top:6px">"${l.e}"</div>`};d.onmouseleave=()=>{d.style.background=`linear-gradient(180deg,${l.c}22,${l.c}08)`;d.style.borderColor=l.c+'15';bi.innerHTML='<span style="font-size:14px;color:rgba(255,255,255,.2)">Pasa el cursor sobre cada nivel</span>'};bb.appendChild(d)});
+
+// KNOWLEDGE MAP
+const KN=[{id:'variables',x:60,y:40,v:1,b:4},{id:'bucles',x:200,y:30,v:1,b:3},{id:'funciones',x:340,y:45,v:1,b:5},{id:'arrays',x:130,y:130,v:0},{id:'recursión',x:270,y:125,v:0},{id:'ficheros',x:360,y:135,v:1,b:2}];
+const KE=[[0,1],[1,2],[0,3],[1,4],[3,4],[2,5]];const ks=document.getElementById('km-svg');
+KE.forEach(([a,b])=>{const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',KN[a].x);l.setAttribute('y1',KN[a].y);l.setAttribute('x2',KN[b].x);l.setAttribute('y2',KN[b].y);l.setAttribute('stroke','rgba(255,255,255,.06)');l.setAttribute('stroke-width','1');ks.appendChild(l)});
+KN.forEach(n=>{const g=document.createElementNS('http://www.w3.org/2000/svg','g');const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r','20');c.setAttribute('fill',n.v?'rgba(48,209,88,.1)':'rgba(255,69,58,.1)');c.setAttribute('stroke',n.v?'rgba(48,209,88,.3)':'rgba(255,69,58,.3)');c.setAttribute('stroke-width',n.v?'1.5':'1');if(!n.v)c.setAttribute('stroke-dasharray','4 3');g.appendChild(c);const t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',n.x);t.setAttribute('y',n.y+1);t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');t.setAttribute('font-size','10');t.setAttribute('font-weight','600');t.setAttribute('font-family',"'JetBrains Mono'");t.setAttribute('fill',n.v?'rgba(48,209,88,.8)':'rgba(255,69,58,.7)');t.textContent=n.id;g.appendChild(t);const t2=document.createElementNS('http://www.w3.org/2000/svg','text');t2.setAttribute('x',n.x);t2.setAttribute('y',n.y+30);t2.setAttribute('text-anchor','middle');t2.setAttribute('font-size','9');t2.setAttribute('font-family',"'JetBrains Mono'");t2.setAttribute('fill',n.v?'rgba(255,255,255,.2)':'rgba(255,69,58,.5)');t2.textContent=n.v?'B'+n.b:'???';g.appendChild(t2);ks.appendChild(g)});
+
+// AUTONOMY
+const AP=[{n:1,s:.15},{n:3,s:.22},{n:5,s:.35},{n:8,s:.48},{n:10,s:.55},{n:13,s:.68},{n:15,s:.72},{n:18,s:.81},{n:20,s:.78}];
+const pc=s=>s<.25?'#ff453a':s<.45?'#ff9f0a':s<.65?'#64d2ff':'#30d158';
+const as=document.getElementById('au-svg');
+const ar=document.createElementNS('http://www.w3.org/2000/svg','rect');ar.setAttribute('x',10);ar.setAttribute('y',30);ar.setAttribute('width',380);ar.setAttribute('height',44);ar.setAttribute('rx',4);ar.setAttribute('fill','rgba(100,210,255,.03)');as.appendChild(ar);
+const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');const lg=document.createElementNS('http://www.w3.org/2000/svg','linearGradient');lg.id='ag';lg.setAttribute('x1','0');lg.setAttribute('y1','0');lg.setAttribute('x2','1');lg.setAttribute('y2','0');
+[{o:'0%',c:'#ff453a'},{o:'30%',c:'#ff9f0a'},{o:'60%',c:'#64d2ff'},{o:'100%',c:'#30d158'}].forEach(s=>{const st=document.createElementNS('http://www.w3.org/2000/svg','stop');st.setAttribute('offset',s.o);st.setAttribute('stop-color',s.c);lg.appendChild(st)});defs.appendChild(lg);as.appendChild(defs);
+const pl=document.createElementNS('http://www.w3.org/2000/svg','polyline');pl.setAttribute('fill','none');pl.setAttribute('stroke','url(#ag)');pl.setAttribute('stroke-width','3');pl.setAttribute('stroke-linecap','round');pl.setAttribute('stroke-linejoin','round');pl.setAttribute('points',AP.map(p=>`${(p.n/20)*370+15},${110-p.s*85}`).join(' '));as.appendChild(pl);
+AP.forEach(p=>{const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',(p.n/20)*370+15);c.setAttribute('cy',110-p.s*85);c.setAttribute('r','5');c.setAttribute('fill',pc(p.s));as.appendChild(c)});
+const ale=document.getElementById('au-leg');[{l:'Dependiente',c:'#ff453a'},{l:'Guiado',c:'#ff9f0a'},{l:'Emergente',c:'#64d2ff'},{l:'Autónomo',c:'#30d158'}].forEach(p=>{ale.innerHTML+=`<div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:4px;background:${p.c}"></div><span style="font-size:13px;color:rgba(255,255,255,.35)">${p.l}</span></div>`});
+
+// FINGERPRINT
+const FP=[{n:'Prof. García',s:'Protector',v:[.82,.25,.28,.10],c:'#64d2ff'},{n:'Prof. López',s:'Socrático',v:[.48,.91,.55,.22],c:'#ffd60a'},{n:'Prof. Martín',s:'Libertario',v:[.18,.20,.88,.42],c:'#30d158'}];
+const FD=['Restrictividad','Intensidad socrática','Confianza en alumno','Tolerancia al error'];
+const fe=document.getElementById('fp-el');FP.forEach(p=>{let bars=FD.map((d,i)=>`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:rgba(255,255,255,.35)">${d}</span><span class="mono" style="font-size:12px;color:${p.c}">${p.v[i].toFixed(2)}</span></div><div class="fp-trk"><div class="fp-fl" style="width:${p.v[i]*100}%;background:${p.c}"></div></div></div>`).join('');fe.innerHTML+=`<div class="fp-col" style="border:1px solid ${p.c}15"><div style="font-size:17px;font-weight:700;color:${p.c};margin-bottom:2px">${p.n}</div><div class="mono" style="font-size:12px;color:rgba(255,255,255,.25);margin-bottom:16px">${p.s}</div>${bars}</div>`});
+
+// LAYERS
+const LL=[{n:'Núcleo',m:4,l:'1.7K',c:'#64d2ff',d:'Pipeline end-to-end'},{n:'Cognitivo',m:8,l:'5.7K',c:'#bf5af2',d:'Radiografía del aprendizaje'},{n:'Docente',m:5,l:'3.5K',c:'#ffd60a',d:'Profesor como sujeto'},{n:'Ecosistema',m:6,l:'3.6K',c:'#30d158',d:'6 sensores distribuidos'},{n:'Epistémico',m:6,l:'3.8K',c:'#ff375f',d:'Teoría en código'},{n:'Investigación',m:5,l:'4.8K',c:'#ff453a',d:'Del dato al paper'},{n:'Plataforma',m:6,l:'2.9K',c:'#86868b',d:'Producción'},{n:'Meta',m:7,l:'4.8K',c:'#ac8eff',d:'Auto-observación'}];
+const le=document.getElementById('lg-el');LL.forEach(l=>{le.innerHTML+=`<div class="lcard rv" style="border:1px solid ${l.c}15"><div style="width:10px;height:10px;border-radius:5px;background:${l.c};margin-bottom:16px"></div><div style="font-size:20px;font-weight:800;color:#f5f5f7">${l.n}</div><div style="font-size:13px;color:rgba(255,255,255,.3);margin-top:4px;margin-bottom:16px">${l.d}</div><div style="display:flex;gap:14px"><div><span style="font-size:26px;font-weight:800;color:${l.c}">${l.m}</span><span style="font-size:12px;color:rgba(255,255,255,.25);margin-left:5px">módulos</span></div><div><span class="mono" style="font-size:15px;font-weight:600;color:rgba(255,255,255,.3)">${l.l}</span><span style="font-size:12px;color:rgba(255,255,255,.2);margin-left:4px">líneas</span></div></div></div>`});
+
+// DIFFS
+const DD=[{i:'⚙️',t:'Middleware pedagógico',d:'No es un wrapper. Es la capa donde las decisiones del docente se materializan sobre el comportamiento del LLM.',a:'#ffd60a'},{i:'🔬',t:'Configuraciones como datos',d:'Cada cambio de slider genera un evento analítico. El sistema estudia al docente mientras el docente estudia al alumno.',a:'#ff9f0a'},{i:'🧠',t:'Unknown unknowns',d:'1.593 líneas de grafo epistémico. Encuentra lo que el estudiante no sabe que no sabe.',a:'#ff453a'},{i:'🪞',t:'Auto-reflexividad',d:'El sistema se observa a sí mismo. ¿Cumple sus propios principios? Ningún chatbot educativo publicado hace esto.',a:'#bf5af2'}];
+const de=document.getElementById('df-el');DD.forEach((item,i)=>{de.innerHTML+=`<div class="dcard rv rv-d${i+1}"><div class="dicon" style="background:${item.a}10">${item.i}</div><div><div style="font-size:20px;font-weight:700">${item.t}</div><div style="font-size:16px;color:rgba(255,255,255,.4);margin-top:8px;line-height:1.6">${item.d}</div></div></div>`});
+
+// Re-observe dynamic reveals
+document.querySelectorAll('.rv:not(.vis)').forEach(el=>obs.observe(el));
+
+// RPG INTERACTIVITY
+const DT=[
+`<span style="color:#00ff9f">SÓCRATES</span> aparece.<br><br>«<span style="color:#ffd700">Solo sé que no sé nada</span>» — no es humildad retórica. Es el resultado operativo de alguien que ha utilizado su mente como <span style="color:#00ff9f">laboratorio</span>.`,
+`<span style="color:#00ff9f">SÓCRATES</span> usa <span style="color:#ffd700">MAYÉUTICA</span>.<br><br>Al hacer parir ideas en el interlocutor, descubre los límites de su propia ignorancia. La pregunta genera conocimiento... y genera <span style="color:#ff0040">vacío</span>.`,
+`<span style="color:#00ff9f">SÓCRATES</span> usa <span style="color:#ff0040">IRONÍA</span>.<br><br>Finge no saber para que el otro revele las grietas de su certeza. La ignorancia fingida es la herramienta más <span style="color:#ff0040">afilada</span> del arsenal epistémico.`,
+`<span style="color:#00ff9f">SÓCRATES</span> usa <span style="color:#ffd700">ELENCHUS</span>.<br><br>Refutación por contradicción interna. Si crees saber qué es la justicia, tus premisas se <span style="color:#ff0040">contradicen</span>. El conocimiento falso se destruye.`,
+`<span style="color:#00ff9f">SÓCRATES</span> usa <span style="color:#4060ff">APORIA</span>.<br><br>El punto donde toda certeza colapsa. No es derrota — es el <span style="color:#ffd700">vacío fértil</span>. La serpiente completa el círculo y se muerde la cola.`
+];
+let cz=85;const hpc=document.getElementById('hp-c'),hpv=document.getElementById('hp-cv'),dlt=document.getElementById('dlg-t');
+document.querySelectorAll('.mv-btn').forEach(btn=>{btn.addEventListener('click',function(){const m=parseInt(this.dataset.m);dlt.innerHTML=DT[m+1];cz=Math.max(0,cz-(15+Math.random()*10));hpc.style.width=cz+'%';hpv.textContent=Math.round(cz)+' / 100';document.querySelectorAll('.mv-btn').forEach(b=>b.classList.remove('act'));this.classList.add('act');const eb=document.getElementById('enc-box');eb.style.boxShadow='0 0 60px rgba(0,255,159,.2),inset 0 0 60px rgba(0,0,0,.5)';setTimeout(()=>{eb.style.boxShadow='0 0 50px rgba(0,255,159,.08),inset 0 0 60px rgba(0,0,0,.5)'},300)})});
+setInterval(()=>{if(cz>5){cz-=.3;hpc.style.width=cz+'%';hpv.textContent=Math.round(cz)+' / 100'}},2000);
+
+
+// ═══════════════════════════════════════════
+// MODULE EXPLORER — 47 modules
+// ═══════════════════════════════════════════
+const MODULES={
+"app.py":{lines:635,layer:"core",dim:"D1",star:0,desc:"Interfaz Streamlit — 3 vistas: estudiante, docente, analytics.",role:"Punto de entrada. Orquesta las 4 capas.",refs:["middleware.py","rag_pipeline.py","llm_client.py","cognitive_engine.py","trust_dynamics.py"],fns:[{n:"init_state",a:"",d:"Inicializa estado de sesión."},{n:"generate_demo_data",a:"",d:"Genera datos demo."}],cls:[],dcs:[],cst:[]},
+"middleware.py":{lines:442,layer:"core",dim:"D1",star:1,desc:"Motor de reglas pedagógicas — LA pieza diferencial.",role:"Pre-process: scaffolding, límites, copy-paste. Post-process: truncado, alucinación.",refs:["llm_client.py","rag_pipeline.py"],cls:[{n:"PedagogicalMiddleware",d:"Motor de reglas pedagógicas.",m:["pre_process","post_process","log_interaction","reset_student","get_analytics_summary"]}],dcs:[{n:"PedagogicalConfig",d:"Configuraciones pedagógicas (LAK 2026, §3).",f:["model_name","max_daily_prompts","min_response_length","max_response_length","scaffolding_mode","block_direct_solutions","forced_hallucination_pct","use_rag"]},{n:"InteractionLog",d:"Registro de interacción.",f:["timestamp","student_id","prompt_raw","prompt_processed","response_raw","response_delivered","detected_topics","scaffolding_level"]}],fns:[],cst:[]},
+"rag_pipeline.py":{lines:376,layer:"core",dim:"D1",star:0,desc:"Pipeline RAG: PDF → chunking → embeddings → ChromaDB → retrieval.",role:"Dos modos: OpenAI+ChromaDB y TF-IDF fallback.",refs:[],cls:[{n:"SimpleRAGPipeline",d:"RAG sin dependencias externas.",m:["ingest_text","ingest_pdf","retrieve","build_context","get_stats"]},{n:"OpenAIRAGPipeline",d:"RAG con OpenAI + ChromaDB.",m:["ingest_text","retrieve"]}],dcs:[],fns:[{n:"get_rag_pipeline",a:"use_openai",d:"Factory: devuelve pipeline configurado."}],cst:["SAMPLE_COURSE_CONTENT"]},
+"llm_client.py":{lines:220,layer:"core",dim:"D1",star:0,desc:"Abstracción multi-proveedor: OpenAI, Anthropic, Mock.",role:"Factory pattern con fallback automático.",refs:[],cls:[{n:"MockLLMClient",d:"Demo sin API key.",m:["chat"]},{n:"OpenAIClient",d:"API OpenAI.",m:["chat"]},{n:"AnthropicClient",d:"API Anthropic.",m:["chat"]}],dcs:[],fns:[{n:"get_llm_client",a:"",d:"Factory: devuelve cliente LLM disponible."}],cst:[]},
+"cognitive_engine.py":{lines:358,layer:"cognitive",dim:"D2",star:0,desc:"Motor de análisis: Bloom (6 niveles) + ICAP.",role:"Clasifica cada prompt en nivel cognitivo + engagement.",refs:["middleware.py"],cls:[{n:"CognitiveEngine",d:"Motor de análisis cognitivo.",m:["analyze_prompt","analyze_trust","track_student","get_student_profile"]}],dcs:[{n:"CognitiveAnalysis",d:"Resultado del análisis.",f:["bloom_level","bloom_name","bloom_code","bloom_confidence","icap_level","icap_label","detected_markers","engagement_score"]},{n:"TrustSignal",d:"Señal de confianza/desconfianza.",f:["signal_type","trust_direction","indicators"]}],fns:[],cst:["BLOOM_LEVELS","BLOOM_MARKERS","ICAP_LEVELS"]},
+"cognitive_profiler.py":{lines:612,layer:"cognitive",dim:"D2+D4",star:1,desc:"Perfiles de engagement longitudinal. Ataca limitación LAK 2026.",role:"Clustering temporal de patrones cognitivos.",refs:["cognitive_engine.py"],cls:[{n:"CognitiveProfiler",d:"Motor de perfilado cognitivo.",m:["analyze_prompt","build_profile","get_cohort_summary"]}],dcs:[{n:"CognitiveSnapshot",d:"Instantánea cognitiva.",f:["timestamp","student_id","bloom_level","bloom_confidence","affective_state","prompt_complexity","metacognitive_signals"]},{n:"EngagementProfile",d:"Perfil de engagement.",f:["student_id","bloom_distribution","cognitive_depth_mean","cognitive_trajectory","dominant_affect"]}],fns:[],cst:["BLOOM_LEVELS","AFFECTIVE_MARKERS"]},
+"cognitive_gap_detector.py":{lines:1593,layer:"cognitive",dim:"D2+D4",star:1,desc:"Unknown Unknowns — lo que el estudiante NO sabe que no sabe.",role:"Grafo de conocimiento + sondas epistémicas (Firlej).",refs:["cognitive_engine.py","rag_pipeline.py"],cls:[{n:"CognitiveGapDetector",d:"Detecta unknown unknowns.",m:["build_knowledge_map","record_interaction","detect_critical_gaps","generate_epistemic_probes","get_probe_for_injection","get_gap_summary","get_knowledge_graph_data"]}],dcs:[{n:"KnowledgeNode",d:"Nodo del grafo.",f:["topic","prerequisite_topics","dependent_topics","difficulty_estimate"]},{n:"CognitiveGap",d:"Gap detectado.",f:["topic","gap_type","severity","dependent_topics_at_risk","evidence","suggested_probe","confidence"]},{n:"EpistemicProbe",d:"Sonda epistémica (Firlej).",f:["gap","probe_type","probe_text","target_bloom","priority","firlej_technique"]},{n:"KnowledgeMap",d:"Grafo completo.",f:["nodes","prerequisite_edges","cooccurrence_edges","total_chunks"]},{n:"StudentKnowledgeMap",d:"Subgrafo visitado.",f:["student_id","topic_states","coverage_ratio","avg_bloom_depth"]}],fns:[{n:"generate_demo_data",a:"",d:"Escenario demo."},{n:"print_demo_report",a:"detector, student_id",d:"Informe legible."}],cst:["PROGRAMMING_PREREQUISITES","TOPIC_DIFFICULTY"]},
+"cognitive_pragmatics.py":{lines:554,layer:"cognitive",dim:"D4",star:0,desc:"Análisis pragmático. Refina Bloom con semántica.",role:"Intencionalidad comunicativa, implicaturas.",refs:["cognitive_engine.py"],cls:[{n:"PragmaticAnalyzer",d:"Refina clasificación Bloom.",m:["analyze","refine"]},{n:"EnhancedBloomClassifier",d:"CognitiveAnalyzer + Pragmatics.",m:["analyze"]}],dcs:[{n:"PragmaticAnalysis",d:"Resultado pragmático.",f:["h1_indexical_symbolic","h2_symptom_mechanism","h3_correction_comprehension","pragmatic_score","level_adjustment"]}],fns:[],cst:["INDEXICAL_MARKERS","SYMBOLIC_MARKERS"]},
+"trust_dynamics.py":{lines:267,layer:"cognitive",dim:"D2",star:0,desc:"Dinámicas de confianza (Lee & See, 2004).",role:"Confianza ciega vs escepticismo productivo.",refs:["cognitive_engine.py"],cls:[{n:"TrustDynamicsAnalyzer",d:"Analiza confianza estudiante-chatbot.",m:["analyze_prompt","analyze_timing","get_student_trust_profile"]}],dcs:[{n:"TrustSignal",d:"Señal conductual.",f:["timestamp","student_id","signal_type","trust_direction","description"]}],fns:[],cst:[]},
+"consolidation_detector.py":{lines:1210,layer:"cognitive",dim:"D2+D3",star:0,desc:"Ventana de consolidación 48-72h (Bjork, 1994).",role:"Repaso espaciado. ¿Consolida entre sesiones?",refs:["cognitive_engine.py","temporal_dynamics.py"],cls:[{n:"MemoryConsolidationTracker",d:"Detecta consolidación mnésica.",m:["ingest_interaction","compute_consolidation_index","detect_consolidation_patterns","generate_spaced_repetition_suggestions","get_student_report"]}],dcs:[{n:"TopicEncounter",d:"Encuentro con topic.",f:["timestamp","student_id","topic","bloom_level","session_id"]},{n:"ConsolidationWindow",d:"Par de encuentros.",f:["student_id","topic","first_encounter","first_bloom","return_encounter","return_bloom"]},{n:"TopicSuggestion",d:"Sugerencia de repaso.",f:["student_id","topic","hours_since_encounter","urgency","suggested_prompt"]}],fns:[{n:"generate_demo_data",a:"",d:"Estudiante sintético con 20 interacciones."}],cst:["MIN_GAP_HOURS","MAX_GAP_HOURS"]},
+"nd_patterns.py":{lines:500,layer:"cognitive",dim:"D2+D4",star:0,desc:"Patrones neurodivergentes (TDAH, TEA, AACC, 2e).",role:"Señaliza, nunca etiqueta. Perfiles funcionales.",refs:["cognitive_engine.py"],cls:[{n:"NeurodivergentPatternDetector",d:"Detecta patrones que sugieren adaptación.",m:["analyze"]}],dcs:[{n:"NeurodivergentPattern",d:"Patrón con evidencia.",f:["pattern_id","pattern_name","functional_description","confidence","scaffolding_adaptation","teacher_note"]}],fns:[],cst:[]},
+"teacher_calibration.py":{lines:893,layer:"teacher",dim:"D2+D3",star:1,desc:"El docente como sujeto de análisis. IFS score.",role:"¿Las intervenciones están calibradas al estado real?",refs:["cognitive_engine.py","middleware.py"],cls:[{n:"TeacherCalibrationAnalyzer",d:"Calibración interpretativa docente.",m:["record_intervention","get_teacher_bias_profile","get_teacher_dashboard_summary","get_course_calibration_report"]}],dcs:[{n:"StudentStateSnapshot",d:"Estado en el momento.",f:["bloom_level","bloom_trend","epistemic_mode","autonomy_score"]},{n:"TeacherIntervention",d:"Cambio de config con contexto.",f:["teacher_id","student_id","config_key","config_old_value","config_new_value","student_state"]},{n:"TeacherBiasProfile",d:"Sesgos interpretativos.",f:["n_calibrated","n_miscalibrated","n_inverted","calibration_mean","volume_bias"]}],fns:[],cst:["CONFIG_ASSUMPTION_MAP"]},
+"teacher_agency_longitudinal.py":{lines:1123,layer:"teacher",dim:"D3+D4",star:0,desc:"Agencia docente (Priestley/Biesta/Robinson).",role:"Iteracional, proyectiva, práctica-evaluativa.",refs:["config_genome.py","teacher_calibration.py"],cls:[{n:"TeacherAgencyTracker",d:"Rastreador longitudinal.",m:["record_decision_event","compute_agency_trajectory","detect_agency_erosion","get_cohort_agency_summary"]}],dcs:[{n:"AgencyTrajectory",d:"Trayectoria longitudinal.",f:["teacher_id","acceptance_slope","calibration_slope","trajectory_label"]}],fns:[{n:"generate_demo_data",a:"",d:"Tres perfiles docentes sintéticos."}],cst:[]},
+"teacher_notification_engine.py":{lines:405,layer:"teacher",dim:"D2",star:0,desc:"Cerrar bucle analytics→docente.",role:"Alertas que provocan re-calibración.",refs:["teacher_calibration.py","temporal_config_advisor.py"],cls:[{n:"TeacherNotificationEngine",d:"Motor de notificaciones.",m:["evaluate_context","record_decision","get_pending","get_agency_metrics"]}],dcs:[{n:"TeacherNotification",d:"Notificación accionable.",f:["notification_id","teacher_id","notification_type","priority","title","message"]}],fns:[],cst:[]},
+"learning_design_generator.py":{lines:957,layer:"teacher",dim:"D2+D5",star:0,desc:"Generador de learning design. O2 CSEDU 2025.",role:"Analytics → diseño instruccional.",refs:["cognitive_profiler.py","config_genome.py"],cls:[{n:"LearningDesignGenerator",d:"Genera secuencias de actividades.",m:["generate","generate_from_raw_logs","to_json"]}],dcs:[{n:"LearningActivity",d:"Actividad individual.",f:["activity_type","title","bloom_target","estimated_minutes","student_role","teacher_role"]},{n:"DesignDecision",d:"Decisión trazable.",f:["rationale","data_evidence","theoretical_basis","alternatives_considered"]}],fns:[],cst:["ACTIVITY_TYPES","ACTIVITY_TEMPLATES"]},
+"metacognitive_nudges.py":{lines:727,layer:"teacher",dim:"D2+D4",star:0,desc:"Analytics PARA el estudiante. 6 tipos × 3 tonos.",role:"Progresión, esfuerzo, repaso, desacople, reflexión, sandbox.",refs:["cognitive_engine.py","middleware.py"],cls:[{n:"MetacognitiveNudgeGenerator",d:"Nudges metacognitivos contextuales.",m:["record_interaction","maybe_generate_nudge","get_nudge_stats"]}],dcs:[{n:"MetacognitiveNudge",d:"Nudge para estudiante.",f:["nudge_type","message","icon","theoretical_basis","trigger_reason"]},{n:"NudgeConfig",d:"Config controlada por docente.",f:["enabled","min_interval","types_enabled","tone"]}],fns:[{n:"generate_demo_nudge_sequence",a:"",d:"15 interacciones con nudges."}],cst:["NUDGE_TEMPLATES"]},
+"system_event_logger.py":{lines:783,layer:"ecosystem",dim:"D2+D5",star:1,desc:"Sistema nervioso. 4 columnas diferenciales.",role:"config_snapshot + bloom_estimate + pressure_index + cohort_state.",refs:["middleware.py"],cls:[{n:"SystemEventLogger",d:"Motor central de logging.",m:["log_event","update_outcome","get_student_timeline","get_config_change_events","get_rephrase_sequences","get_epistemic_silences","export_for_analysis"]}],dcs:[{n:"SystemEvent",d:"Unidad atómica.",f:["event_id","timestamp","event_type","actor","node_id","student_id","teacher_id","course_id"]}],fns:[{n:"create_student_prompt_event",a:"student_id, prompt, ...",d:"Factory para eventos de prompt."},{n:"create_config_change_event",a:"teacher_id, param, ...",d:"Factory para cambios de config."},{n:"create_epistemic_silence_event",a:"student_id, topic, ...",d:"Factory para silencios."}],cst:[]},
+"config_genome.py":{lines:539,layer:"ecosystem",dim:"D2+D5",star:0,desc:"Fingerprinting pedagógico. Configs como evento.",role:"Genoma docente — Prof. A vs Prof. B.",refs:["middleware.py"],cls:[{n:"ConfigGenomeAnalyzer",d:"Patrones de configuración.",m:["ingest_config_change","compute_fingerprint","build_teacher_profile","get_attributional_analysis"]}],dcs:[{n:"ConfigFingerprint",d:"Representación compacta.",f:["teacher_id","restrictiveness_score","socratic_intensity","trust_in_student","pedagogical_style"]},{n:"TeacherConfigProfile",d:"Perfil agregado.",f:["most_adjusted_params","config_volatility","data_driven_ratio","dominant_style"]}],fns:[],cst:[]},
+"rag_quality_sensor.py":{lines:521,layer:"ecosystem",dim:"D1+D2",star:0,desc:"Calidad RAG por rephrase sequences.",role:"Si reformula, el RAG falló.",refs:["rag_pipeline.py"],cls:[{n:"RAGQualitySensor",d:"Sensor basado en comportamiento.",m:["record_retrieval","generate_quality_report","get_student_rag_quality"]}],dcs:[{n:"RephrasePair",d:"Par de reformulación.",f:["prompt_first","prompt_second","semantic_similarity","degradation_type"]},{n:"RAGQualityReport",d:"Informe para investigador.",f:["total_retrievals","rephrase_rate","most_problematic_topics","corpus_gaps"]}],fns:[],cst:[]},
+"cross_node_signal.py":{lines:640,layer:"ecosystem",dim:"D2+D8",star:0,desc:"Inteligencia colectiva UC3M↔UVa↔UPF.",role:"Señales anónimas entre nodos.",refs:["system_event_logger.py"],cls:[{n:"CrossNodeSignalEngine",d:"Motor de inteligencia colectiva.",m:["record_daily_topic_stats","detect_and_emit_signals","receive_signal","get_pending_alerts","export_signal"]}],dcs:[{n:"CrossNodeSignal",d:"Señal entre nodos.",f:["signal_id","source_node","target_nodes","signal_type","topic","urgency","n_students_affected"]},{n:"ReceivedSignalAnalysis",d:"Análisis de señal recibida.",f:["is_relevant","estimated_arrival_days","preemptive_config"]}],fns:[],cst:[]},
+"temporal_config_advisor.py":{lines:617,layer:"ecosystem",dim:"D2+D5",star:0,desc:"Config consciente del calendario académico.",role:"Pre-examen: aflojar. Post-entrega: endurecer.",refs:["system_event_logger.py","middleware.py"],cls:[{n:"TemporalConfigAdvisor",d:"Sugerencias al momento académico.",m:["compute_pressure_profile","generate_suggestion","record_teacher_decision","get_decision_analytics"]}],dcs:[{n:"AcademicEvent",d:"Evento del calendario.",f:["event_type","event_name","start_date","end_date","pressure_weight"]},{n:"ConfigSuggestion",d:"Sugerencia para docente.",f:["academic_moment","pressure_index","params_to_change","params_to_keep"]}],fns:[],cst:[]},
+"ecosystem_dashboard.py":{lines:501,layer:"ecosystem",dim:"D2",star:0,desc:"Hub de los 6 módulos del ecosistema.",role:"Panel unificado. Correlaciones entre sensores.",refs:["system_event_logger.py","config_genome.py","rag_quality_sensor.py","teacher_calibration.py","cross_node_signal.py","temporal_config_advisor.py"],cls:[{n:"EcosystemDashboard",d:"Hub central.",m:["configure","process_student_interaction","get_teacher_dashboard","get_ecosystem_snapshot"]}],dcs:[{n:"EcosystemSnapshot",d:"Estado completo.",f:["total_events","unique_students","rag_quality_report","cohort_bloom_mean"]},{n:"TeacherDashboardView",d:"Vista simplificada.",f:["urgent_alerts","config_suggestions","students_at_risk","epistemic_silences"]}],fns:[],cst:[]},
+"epistemic_autonomy.py":{lines:473,layer:"epistemic",dim:"D4",star:1,desc:"Tracker de autonomía epistémica. Gap del SLR Topali (2024).",role:"¿Independencia o dependencia del chatbot?",refs:["cognitive_engine.py","trust_dynamics.py"],cls:[{n:"EpistemicAutonomyTracker",d:"Motor de seguimiento.",m:["record_interaction","get_scaffolding_recommendation","get_autonomy_dashboard_data"]}],dcs:[{n:"AutonomyState",d:"Estado de autonomía.",f:["student_id","phase","autonomy_score","scaffolding_need","zpd_estimate","dependency_ratio"]},{n:"ScaffoldingRecommendation",d:"Recomendación adaptativa.",f:["recommended_level","confidence","rationale","should_fade","zpd_alignment"]}],fns:[],cst:[]},
+"epistemic_ecology.py":{lines:545,layer:"epistemic",dim:"D4",star:0,desc:"Ecología epistémica. 4E cognition.",role:"Agentes, herramientas, contextos.",refs:["epistemic_autonomy.py"],cls:[{n:"EpistemicEcologyAnalyzer",d:"Dimensión ecológica.",m:["compute_extension_index","compute_agency_distribution","detect_collective_difficulties"]}],dcs:[{n:"AgencyDistribution",d:"Distribución de agencia.",f:["student_agency","chatbot_agency","teacher_agency","balance_type"]},{n:"CollectiveDifficultySignal",d:"Dificultad sistémica.",f:["topic","convergence_ratio","urgency","teacher_recommendation"]}],fns:[],cst:[]},
+"epistemic_silence_detector.py":{lines:847,layer:"epistemic",dim:"D2+D4",star:0,desc:"Lo que NO se pregunta es informativo.",role:"Temas evitados, preguntas no formuladas.",refs:["cognitive_gap_detector.py"],cls:[{n:"EpistemicSilenceDetector",d:"Detecta silencio epistémico.",m:["record_interaction","get_active_alerts","get_student_silence_report","get_course_silence_overview"]}],dcs:[{n:"SilenceAlert",d:"Alerta de silencio.",f:["student_id","alert_level","topics_affected","silence_type","confidence"]},{n:"CourseTopicProfile",d:"Perfil del topic en curso.",f:["topic","n_students_who_asked","mean_bloom_level","difficulty_score"]}],fns:[],cst:[]},
+"interaction_semiotics.py":{lines:599,layer:"epistemic",dim:"D4",star:0,desc:"Motor semiótico. Copy-paste → apropiación textual.",role:"Literal → paráfrasis → síntesis → creación. Grice.",refs:["middleware.py"],cls:[{n:"InteractionSemioticsEngine",d:"Motor semiótico.",m:["analyze","build_quality_report","get_semiotics_dashboard_data"]}],dcs:[{n:"InteractionSemiotics",d:"Análisis semiótico.",f:["primary_speech_act","pedagogical_value","grice_quantity","grice_quality","grice_relation"]},{n:"InteractionQualityReport",d:"Reporte de calidad.",f:["pedagogical_value_mean","gaming_alerts","quality_tier","recommendation"]}],fns:[],cst:["SPEECH_ACTS","GAMING_PATTERNS"]},
+"temporal_dynamics.py":{lines:586,layer:"epistemic",dim:"D2+D4",star:0,desc:"Aprendizaje como proceso dinámico.",role:"Micro, meso, macro. Resiliencia epistémica.",refs:["cognitive_engine.py"],cls:[{n:"TemporalDynamicsAnalyzer",d:"Dimensión temporal.",m:["update","compute_resilience","estimate_self_efficacy","recommend_scaffolding"]}],dcs:[{n:"LearningVelocity",d:"Velocidad en ventana.",f:["slope","acceleration","direction","confidence"]},{n:"PhaseTransition",d:"Transición de fase.",f:["from_regime","to_regime","trigger_indicator","significance"]},{n:"EpistemicResilience",d:"Capacidad de recuperación.",f:["n_drops","n_recoveries","resilience_score"]},{n:"SelfEfficacyProxy",d:"Proxy de Bandura (1997).",f:["prompt_complexity_trend","persistence_after_error","composite_score"]}],fns:[],cst:[]},
+"hhh_alignment_detector.py":{lines:736,layer:"epistemic",dim:"D4+D7",star:0,desc:"Detector HHH (Helpful, Honest, Harmless).",role:"Framework ético como métrica observable.",refs:["middleware.py","llm_client.py"],cls:[{n:"HHHAlignmentDetector",d:"Audita contra HHH.",m:["audit","get_session_report","get_alignment_trend"]}],dcs:[{n:"HHHScore",d:"Puntuación HHH.",f:["helpful","honest","harmless","overall","flags","recommendation"]}],fns:[],cst:["HEDGING_PATTERNS","FALSE_CERTAINTY_PATTERNS"]},
+"pilot_design.py":{lines:1274,layer:"research",dim:"D3+D5",star:0,desc:"Infraestructura de análisis del piloto.",role:"Power analysis, clustering, Spearman.",refs:["system_event_logger.py"],cls:[],dcs:[{n:"StudyDesign",d:"Diseño quasi-experimental.",f:["study_type","n_conditions","alpha","power","effect_size_d"]},{n:"PilotAnalysisReport",d:"Informe completo.",f:["n_students","power_analysis","cluster_profiles","correlations"]}],fns:[{n:"power_analysis",a:"design",d:"Tamaño muestral."},{n:"run_clustering",a:"records, k_range",d:"K-Means + silueta."},{n:"run_statistical_analysis",a:"records",d:"Spearman."},{n:"run_full_analysis",a:"records, prompts_log, design",d:"PUNTO DE ENTRADA."}],cst:[]},
+"paper_drafting_engine.py":{lines:800,layer:"research",dim:"D5+D6",star:1,desc:"El sistema que escribe su propio paper.",role:"Datos → secciones académicas.",refs:["system_event_logger.py","pilot_design.py"],cls:[{n:"PaperDraftingEngine",d:"Extrae datos y genera borradores.",m:["extract_from_system","generate_tables","generate_draft","export_all"]}],dcs:[{n:"PaperDataPackage",d:"Paquete de datos para paper.",f:["venue","n_students","n_interactions","duration_days"]}],fns:[],cst:["VENUE_CONFIGS"]},
+"o1_feedback_engine.py":{lines:1818,layer:"research",dim:"D5",star:0,desc:"Bucle O3→O1. Double-loop learning.",role:"Datos revisan supuestos de diseño.",refs:["system_event_logger.py","config_genome.py"],cls:[{n:"O1FeedbackEngine",d:"Motor O3→O1.",m:["run_analysis","generate_o5_hypothesis","export_for_researcher_view"]}],dcs:[{n:"O1Assumption",d:"Supuesto de diseño.",f:["description","expected_direction","falsification_criterion"]},{n:"AnomalyReport",d:"Contradicción empírica.",f:["assumption_challenged","observed_pattern","effect_size"]},{n:"O5EmergenceSignal",d:"Emergencia inesperada.",f:["discovery_type","evidence_base","suggested_new_objective"]}],fns:[],cst:[]},
+"llm_judge.py":{lines:290,layer:"research",dim:"D3+D6",star:0,desc:"LLM-as-Judge. Validación cruzada Bloom.",role:"Inter-rater reliability: regex vs GPT-4.",refs:["cognitive_engine.py","llm_client.py"],cls:[{n:"LLMBloomJudge",d:"Validador con LLM.",m:["judge","compute_kappa","get_calibration_suggestions","export_dataset"]}],dcs:[{n:"JudgmentRecord",d:"Juicio del LLM.",f:["prompt","regex_bloom","llm_bloom","llm_confidence","agreement"]}],fns:[],cst:["JUDGE_SYSTEM_PROMPT"]},
+"effect_latency_analyzer.py":{lines:629,layer:"research",dim:"D3+D5",star:0,desc:"¿Cuánto tarda en funcionar una config?",role:"Time-to-effect. Onset, estabilización.",refs:["config_genome.py","system_event_logger.py"],cls:[{n:"EffectLatencyAnalyzer",d:"Latencia de efecto.",m:["compute_effect_latency","compute_multi_metric_latency","generate_demo_data","render_streamlit_panel"]}],dcs:[{n:"EffectLatencyResult",d:"Latencia por evento.",f:["config_key","onset_n","stabilization_n","effect_type","cognitive_depth_inference"]},{n:"MultiMetricLatency",d:"Latencia multi-métrica.",f:["dominant_metric","slowest_metric","latency_spread"]}],fns:[],cst:[]},
+"config_interaction_analyzer.py":{lines:866,layer:"research",dim:"D3+D5",star:0,desc:"Cuando configs se sabotean. Sinergia vs antagonismo.",role:"Socrático + límite bajo = frustración.",refs:["config_genome.py"],cls:[{n:"ConfigInteractionAnalyzer",d:"Efectos de interacción.",m:["record_observation","compute_interaction_effects","generate_interaction_matrix","render_interaction_heatmap"]}],dcs:[{n:"ConfigInteractionResult",d:"Resultado de interacción.",f:["config_a","config_b","effect_a_alone","actual_combined","interaction_type"]}],fns:[],cst:[]},
+"api.py":{lines:849,layer:"platform",dim:"D1",star:0,desc:"API REST (FastAPI). 32 módulos.",role:"Endpoints para chat, config, analytics.",refs:["middleware.py","rag_pipeline.py","llm_client.py"],cls:[{n:"AppState",d:"Inicializa módulos.",m:[]},{n:"ChatRequest",d:"Request.",m:[]},{n:"ChatResponse",d:"Response.",m:[]}],dcs:[],fns:[],cst:[]},
+"database.py":{lines:328,layer:"platform",dim:"D1",star:0,desc:"Persistencia: SQLite → PostgreSQL.",role:"ORM ligero. Migraciones.",refs:[],cls:[{n:"Database",d:"SQLite con migrations.",m:["log_interaction","get_interactions","get_daily_count","save_config","get_analytics_summary","export_interactions_csv"]}],dcs:[],fns:[],cst:[]},
+"auth.py":{lines:137,layer:"platform",dim:"D1+D7",star:0,desc:"JWT + RBAC multi-tenant.",role:"Roles: student, teacher, researcher, admin.",refs:["database.py"],cls:[],dcs:[{n:"UserSession",d:"Sesión de usuario.",f:["user_id","role","display_name","institution","course_id"]}],fns:[{n:"create_token",a:"user_id, role",d:"Crea JWT."},{n:"verify_token",a:"token",d:"Verifica JWT."},{n:"has_permission",a:"session, permission",d:"Verifica RBAC."}],cst:["PERMISSIONS"]},
+"lti_integration.py":{lines:586,layer:"platform",dim:"D1",star:0,desc:"Puente LTI 1.3 con Moodle/Canvas.",role:"Deep linking, roles, grades.",refs:["auth.py","database.py"],cls:[],dcs:[{n:"LTIConfig",d:"Credenciales LTI.",f:["consumer_key","shared_secret","institution_name"]},{n:"LTILaunchData",d:"Datos del launch.",f:["user_id","roles","display_name","course_id","course_title"]}],fns:[{n:"verify_oauth_signature",a:"method, url, params",d:"Verifica OAuth 1.0."},{n:"extract_launch_data",a:"params",d:"Extrae datos del POST."},{n:"create_lti_routes",a:"app",d:"Registra rutas en FastAPI."}],cst:["LTI_ROLE_MAP"]},
+"gdpr_anonymizer.py":{lines:352,layer:"platform",dim:"D7",star:0,desc:"Anonimización. Privacy-by-design.",role:"Qué se logea, cómo, quién, cuándo se destruye.",refs:["database.py","system_event_logger.py"],cls:[{n:"GDPRAnonymizer",d:"Capa de anonimización.",m:["pseudonymize","depseudonymize","anonymize_interaction","register_consent","withdraw_consent","forget_participant","export_participant_data"]}],dcs:[{n:"ConsentRecord",d:"Registro de consentimiento.",f:["participant_id","consent_given","consent_version","categories_consented","withdrawal_date"]}],fns:[],cst:["DATA_CATEGORIES"]},
+"udl_adapter.py":{lines:775,layer:"platform",dim:"D1+D4",star:0,desc:"Adaptador UDL. 6 estrategias.",role:"Perfil ND → adaptación de interfaz.",refs:["nd_patterns.py","middleware.py"],cls:[{n:"UDLAdapter",d:"Motor principal UDL.",m:["update_profile","adapt_system_prompt","adapt_response","full_adapt","get_adaptation_report"]},{n:"SegmentedDeliveryStrategy",d:"Para TDAH.",m:["should_apply","adapt_response"]},{n:"CompactEnrichmentStrategy",d:"Para AACC.",m:["should_apply","adapt_response"]}],dcs:[{n:"AdaptiveProfile",d:"Perfil acumulativo.",f:["student_id","functional_patterns","prefers_short_responses","prefers_examples_first"]},{n:"ResponseAdaptation",d:"Adaptación aplicada.",f:["adaptation_type","rationale","udl_principle"]}],fns:[],cst:[]},
+"system_reflexivity.py":{lines:721,layer:"meta",dim:"D5",star:1,desc:"El sistema que se observa. Ningún chatbot publicado hace esto.",role:"¿Cumple sus propios principios de diseño?",refs:["system_event_logger.py","hhh_alignment_detector.py"],cls:[{n:"SystemReflexivityEngine",d:"Motor de auto-observación.",m:["ingest_trace","ingest_batch","reflect","get_insights_report","export_for_paper"]}],dcs:[{n:"ReflexiveInsight",d:"Insight emergente.",f:["category","severity","title","description","evidence","affected_modules"]},{n:"InteractionTrace",d:"Traza mínima.",f:["bloom_level","autonomy_score","scaffolding_mode","hhh_overall","rag_quality"]}],fns:[],cst:[]},
+"ach_diagnostic.py":{lines:516,layer:"meta",dim:"D3+D5",star:0,desc:"ACH (Heuer) aplicado a educación.",role:"¿Por qué baja rendimiento? Múltiples hipótesis.",refs:["cognitive_engine.py","system_event_logger.py"],cls:[{n:"ACHDiagnosticEngine",d:"Motor ACH.",m:["diagnose","get_hypothesis_info","format_diagnosis_report"]}],dcs:[{n:"ACHDiagnosis",d:"Resultado ACH.",f:["hypotheses_scores","leading_hypothesis","confidence","recommended_intervention"]}],fns:[],cst:["DIAGNOSTIC_HYPOTHESES"]},
+"autonomy_viz.py":{lines:770,layer:"meta",dim:"D2",star:0,desc:"Visualización de autonomía en Plotly.",role:"Individual + cohort + fases.",refs:["epistemic_autonomy.py"],cls:[{n:"AutonomyTimelineBuilder",d:"Construye timelines.",m:["record_point","record_config_event","get_timeline"]}],fns:[{n:"build_autonomy_trajectory_figure",a:"timeline",d:"Figura Plotly."},{n:"render_autonomy_trajectory_panel",a:"timeline",d:"Panel Streamlit."}],dcs:[],cst:["PHASE_CONFIG"]},
+"config_impact_panel.py":{lines:832,layer:"meta",dim:"D2+D5",star:0,desc:"Panel de impacto configuracional.",role:"Config change → delta en métricas.",refs:["interaction_semiotics.py","config_genome.py"],cls:[{n:"ConfigImpactTracker",d:"Registra cambios y computa impacto.",m:["record_config_change","record_interaction_metrics"]}],fns:[{n:"render_config_impact_panel",a:"tracker",d:"Renderiza en Streamlit."}],dcs:[],cst:[]},
+"analytics_bridge.py":{lines:737,layer:"meta",dim:"D2",star:0,desc:"Hub de integración analítica.",role:"Conecta todos los sensores.",refs:["system_event_logger.py","cognitive_engine.py"],cls:[],dcs:[{n:"AnalyticsBridge",d:"Hub middleware→módulos.",f:["gap_detector","consolidation_tracker","latency_analyzer","interaction_analyzer"]}],fns:[{n:"create_bridge",a:"with_demo_data",d:"Factory: crea bridge."}],cst:[]},
+"integration.py":{lines:225,layer:"meta",dim:"D1",star:0,desc:"Módulos diferenciales → middleware.",role:"Conecta profiler + autonomy + semiotics.",refs:["cognitive_profiler.py","epistemic_autonomy.py","interaction_semiotics.py"],cls:[{n:"EnhancedAnalyticsLayer",d:"Capa analítica de alto nivel.",m:["analyze_interaction","get_enhanced_dashboard_data","get_student_deep_profile"]}],dcs:[],fns:[],cst:[]},
+"researcher_view.py":{lines:432,layer:"meta",dim:"D5+D6",star:0,desc:"Vista investigador. Datos granulares.",role:"Panel Streamlit para explorar datos brutos.",refs:["system_event_logger.py","pilot_design.py"],cls:[],dcs:[],fns:[{n:"render_researcher_view",a:"logger, pilot",d:"Panel completo Streamlit."}],cst:[]}
+};
+
+const LM={
+core:{name:"NÚCLEO FUNCIONAL",sub:"El pipeline end-to-end",c:"#3B82F6"},
+cognitive:{name:"ANÁLISIS COGNITIVO",sub:"Radiografía del aprendizaje",c:"#8B5CF6"},
+teacher:{name:"INTELIGENCIA DOCENTE",sub:"El profesor como sujeto de análisis",c:"#F59E0B"},
+ecosystem:{name:"ECOSISTEMA ANALÍTICO",sub:"Los 6 sensores distribuidos",c:"#10B981"},
+epistemic:{name:"MARCO EPISTÉMICO",sub:"Teoría en código",c:"#EC4899"},
+research:{name:"INFRAESTRUCTURA INVESTIGADORA",sub:"Del dato al paper",c:"#EF4444"},
+platform:{name:"SERVICIOS DE PLATAFORMA",sub:"Producción",c:"#6B7280"},
+meta:{name:"METACOGNICIÓN DEL SISTEMA",sub:"Auto-observación",c:"#7C3AED"}
+};
+const LO=["core","cognitive","teacher","ecosystem","epistemic","research","platform","meta"];
+
+// State
+const openLy=new Set(["core"]);const openMd=new Set(["middleware.py"]);
+
+function buildExplorer(filter){
+  const el=document.getElementById('exp-layers');el.innerHTML='';const fl=filter?filter.toLowerCase():'';
+  LO.forEach(lid=>{
+    const lm=LM[lid]; const mods=Object.entries(MODULES).filter(([n,m])=>m.layer===lid&&(!fl||n.includes(fl)||m.desc.toLowerCase().includes(fl)||(m.cls||[]).some(c=>c.n.toLowerCase().includes(fl))||(m.dcs||[]).some(d=>d.n.toLowerCase().includes(fl))||(m.fns||[]).some(f=>f.n.toLowerCase().includes(fl))));
+    if(!mods.length)return;
+    const lyOpen=openLy.has(lid); const lyLines=mods.reduce((s,[,m])=>s+m.lines,0);
+    let h='';
+    h+=`<div class="ly-hdr" onclick="openLy.has('${lid}')?openLy.delete('${lid}'):openLy.add('${lid}');buildExplorer(document.getElementById('exp-search').value)" style="background:${lyOpen?lm.c+'11':'rgba(255,255,255,.015)'};border:1px solid ${lyOpen?lm.c+'55':'rgba(255,255,255,.05)'};border-radius:${lyOpen?'10px 10px 0 0':'10px'}">`;
+    h+=`<div style="width:4px;height:36px;border-radius:2px;background:${lm.c};flex-shrink:0"></div>`;
+    h+=`<div style="flex:1"><div style="display:flex;align-items:center;gap:8px"><span class="mono" style="font-size:13px;font-weight:700;color:${lm.c};letter-spacing:1.2px">${lm.name}</span></div><div style="font-size:12px;color:rgba(255,255,255,.35);margin-top:2px">${lm.sub}</div></div>`;
+    h+=`<div style="text-align:right;margin-right:10px"><span style="font-size:18px;font-weight:800;color:${lm.c}">${mods.length}</span><span style="font-size:11px;color:rgba(255,255,255,.25);margin-left:5px">${lyLines.toLocaleString()}L</span></div>`;
+    h+=`<span class="layer-arrow ${lyOpen?'open':''}">▼</span></div>`;
+    if(lyOpen){
+      h+=`<div class="ly-body" style="border-color:${lm.c}22">`;
+      mods.forEach(([mn,mod])=>{
+        const mo=openMd.has(mn);
+        h+=`<div style="border-bottom:1px solid ${lm.c}11;background:${mo?lm.c+'08':'rgba(0,0,0,.12)'}">`;
+        h+=`<div class="md-hdr" onclick="openMd.has('${mn}')?openMd.delete('${mn}'):openMd.add('${mn}');buildExplorer(document.getElementById('exp-search').value)">`;
+        h+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">`;
+        if(mod.star)h+=`<span style="color:${lm.c};font-size:11px">★</span>`;
+        h+=`<span class="mono" style="font-size:13px;font-weight:700;color:#e2e8f0">${mn}</span>`;
+        h+=`<span class="mono" style="font-size:11px;color:rgba(255,255,255,.2);margin-left:auto">${mod.lines}L</span>`;
+        h+=`<span style="font-size:10px;color:rgba(255,255,255,.2);transform:${mo?'rotate(180deg)':''};transition:transform .2s;display:inline-block">▼</span>`;
+        h+=`</div><div style="font-size:12px;color:rgba(255,255,255,.45);line-height:1.5">${mod.desc}</div></div>`;
+        if(mo){
+          h+=`<div class="md-body">`;
+          h+=`<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:10px;line-height:1.6">${mod.role||''}</div>`;
+          // Badges
+          let nb=0;if(mod.cls)nb+=mod.cls.length;if(mod.dcs)nb+=mod.dcs.length;if(mod.fns)nb+=mod.fns.length;
+          h+=`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">`;
+          if(mod.cls&&mod.cls.length)h+=`<span class="md-badge" style="background:rgba(96,165,250,.12);color:#60a5fa">${mod.cls.length} class</span>`;
+          if(mod.dcs&&mod.dcs.length)h+=`<span class="md-badge" style="background:rgba(52,211,153,.12);color:#34d399">${mod.dcs.length} dataclass</span>`;
+          if(mod.fns&&mod.fns.length)h+=`<span class="md-badge" style="background:rgba(251,191,36,.12);color:#fbbf24">${mod.fns.length} func</span>`;
+          if(mod.cst&&mod.cst.length)h+=`<span class="md-badge" style="background:rgba(167,139,250,.12);color:#a78bfa">${mod.cst.length} const</span>`;
+          h+=`<span class="md-badge" style="background:rgba(255,255,255,.04);color:rgba(255,255,255,.3)">${mod.dim}</span>`;
+          h+=`</div>`;
+          // Classes
+          (mod.cls||[]).forEach(c=>{
+            h+=`<div class="code-blk"><span style="color:#f472b6">class</span> <span style="color:#93c5fd;font-weight:700">${c.n}</span>${c.d?' <span style="color:rgba(255,255,255,.25)">— '+c.d+'</span>':''}</div>`;
+            if(c.m&&c.m.length)h+=`<div style="padding-left:16px;display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 8px">${c.m.map(m=>'<span class="mtag">.'+m+'()</span>').join('')}</div>`;
+          });
+          // Dataclasses
+          (mod.dcs||[]).forEach(dc=>{
+            h+=`<div class="code-blk"><span style="color:#fbbf24">@dataclass</span> <span style="color:#f472b6">class</span> <span style="color:#6ee7b7;font-weight:700">${dc.n}</span>${dc.d?' <span style="color:rgba(255,255,255,.25)">— '+dc.d+'</span>':''}</div>`;
+            if(dc.f&&dc.f.length)h+=`<div class="field-list">${dc.f.map(f=>'<span style="color:#6ee7b7">'+f+'</span>').join(' <span style="color:rgba(255,255,255,.12)">·</span> ')}</div>`;
+          });
+          // Functions
+          (mod.fns||[]).forEach(fn=>{
+            h+=`<div class="code-blk"><span style="color:#f472b6">def</span> <span style="color:#fcd34d;font-weight:700">${fn.n}</span>(<span style="color:rgba(255,255,255,.35)">${fn.a||''}</span>)${fn.d?' <span style="color:rgba(255,255,255,.25)">— '+fn.d+'</span>':''}</div>`;
+          });
+          // Refs
+          if(mod.refs&&mod.refs.length)h+=`<div style="margin-top:10px"><span class="mono" style="font-size:11px;color:rgba(255,255,255,.2)">→ </span>${mod.refs.map(r=>'<span class="rtag">'+r+'</span>').join('')}</div>`;
+          h+=`</div>`;
+        }
+        h+=`</div>`;
+      });
+      h+=`</div>`;
+    }
+    el.innerHTML+=h;
+  });
+}
+buildExplorer('');
+document.getElementById('exp-search').addEventListener('input',function(){buildExplorer(this.value)});
+</script>
+</body>
+</html>
