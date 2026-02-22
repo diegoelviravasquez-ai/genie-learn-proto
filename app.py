@@ -14,6 +14,7 @@ Ejecución: streamlit run app.py
 Autor: Diego Elvira Vásquez — Prototipo para entrevista GSIC/EMIC CP25/152
 """
 
+import os
 import streamlit as st
 import time
 import json
@@ -234,13 +235,30 @@ init_state()
 
 with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Escudo_de_la_Universidad_de_Valladolid.svg/200px-Escudo_de_la_Universidad_de_Valladolid.svg.png", width=64)
-    st.markdown("### GENIE Learn")
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        ">
+            <div style="font-size: 1.1rem;">GENIE Learn v0.9</div>
+            <div style="font-size: 0.85rem; opacity: 0.95; margin-top: 4px;">39 módulos · 17 fuentes externas</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.markdown("*Chatbot Pedagógico GenAI*")
     st.markdown("---")
 
     view = st.radio(
         "Vista activa",
-        ["Estudiante", "Docente — Configuración", "Docente — Analytics", "Investigador"],
+        ["Estudiante", "Docente — Configuración", "Docente — Analytics", "Mapa Epistémico", "Demo en Vivo", "Investigador"],
         index=0,
     )
 
@@ -259,6 +277,8 @@ with st.sidebar:
     LIGHTNING_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>'
     DOC_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4z"/></svg>'
     BRAIN_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5.5 1.2.5 2.5 0 3.8 1.2.7 2 2 2 3.5a4 4 0 0 1-8 0c0-1.5.8-2.8 2-3.5-.5-1.2-.5-2.5 0-3.8C8.8 8.8 8 7.5 8 6a4 4 0 0 1 4-4z"/></svg>'
+    GRID_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z"/></svg>'
+    n_modules = len(orch._modules)
 
     st.markdown(
         f"""
@@ -287,6 +307,13 @@ with st.sidebar:
                             <div style="font-size: 14px; font-weight: bold;">{scaff_label}</div>
                         </div>
                     </div>
+                    <div style="background: #001a3d; color: #66b3ff; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px;">
+                        <span style="display: flex; align-items: center;">{GRID_SVG}</span>
+                        <div>
+                            <div style="font-size: 12px; opacity: 0.9;">Ecosistema</div>
+                            <div style="font-size: 14px; font-weight: bold;">{n_modules} módulos activos</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div style="font-size: 11px; color: #888; opacity: 0.5; margin-top: 8px; text-align: center;">
@@ -296,6 +323,27 @@ with st.sidebar:
         """,
         unsafe_allow_html=True,
     )
+
+
+# ──────────────────────────────────────────────
+# CITA SUPERIOR — Panel principal
+# ──────────────────────────────────────────────
+
+st.markdown(
+    """
+    <p style="
+        font-style: italic;
+        text-align: center;
+        opacity: 0.7;
+        font-size: 1.1rem;
+        margin-bottom: 24px;
+        color: #e0e0e0;
+    ">
+        &ldquo;No es un chatbot que responde. Es un ecosistema que OBSERVA, INTERPRETA y ADAPTA.&rdquo;
+    </p>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 # ──────────────────────────────────────────────
@@ -466,12 +514,28 @@ elif view == "Docente — Configuración":
 
         st.markdown('<div class="config-card">', unsafe_allow_html=True)
         st.markdown("**Modelo de IA**")
-        config.model_name = st.selectbox(
+        has_openai = bool(os.getenv("OPENAI_API_KEY"))
+        has_anthropic = bool(os.getenv("ANTHROPIC_API_KEY"))
+        model_options = ["gpt-4o-mini", "claude-sonnet", "gpt-4o", "claude-sonnet-4-20250514"]
+        model_labels = [
+            "gpt-4o-mini" + (" (OpenAI configurada)" if has_openai else ""),
+            "claude-sonnet" + (" (Anthropic configurada)" if has_anthropic else ""),
+            "gpt-4o",
+            "claude-sonnet-4-20250514",
+        ]
+        default_idx = 1 if has_anthropic and not has_openai else 0
+        chosen_label = st.selectbox(
             "Seleccionar modelo",
-            ["gpt-4o-mini", "gpt-4o", "claude-sonnet-4-20250514"],
-            index=0,
+            range(len(model_options)),
+            index=default_idx,
+            format_func=lambda i: model_labels[i],
             help="El modelo determina la calidad y coste de las respuestas."
         )
+        config.model_name = model_options[chosen_label]
+        if not has_openai and not has_anthropic:
+            st.caption("API keys: ninguna configurada — modo demo con respuestas mock.")
+        else:
+            st.caption("API keys: " + ", ".join(k for k in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY"] if os.getenv(k)))
         st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="config-card">', unsafe_allow_html=True)
@@ -494,15 +558,31 @@ elif view == "Docente — Configuración":
 
         st.markdown('<div class="config-card">', unsafe_allow_html=True)
         st.markdown("**Comportamiento pedagógico**")
+        SCAFFOLDING_MODES = [
+            "socratic",
+            "hints",
+            "examples",
+            "analogies",
+            "direct",
+            "challenge",
+            "rubber_duck",
+            "progressive",
+        ]
+        SCAFFOLDING_LABELS = {
+            "socratic": "Socrático — Preguntas guía que fomentan la reflexión",
+            "hints": "Pistas — Pistas progresivas sin revelar la solución",
+            "examples": "Ejemplos — Muestra ejemplos similares antes de explicar",
+            "analogies": "Analogías — Explica con analogías del mundo real",
+            "direct": "Directo — Respuesta directa (para frustración alta)",
+            "challenge": "Desafío — Propone un problema más simple relacionado",
+            "rubber_duck": "Rubber Duck — Pide que explique su problema paso a paso",
+            "progressive": "Progresivo — Escala: socrático → pistas → ejemplos → explicación",
+        }
         config.scaffolding_mode = st.selectbox(
             "Modo de scaffolding",
-            ["socratic", "hints", "direct"],
-            format_func=lambda x: {
-                "socratic": "Socrático (preguntas, pistas, ejemplos, explicación)",
-                "hints": "Pistas progresivas",
-                "direct": "Respuesta directa",
-            }[x],
-            help="Socrático: 4 niveles de ayuda progresiva (Wood, Bruner & Ross, scaffolding)"
+            SCAFFOLDING_MODES,
+            format_func=lambda x: SCAFFOLDING_LABELS[x],
+            help="Wood, Bruner & Ross (1976). Cada modo produce respuestas verificablemente distintas.",
         )
         config.block_direct_solutions = st.toggle(
             "Bloquear soluciones directas",
@@ -720,6 +800,145 @@ elif view == "Docente — Analytics":
         st.markdown("### Analytics (modo texto)")
         summary = st.session_state.orchestrator.middleware.get_analytics_summary()
         st.json(summary)
+
+    # --- Predictor de abandono ---
+    st.markdown("---")
+    st.markdown("### Predicción de abandono")
+    try:
+        from dropout_predictor import DropoutPredictor
+        predictor = DropoutPredictor()
+        combined = [
+            {
+                "student_id": l["student_id"],
+                "timestamp": l["timestamp"],
+                "copy_paste_score": l.get("copy_paste_score", 0),
+                "was_blocked": l.get("was_blocked", False),
+                "bloom_level": l.get("bloom_level", 2),
+                "trust_direction": l.get("trust_direction", 0),
+                "prompt_raw": l.get("prompt_raw", ""),
+            }
+            for l in demo_logs
+        ]
+        pred = predictor.analyze(combined, student_id=None)
+        if pred.dropout_risk > 0.6:
+            st.error(f"Riesgo de abandono: {pred.dropout_risk:.0%} — {pred.recommended_intervention}")
+            st.caption("Factores: " + "; ".join(pred.risk_factors))
+        else:
+            st.success(f"Riesgo de abandono: {pred.dropout_risk:.0%} — {pred.time_horizon}")
+        if st.button("Intervenir (sugerencia personalizada)"):
+            st.info(pred.recommended_intervention)
+    except ImportError:
+        st.caption("Instala dropout_predictor para ver predicción de abandono.")
+
+
+# ──────────────────────────────────────────────
+# VISTA: MAPA EPISTÉMICO
+# ──────────────────────────────────────────────
+
+elif view == "Mapa Epistémico":
+    st.markdown('<div class="main-header">Mapa Epistémico</div>', unsafe_allow_html=True)
+    st.markdown("*Grafo de conceptos y dominio del estudiante (prerequisitos, huecos epistémicos)*")
+    try:
+        from epistemic_map import EpistemicMap, EpistemicMapResult
+        import plotly.graph_objects as go
+        import pandas as pd
+
+        map_ = EpistemicMap()
+        demo_logs = st.session_state.demo_logs
+        real_logs = st.session_state.orchestrator.middleware.interaction_logs
+        combined = []
+        for l in demo_logs:
+            topics = l.get("topics", [])
+            combined.append({"student_id": l.get("student_id"), "detected_topics": topics, "topics": topics, "bloom_level": l.get("bloom_level", 1)})
+        for l in real_logs:
+            combined.append({"student_id": l.student_id, "detected_topics": l.detected_topics, "topics": l.detected_topics, "bloom_level": 1})
+        student_id = st.selectbox("Estudiante", ["Todos"] + list(set(l.get("student_id") for l in demo_logs if l.get("student_id"))), key="epistemic_student")
+        sid = None if student_id == "Todos" else student_id
+        result = map_.analyze(combined, student_id=sid)
+
+        col_map, col_panel = st.columns([2, 1])
+        with col_panel:
+            if result.recommendation:
+                st.info("**Recomendación:** " + result.recommendation)
+            if result.insight:
+                st.caption("**Insight:** " + result.insight)
+            st.markdown("**Nodos (dominio)**")
+            for n in result.nodes:
+                st.markdown(f"- {n.topic}: {n.mastery_pct:.0f}% ({n.question_count} preguntas)")
+
+        with col_map:
+            if result.nodes and result.edges:
+                node_x = [i * 0.3 for i in range(len(result.nodes))]
+                node_y = [0.5 + (i % 3) * 0.2 for i in range(len(result.nodes))]
+                node_text = [f"{n.topic} ({n.mastery_pct:.0f}%)" for n in result.nodes]
+                node_size = [15 + n.question_count * 2 for n in result.nodes]
+                node_color = [n.color for n in result.nodes]
+                topic_to_idx = {n.topic: i for i, n in enumerate(result.nodes)}
+                edge_x = []
+                edge_y = []
+                for fr, to in result.edges:
+                    if fr in topic_to_idx and to in topic_to_idx:
+                        i, j = topic_to_idx[fr], topic_to_idx[to]
+                        edge_x += [node_x[i], node_x[j], None]
+                        edge_y += [node_y[i], node_y[j], None]
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=edge_x, y=edge_y, mode="lines", line=dict(color="#666", width=1)))
+                fig.add_trace(go.Scatter(x=node_x, y=node_y, text=node_text, mode="markers+text", marker=dict(size=node_size, color=node_color)))
+                fig.update_layout(showlegend=False, height=450, margin=dict(l=0, r=0, t=20, b=0))
+                st.plotly_chart(fig, use_container_width=True)
+            selected_topic = st.selectbox("Ver historial de tema", [n.topic for n in result.nodes], key="epistemic_topic")
+            if selected_topic:
+                hist = map_.get_interactions_by_topic(selected_topic, combined, sid)
+                for i, h in enumerate(hist[-5:]):
+                    st.caption(f"{h.get('timestamp', '')[:19]} — {h.get('student_id', '')}")
+
+    except ImportError as e:
+        st.error("Requiere epistemic_map y plotly: `pip install plotly`")
+
+
+# ──────────────────────────────────────────────
+# VISTA: DEMO EN VIVO
+# ──────────────────────────────────────────────
+
+elif view == "Demo en Vivo":
+    st.markdown('<div class="main-header">Demo en vivo</div>', unsafe_allow_html=True)
+    st.markdown("*Estudiante simulado haciendo preguntas cada 5 segundos. Cambia la configuración y observa el efecto en tiempo real.*")
+    try:
+        from live_demo import simulate_session
+        if "live_demo_log" not in st.session_state:
+            st.session_state.live_demo_log = []
+        orch = st.session_state.orchestrator
+        interval_s = st.slider("Intervalo entre mensajes (seg)", 1, 10, 3, key="live_demo_interval")
+        if st.button("Iniciar demo en vivo", type="primary"):
+            progress = st.progress(0)
+            status = st.empty()
+            log_container = st.container()
+            n = 5
+            for i, event in enumerate(simulate_session(orch, interval_seconds=float(interval_s), num_messages=n)):
+                progress.progress((i + 1) / n)
+                t = event["type"]
+                prompt = event["prompt"]
+                if event.get("is_frustration"):
+                    status.warning("El estudiante acaba de mostrar frustración. El sistema detectó la señal.")
+                elif event.get("is_recovery"):
+                    status.success("El estudiante se recuperó. Continúa la interacción.")
+                else:
+                    status.info(f"Pregunta {i+1}: {prompt[:60]}...")
+                st.session_state.live_demo_log.append(event)
+                with log_container:
+                    for j, ev in enumerate(st.session_state.live_demo_log[-5:]):
+                        st.caption(f"{ev['type']}: {ev['prompt'][:80]} -> {ev['result'].response_text[:80] if hasattr(ev['result'], 'response_text') else '...'}...")
+            progress.empty()
+            status.success("Demo completada.")
+        if st.session_state.live_demo_log:
+            st.markdown("### Últimas interacciones simuladas")
+            for ev in st.session_state.live_demo_log[-10:]:
+                lbl = "Frustración" if ev.get("is_frustration") else ("Recuperación" if ev.get("is_recovery") else "Pregunta")
+                st.markdown(f"**{lbl}:** {ev['prompt']}")
+                if hasattr(ev.get("result"), "response_text"):
+                    st.markdown(f"*Respuesta:* {ev['result'].response_text[:200]}...")
+    except ImportError as e:
+        st.error("Requiere live_demo: verifica que live_demo.py existe.")
 
 
 # ──────────────────────────────────────────────

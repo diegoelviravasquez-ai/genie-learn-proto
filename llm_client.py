@@ -13,13 +13,17 @@ import json
 
 
 def get_llm_client():
-    """Factory: devuelve el cliente LLM disponible."""
+    """
+    Factory: devuelve el cliente LLM disponible.
+    Prioridad: ANTHROPIC_API_KEY → claude-sonnet-4-20250514,
+               OPENAI_API_KEY → gpt-4o-mini,
+               si ninguna existe → modo demo (mock).
+    """
+    if os.getenv("ANTHROPIC_API_KEY"):
+        return AnthropicClient()
     if os.getenv("OPENAI_API_KEY"):
         return OpenAIClient()
-    elif os.getenv("ANTHROPIC_API_KEY"):
-        return AnthropicClient()
-    else:
-        return MockLLMClient()
+    return MockLLMClient()
 
 
 class MockLLMClient:
@@ -36,12 +40,22 @@ class MockLLMClient:
         start = time.time()
 
         # Generar respuesta simulada basada en el scaffolding detectado
-        if "NIVEL SOCRÁTICO" in system_prompt:
+        if "NIVEL SOCRÁTICO" in system_prompt or "NIVEL PROGRESIVO 1/4" in system_prompt:
             response = self._socratic_response(user_prompt, context)
-        elif "NIVEL PISTA" in system_prompt:
+        elif "NIVEL PISTA" in system_prompt or "MODO PISTAS" in system_prompt or "NIVEL PROGRESIVO 2/4" in system_prompt:
             response = self._hint_response(user_prompt, context)
-        elif "NIVEL EJEMPLO" in system_prompt:
+        elif "NIVEL EJEMPLO" in system_prompt or "MODO EJEMPLOS" in system_prompt or "NIVEL PROGRESIVO 3/4" in system_prompt:
             response = self._example_response(user_prompt, context)
+        elif "NIVEL EXPLICACIÓN" in system_prompt or "NIVEL PROGRESIVO 4/4" in system_prompt:
+            response = self._direct_response(user_prompt, context)
+        elif "MODO ANALOGÍAS" in system_prompt:
+            response = self._analogy_response(user_prompt, context)
+        elif "MODO DIRECTO" in system_prompt:
+            response = self._direct_response(user_prompt, context)
+        elif "MODO DESAFÍO" in system_prompt:
+            response = self._challenge_response(user_prompt, context)
+        elif "MODO RUBBER DUCK" in system_prompt:
+            response = self._rubber_duck_response(user_prompt, context)
         else:
             response = self._direct_response(user_prompt, context)
 
@@ -122,6 +136,32 @@ class MockLLMClient:
             "Observa: (1) inicializamos un acumulador, (2) recorremos con for, "
             "(3) operamos en cada iteración, (4) calculamos el resultado final.\n\n"
             "¿Puedes aplicar este patrón a tu problema?"
+        )
+
+    def _analogy_response(self, prompt: str, context: str) -> str:
+        return (
+            "Te lo explico con una analogía del mundo real:\n\n"
+            "Imagina que un array es como una fila de casilleros numerados. "
+            "Cada casillero guarda un valor. Para acceder a uno concreto, usas su número (índice). "
+            "¿Qué operación del día a día te recuerda a 'recorrer todos los casilleros'?\n\n"
+            "Conecta esta analogía con tu pregunta y dime qué relación ves."
+        )
+
+    def _challenge_response(self, prompt: str, context: str) -> str:
+        return (
+            "Antes de atacar tu problema, intenta resolver esto más simple:\n\n"
+            "**Desafío previo:** Dado un array de 5 números, calcula su suma. "
+            "Usa un bucle for. ¿Puedes escribir el pseudocódigo o el código?\n\n"
+            "Cuando lo intentes (aunque falle), te ayudo con tu problema original."
+        )
+
+    def _rubber_duck_response(self, prompt: str, context: str) -> str:
+        return (
+            "Vamos a hacer el ejercicio del patito de goma: explícame TU problema paso a paso, "
+            "como si yo no supiera nada de programación.\n\n"
+            "Empieza por: ¿qué quieres conseguir? ¿Qué has hecho hasta ahora? "
+            "¿En qué momento exacto ocurre el error o te bloqueas?\n\n"
+            "No te doy la solución — primero necesito entender cómo ves TÚ el problema."
         )
 
     def _direct_response(self, prompt: str, context: str) -> str:

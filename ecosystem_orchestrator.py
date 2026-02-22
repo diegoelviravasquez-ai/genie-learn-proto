@@ -104,7 +104,41 @@ ACHDiagnostic = _safe_import("ach_diagnostic", "ACHDiagnosticEngine")
 
 # CAPA 4: Research
 PilotDesign = _safe_import("pilot_design", "PilotAnalysisReport")
+ExternalLearningIngester = _safe_import("external_learning_ingester", "ExternalLearningIngester")
 PaperDraftingEngine = _safe_import("paper_drafting_engine", "PaperDraftingEngine")
+LearningDesignGenerator = _safe_import("learning_design_generator", "LearningDesignGenerator")
+TeacherAgencyTracker = _safe_import("teacher_agency_longitudinal", "TeacherAgencyTracker")
+
+# CAPA 2: Confianza (TrustDynamics)
+# Nota: EpistemicAutonomyTracker e InteractionSemioticsEngine ya están como autonomy_tracker y semiotics
+TrustDynamicsAnalyzer = _safe_import("trust_dynamics", "TrustDynamicsAnalyzer")
+
+# CAPA 2: Temporal y pragmática
+TemporalDynamicsAnalyzer = _safe_import("temporal_dynamics", "TemporalDynamicsAnalyzer")
+EpistemicEcologyAnalyzer = _safe_import("epistemic_ecology", "EpistemicEcologyAnalyzer")
+PragmaticAnalyzer = _safe_import("cognitive_pragmatics", "PragmaticAnalyzer")
+
+# CAPA 4 / Infra: Pilot, GDPR, Analytics, LTI, DB, Auth
+def _safe_import_module(name: str):
+    try:
+        import importlib
+        return importlib.import_module(name)
+    except Exception as e:
+        print(f"  [WARNING] Módulo {name} no disponible: {e}")
+        return None
+
+PilotDesignModule = _safe_import_module("pilot_design")
+GDPRAnonymizer = _safe_import("gdpr_anonymizer", "GDPRAnonymizer")
+AnalyticsBridge = _safe_import("analytics_bridge", "AnalyticsBridge")
+get_lti_provider_fn = _safe_import("lti_integration", "get_lti_provider")
+Database = _safe_import("database", "Database")
+get_demo_database = _safe_import("database", "get_demo_database")
+MockLDAPAuth = _safe_import("auth", "MockLDAPAuth")
+get_demo_auth = _safe_import("auth", "get_demo_auth")
+create_bridge = _safe_import("analytics_bridge", "create_bridge")
+EpistemicMap = _safe_import("epistemic_map", "EpistemicMap")
+DropoutPredictor = _safe_import("dropout_predictor", "DropoutPredictor")
+MetaEvaluator = _safe_import("meta_evaluation", "MetaEvaluator")
 
 
 # ──────────────────────────────────────────────────────────────
@@ -280,6 +314,58 @@ class EcosystemOrchestrator:
             self._modules["config_interaction"] = ConfigInteractionAnalyzer(
                 genome_analyzer=genome
             )
+
+        # CAPA 4: Research
+        if ExternalLearningIngester:
+            self._modules["external_ingester"] = ExternalLearningIngester()
+        if LearningDesignGenerator:
+            self._modules["learning_design"] = LearningDesignGenerator()
+        if PaperDraftingEngine:
+            self._modules["paper_drafting"] = PaperDraftingEngine()
+        if TeacherAgencyTracker:
+            self._modules["teacher_agency"] = TeacherAgencyTracker()
+
+        # CAPA 2: Confianza (TrustDynamics)
+        if TrustDynamicsAnalyzer:
+            self._modules["trust_dynamics"] = TrustDynamicsAnalyzer()
+
+        # CAPA 2: Temporal y pragmática
+        if TemporalDynamicsAnalyzer:
+            self._modules["temporal_dynamics"] = TemporalDynamicsAnalyzer()
+        if EpistemicEcologyAnalyzer:
+            self._modules["epistemic_ecology"] = EpistemicEcologyAnalyzer()
+        if PragmaticAnalyzer:
+            self._modules["cognitive_pragmatics"] = PragmaticAnalyzer()
+
+        # Pilot design (módulo con run_full_analysis, etc.)
+        if PilotDesignModule:
+            self._modules["pilot_design"] = PilotDesignModule
+        if GDPRAnonymizer:
+            self._modules["gdpr_anonymizer"] = GDPRAnonymizer()
+        if AnalyticsBridge:
+            self._modules["analytics_bridge"] = (
+                create_bridge(with_demo_data=True) if create_bridge else AnalyticsBridge()
+            )
+        if get_lti_provider_fn:
+            provider = get_lti_provider_fn()
+            if provider:
+                self._modules["lti_provider"] = provider
+        if get_demo_database and self.demo_mode:
+            self._modules["db"] = get_demo_database()
+        elif Database:
+            self._modules["db"] = Database()
+        if get_demo_auth:
+            self._modules["auth"] = get_demo_auth()
+        elif MockLDAPAuth:
+            self._modules["auth"] = MockLDAPAuth()
+
+        # Mapa epistémico, predictor de abandono, meta-evaluación
+        if EpistemicMap:
+            self._modules["epistemic_map"] = EpistemicMap()
+        if DropoutPredictor:
+            self._modules["dropout_predictor"] = DropoutPredictor()
+        if MetaEvaluator:
+            self._modules["meta_evaluator"] = MetaEvaluator()
 
     def get_module(self, name: str):
         """Obtiene un módulo por nombre, o None si no está disponible."""
@@ -751,26 +837,69 @@ class EcosystemOrchestrator:
         self, prompt: str, pre: Dict, chunks: List[Dict]
     ) -> str:
         """Genera respuesta simulada cuando no hay LLM configurado."""
-        context_preview = ""
-        if chunks:
-            context_preview = chunks[0].get("text", "")[:200]
+        topics = pre.get("detected_topics", [])[:3]
+        topics_str = ", ".join(topics) if topics else "la asignatura"
+        chunks_info = f"Contexto RAG: {len(chunks)} fragmentos"
 
-        if self.config.scaffolding_mode == "socratic":
+        mode = self.config.scaffolding_mode
+        if mode == "socratic":
             return (
-                f"🤔 Esa es una buena pregunta. Antes de darte una respuesta directa, "
+                f"Esa es una buena pregunta. Antes de darte una respuesta directa, "
                 f"me gustaría que reflexionaras: ¿qué conceptos previos crees que están "
                 f"relacionados con lo que preguntas?\n\n"
-                f"💡 Pista: piensa en los temas de {', '.join(pre['detected_topics'][:2]) or 'la asignatura'}.\n\n"
-                f"📚 [Contexto RAG disponible: {len(chunks)} fragmentos recuperados]"
+                f"Pista: piensa en los temas de {topics_str}.\n\n"
+                f"[{chunks_info}]"
             )
-        else:
+        if mode == "hints":
             return (
-                f"Basándome en el material del curso, aquí va mi explicación sobre "
-                f"tu pregunta.\n\n"
-                f"📚 [Contexto RAG: {len(chunks)} fragmentos | "
-                f"Temas detectados: {', '.join(pre['detected_topics'][:3])}]\n\n"
-                f"[Respuesta de demo — conecta LLM para respuestas reales]"
+                f"Te doy una pista: revisa la sección del curso sobre {topics_str}. "
+                f"La clave está en la estructura. ¿Te ayuda esto o necesitas más orientación?\n\n"
+                f"[{chunks_info}]"
             )
+        if mode == "examples":
+            return (
+                f"Antes de explicar, un ejemplo similar: si tu problema fuera X, harías Y. "
+                f"¿Puedes ver la relación con tu caso? Intenta extrapolarlo.\n\n"
+                f"[{chunks_info}]"
+            )
+        if mode == "analogies":
+            return (
+                f"Analogía: imagina que {topics_str} fuera como una librería con estantes. "
+                f"Cada estante tiene un número. ¿Qué operación te recuerda a buscar en un estante?\n\n"
+                f"Conecta esta analogía con tu pregunta.\n\n[{chunks_info}]"
+            )
+        if mode == "direct":
+            return (
+                f"Aquí va la explicación directa sobre tu pregunta.\n\n"
+                f"Los puntos clave: (1) sintaxis básica, (2) ámbito, (3) práctica.\n\n"
+                f"[{chunks_info}]"
+            )
+        if mode == "challenge":
+            return (
+                f"Antes de resolver tu problema, intenta esto más simple: "
+                f"resuelve un caso reducido con 3 elementos. ¿Puedes?\n\n"
+                f"Cuando lo intentes, te ayudo con tu caso original.\n\n[{chunks_info}]"
+            )
+        if mode == "rubber_duck":
+            return (
+                f"Explícame tu problema paso a paso, como si yo no supiera nada. "
+                f"¿Qué quieres conseguir? ¿Qué has hecho? ¿Dónde te bloqueas?\n\n"
+                f"No te doy la solución aún — dime cómo ves TÚ el problema.\n\n[{chunks_info}]"
+            )
+        if mode == "progressive":
+            level = pre.get("scaffolding_level", 0)
+            if level == 0:
+                return f"Reflexiona: ¿qué conceptos de {topics_str} están implicados? [{chunks_info}]"
+            if level == 1:
+                return f"Pista: la clave está en la declaración. Revisa tipo + nombre + asignación. [{chunks_info}]"
+            if level == 2:
+                return f"Ejemplo similar: [patrón con bucle]. ¿Puedes extrapolarlo? [{chunks_info}]"
+            return f"Explicación completa: (1) sintaxis, (2) flujo, (3) práctica. [{chunks_info}]"
+
+        return (
+            f"Basándome en el material del curso, aquí va mi explicación.\n\n"
+            f"[{chunks_info}]"
+        )
 
     # ──────────────────────────────────────────────────────────
     # MÉTODOS PÚBLICOS PARA DASHBOARD

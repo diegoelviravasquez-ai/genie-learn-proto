@@ -29,7 +29,8 @@ class PedagogicalConfig:
     max_response_length: int = 2000
 
     # --- Comportamiento pedagógico ---
-    scaffolding_mode: str = "socratic"  # "socratic" | "hints" | "direct"
+    # socratic | hints | examples | analogies | direct | challenge | rubber_duck | progressive
+    scaffolding_mode: str = "socratic"
     block_direct_solutions: bool = True
     forced_hallucination_pct: float = 0.0  # 0.0 a 1.0 — % de respuestas con error intencional
 
@@ -156,8 +157,9 @@ class PedagogicalMiddleware:
                 "Tu objetivo es ayudar al estudiante a APRENDER, no a obtener respuestas."
             )
 
-        # Scaffolding mode
-        if self.config.scaffolding_mode == "socratic":
+        # Scaffolding mode — instrucciones distintas por modo para respuestas verificablemente distintas
+        mode = self.config.scaffolding_mode
+        if mode == "socratic":
             scaffolding_instructions = {
                 0: (
                     "NIVEL SOCRÁTICO: Responde SIEMPRE con preguntas orientadoras. "
@@ -178,9 +180,58 @@ class PedagogicalMiddleware:
                 ),
             }
             parts.append(scaffolding_instructions.get(scaffolding_level, scaffolding_instructions[3]))
-        elif self.config.scaffolding_mode == "hints":
-            parts.append("Proporciona pistas progresivas. Nunca la solución completa de golpe.")
-        # "direct" → no se añade restricción
+        elif mode == "hints":
+            parts.append(
+                "MODO PISTAS: Proporciona solo pistas progresivas. Nunca la solución completa de golpe. "
+                "Empieza con una pista vaga y, si el estudiante insiste, da pistas más concretas."
+            )
+        elif mode == "examples":
+            parts.append(
+                "MODO EJEMPLOS: Antes de explicar el concepto, muestra uno o dos ejemplos SIMILARES "
+                "al problema del estudiante (no idénticos). Pide que lo relacione con su caso antes "
+                "de dar la explicación completa."
+            )
+        elif mode == "analogies":
+            parts.append(
+                "MODO ANALOGÍAS: Explica el concepto usando analogías del mundo real (cocina, deporte, "
+                "viajes, etc.). Pide al estudiante que conecte la analogía con el concepto técnico "
+                "antes de dar detalles adicionales."
+            )
+        elif mode == "direct":
+            parts.append(
+                "MODO DIRECTO: Da la respuesta o explicación completa de forma clara y directa. "
+                "Prioriza la eficacia cuando el estudiante muestra frustración alta o urgencia."
+            )
+        elif mode == "challenge":
+            parts.append(
+                "MODO DESAFÍO: Responde con un problema más simple o relacionado para que el estudiante "
+                "lo resuelva primero. 'Para entender X, intenta resolver esto primero: [problema más fácil]' "
+                "Solo tras intentarlo, ofrece ayuda."
+            )
+        elif mode == "rubber_duck":
+            parts.append(
+                "MODO RUBBER DUCK: Pide al estudiante que explique SU problema paso a paso, como si "
+                "te lo explicara a alguien que no sabe programación. Responde con preguntas tipo "
+                "'¿Qué esperabas que pasara?', '¿Qué pasa en el paso 1?'. No des la solución."
+            )
+        elif mode == "progressive":
+            # Escalada automática socrático → pistas → ejemplos → explicación
+            progressive_instructions = {
+                0: (
+                    "NIVEL PROGRESIVO 1/4 (socrático): Responde con preguntas orientadoras. "
+                    "NO des la respuesta. Haz que reflexione primero."
+                ),
+                1: (
+                    "NIVEL PROGRESIVO 2/4 (pistas): Dale una pista concreta pero NO la solución."
+                ),
+                2: (
+                    "NIVEL PROGRESIVO 3/4 (ejemplos): Muestra un ejemplo similar. Pide extrapolarlo."
+                ),
+                3: (
+                    "NIVEL PROGRESIVO 4/4 (explicación): Explica el concepto completo paso a paso."
+                ),
+            }
+            parts.append(progressive_instructions.get(scaffolding_level, progressive_instructions[3]))
 
         # Bloqueo de soluciones directas
         if self.config.block_direct_solutions:

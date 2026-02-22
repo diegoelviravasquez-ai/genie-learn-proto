@@ -51,13 +51,73 @@ import time
 import urllib.parse
 import logging
 import os
-from typing import Optional
+from typing import Optional, List
 from dataclasses import dataclass, field
 
 # Tu auth.py existente — NO reescribimos nada, extendemos
 from auth import UserSession, create_token, PERMISSIONS
 
 logger = logging.getLogger(__name__)
+
+DEMO_MODE = os.environ.get("GENIE_DEMO_MODE", "true").lower() == "true"
+LTI_ENDPOINT = os.environ.get("LTI_ENDPOINT", "")
+
+
+# ════════════════════════════════════════════════════════════════
+# MOCK LTI PROVIDER (demo / sin LMS)
+# ════════════════════════════════════════════════════════════════
+
+@dataclass
+class MockCourseInfo:
+    """Datos de curso simulados para demo."""
+    course_id: str
+    course_title: str
+    institution: str
+    students: List[dict]
+
+
+class MockLTIProvider:
+    """
+    Proveedor LTI simulado cuando DEMO_MODE=True o no hay LTI_ENDPOINT.
+    Expone curso y lista de estudiantes para que la app funcione sin Moodle/Canvas.
+    """
+    _active: bool = False
+
+    def __init__(self):
+        self._active = DEMO_MODE or not LTI_ENDPOINT
+        self._course = MockCourseInfo(
+            course_id="FP-101",
+            course_title="Fundamentos de Programación (Demo)",
+            institution="UVa",
+            students=[
+                {"user_id": "estudiante_01", "display_name": "María García", "email": "maria@demo.uva.es"},
+                {"user_id": "estudiante_02", "display_name": "Carlos Ruiz", "email": "carlos@demo.uva.es"},
+                {"user_id": "estudiante_03", "display_name": "Ana López", "email": "ana@demo.uva.es"},
+                {"user_id": "estudiante_04", "display_name": "Pablo Sánchez", "email": "pablo@demo.uva.es"},
+            ],
+        )
+        if self._active:
+            logger.info("MockLTIProvider activo (DEMO_MODE o sin LTI_ENDPOINT)")
+
+    @property
+    def active(self) -> bool:
+        return self._active
+
+    def get_course(self) -> MockCourseInfo:
+        return self._course
+
+    def get_course_id(self) -> str:
+        return self._course.course_id
+
+    def get_students(self) -> List[dict]:
+        return self._course.students
+
+
+def get_lti_provider():
+    """Factory: devuelve MockLTIProvider si demo/sin endpoint, sino None (usar LTI real)."""
+    if DEMO_MODE or not LTI_ENDPOINT:
+        return MockLTIProvider()
+    return None
 
 
 # ════════════════════════════════════════════════════════════════

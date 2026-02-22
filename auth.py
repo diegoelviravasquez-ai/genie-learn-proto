@@ -461,3 +461,57 @@ def verify_password(password: str, hashed: str, salt: str) -> bool:
     """Verifica un password contra su hash."""
     new_hash, _ = hash_password(password, salt)
     return hmac.compare_digest(new_hash, hashed)
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# MOCK LDAP AUTH (demo sin servidor LDAP)
+# ═══════════════════════════════════════════════════════════════════════
+
+DEMO_PASSWORD = "demo123"
+
+# Usuarios demo: profesor_01, estudiante_01 a estudiante_04
+MOCK_LDAP_USERS = {
+    "profesor_01": {"role": "teacher", "display_name": "Prof. Demo"},
+    "estudiante_01": {"role": "student", "display_name": "María García"},
+    "estudiante_02": {"role": "student", "display_name": "Carlos Ruiz"},
+    "estudiante_03": {"role": "student", "display_name": "Ana López"},
+    "estudiante_04": {"role": "student", "display_name": "Pablo Sánchez"},
+}
+
+
+class MockLDAPAuth:
+    """
+    Autenticación simulada para demo sin LDAP.
+    Usuarios: profesor_01, estudiante_01, estudiante_02, estudiante_03, estudiante_04.
+    Contraseña válida para todos: demo123.
+    """
+    def login(self, username: str, password: str) -> Optional[UserSession]:
+        if password != DEMO_PASSWORD:
+            return None
+        user = MOCK_LDAP_USERS.get(username)
+        if not user:
+            return None
+        token = create_token(
+            user_id=username,
+            role=user["role"],
+            display_name=user["display_name"],
+            institution="UVa",
+            course_id="FP-101",
+        )
+        return UserSession(
+            user_id=username,
+            role=user["role"],
+            display_name=user["display_name"],
+            institution="UVa",
+            course_id="FP-101",
+            token=token,
+            permissions=PERMISSIONS.get(user["role"], []),
+        )
+
+    def is_available(self) -> bool:
+        return True
+
+
+def get_demo_auth():
+    """Factory: devuelve MockLDAPAuth para login demo (usuario + demo123)."""
+    return MockLDAPAuth()

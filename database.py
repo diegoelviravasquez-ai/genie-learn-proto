@@ -828,3 +828,33 @@ class Database:
         )
         
         return result
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# DEMO: SQLite local genie_demo.db con datos de ejemplo
+# ═══════════════════════════════════════════════════════════════════════
+
+DEMO_DB_PATH = "genie_demo.db"
+
+
+def seed_demo_data(db: Database) -> None:
+    """Inserta usuarios, curso y enrollments de ejemplo en la base demo."""
+    with db._conn() as conn:
+        if conn.execute("SELECT COUNT(*) FROM users").fetchone()[0] > 0:
+            return  # ya tiene datos
+    db.ensure_user("profesor_01", "teacher", "Prof. Demo")
+    for i, name in enumerate(["María García", "Carlos Ruiz", "Ana López", "Pablo Sánchez"], 1):
+        uid = f"estudiante_0{i}"
+        db.ensure_user(uid, "student", name)
+    db.ensure_course("FP-101", "Fundamentos de Programación (Demo)", "profesor_01")
+    for i in range(1, 5):
+        db.enroll_user(f"estudiante_0{i}", "FP-101", "student")
+    db.enroll_user("profesor_01", "FP-101", "teacher")
+    logger.info("Demo data seeded in %s", db.db_path)
+
+
+def get_demo_database() -> Database:
+    """Devuelve una instancia de Database usando genie_demo.db y datos de ejemplo."""
+    db = Database(db_path=DEMO_DB_PATH)
+    seed_demo_data(db)
+    return db

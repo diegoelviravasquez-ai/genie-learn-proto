@@ -619,5 +619,55 @@ def render_researcher_view():
         fig_scatter.update_layout(height=450)
         st.plotly_chart(fig_scatter, use_container_width=True)
 
+        # ══════════════════════════════════════════
+        # SECCIÓN 8: META-EVALUACIÓN DEL SISTEMA
+        # ══════════════════════════════════════════
+
+        st.markdown("### 📊 Meta-Evaluación: Efectividad de Estrategias Pedagógicas")
+        st.markdown(
+            "*¿El scaffolding_mode está funcionando? "
+            "Bloom subió, no repitió pregunta, engagement mantenido, sin frustración post-respuesta.*"
+        )
+
+        try:
+            from meta_evaluation import MetaEvaluator
+
+            evaluator = MetaEvaluator()
+            interactions_all = []
+            for sid, sdata in data.items():
+                for i, a in enumerate(sdata["analyses"]):
+                    interactions_all.append({
+                        "student_id": sid,
+                        "bloom_level": a.bloom_level,
+                        "bloom": a.bloom_level,
+                        "prompt_raw": f"Pregunta simulada {i}",
+                        "prompt": f"Pregunta simulada {i}",
+                        "detected_topics": [BLOOM_LEVELS[a.bloom_level]["name"]],
+                        "trust_direction": sdata["trust_signals"][i] if i < len(sdata["trust_signals"]) else 0,
+                        "scaffolding_mode": ["socratic", "hints", "direct"][sdata["scaffolding_levels"][i] % 3] if i < len(sdata["scaffolding_levels"]) else "socratic",
+                        "response_time_ms": 1500,
+                        "timestamp": (datetime.now() - timedelta(days=7, hours=i * 2)).isoformat(),
+                    })
+            meta = evaluator.evaluate(interactions_all, student_id=selected_student)
+
+            m1, m2 = st.columns(2)
+            with m1:
+                if meta.effectiveness_by_strategy:
+                    eff_df = pd.DataFrame([
+                        {"Estrategia": k, "Tasa éxito": f"{v:.0%}"}
+                        for k, v in meta.effectiveness_by_strategy.items()
+                    ])
+                    st.dataframe(eff_df, use_container_width=True, hide_index=True)
+                for rec in meta.strategy_recommendations:
+                    st.info(rec)
+            with m2:
+                if meta.auto_adjust_suggestion:
+                    st.warning("**Sugerencia auto-ajuste:** " + meta.auto_adjust_suggestion)
+                st.markdown("**Efectividad por estrategia × estudiante:**")
+                for ps in meta.per_student_strategy[:5]:
+                    st.caption(f"{ps.strategy}: {ps.success_rate:.0%} ({ps.success_count}/{ps.total_count})")
+        except ImportError:
+            st.caption("Instala meta_evaluation para ver efectividad de estrategias.")
+
     except ImportError:
         st.error("Instala plotly y pandas para las visualizaciones: `pip install plotly pandas`")
