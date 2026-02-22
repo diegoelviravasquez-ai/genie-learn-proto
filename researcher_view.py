@@ -19,8 +19,9 @@ import random
 from datetime import datetime, timedelta
 
 from cognitive_analyzer import (
-    CognitiveAnalyzer, EngagementProfiler, CognitiveAnalysis, BLOOM_LEVELS
+    CognitiveAnalyzer, EngagementProfiler, CognitiveAnalysis, BLOOM_LEVELS,
 )
+from cognitive_engine import ICAP_LEVELS
 from trust_dynamics import TrustDynamicsAnalyzer
 from ach_diagnostic import ACHDiagnosticEngine, DIAGNOSTIC_HYPOTHESES
 from nd_patterns import NeurodivergentPatternDetector, InteractionEvent
@@ -92,17 +93,18 @@ def generate_research_demo_data():
             actual_bloom = max(1, min(6, bloom_target + random.choice([-1, 0, 0, 0, 1])))
             is_meta = random.random() < profile["meta_probability"]
 
+            icap_key = BLOOM_LEVELS[actual_bloom]["icap_equivalent"]
+            icap_label = ICAP_LEVELS.get(icap_key, {}).get("label", "Pasivo")
             analysis = CognitiveAnalysis(
                 bloom_level=actual_bloom,
                 bloom_name=BLOOM_LEVELS[actual_bloom]["name"],
                 bloom_code=BLOOM_LEVELS[actual_bloom]["code"],
-                color=BLOOM_LEVELS[actual_bloom]["color"],
-                confidence=round(random.uniform(0.4, 0.95), 2),
-                icap_equivalent=BLOOM_LEVELS[actual_bloom]["icap_equivalent"],
-                matched_indicators=[f"simulated_{i}"],
+                bloom_confidence=round(random.uniform(0.4, 0.95), 2),
+                icap_level=icap_key,
+                icap_label=icap_label,
+                detected_markers=[f"simulated_{i}"],
+                engagement_score=0.5 + (0.3 if is_meta else 0),
                 is_metacognitive=is_meta,
-                prompt_complexity=round(random.uniform(0.1, 0.9), 2),
-                epistemic_stance=random.choice(["seeking", "testing", "constructing", "challenging"]),
             )
             analyses.append(analysis)
 
@@ -258,7 +260,8 @@ def render_researcher_view():
             st.markdown("### 🧩 Mapeo ICAP (Chi & Wylie, 2014)")
             icap_counts = {}
             for a in analyses:
-                icap_counts[a.icap_equivalent] = icap_counts.get(a.icap_equivalent, 0) + 1
+                key = a.icap_level.title()
+                icap_counts[key] = icap_counts.get(key, 0) + 1
             icap_order = ["Passive", "Active", "Constructive", "Interactive"]
             icap_colors = {"Passive": "#9E9E9E", "Active": "#42A5F5", "Constructive": "#FFA726", "Interactive": "#AB47BC"}
             fig_icap = px.pie(

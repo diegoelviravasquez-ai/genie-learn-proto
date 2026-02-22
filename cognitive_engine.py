@@ -25,17 +25,17 @@ from datetime import datetime
 
 BLOOM_LEVELS = {
     1: {"name": "Recordar", "code": "REMEMBER", "color": "#9E9E9E",
-        "description": "Recuperar información factual"},
+        "description": "Recuperar información factual", "icap_equivalent": "passive"},
     2: {"name": "Comprender", "code": "UNDERSTAND", "color": "#42A5F5",
-        "description": "Explicar conceptos con palabras propias"},
+        "description": "Explicar conceptos con palabras propias", "icap_equivalent": "active"},
     3: {"name": "Aplicar", "code": "APPLY", "color": "#66BB6A",
-        "description": "Usar conocimiento en situaciones nuevas"},
+        "description": "Usar conocimiento en situaciones nuevas", "icap_equivalent": "active"},
     4: {"name": "Analizar", "code": "ANALYZE", "color": "#FFA726",
-        "description": "Descomponer y establecer relaciones"},
+        "description": "Descomponer y establecer relaciones", "icap_equivalent": "constructive"},
     5: {"name": "Evaluar", "code": "EVALUATE", "color": "#EF5350",
-        "description": "Juzgar, comparar, criticar"},
+        "description": "Juzgar, comparar, criticar", "icap_equivalent": "constructive"},
     6: {"name": "Crear", "code": "CREATE", "color": "#AB47BC",
-        "description": "Diseñar, combinar, producir algo nuevo"},
+        "description": "Diseñar, combinar, producir algo nuevo", "icap_equivalent": "interactive"},
 }
 
 # Marcadores lingüísticos calibrados para español académico
@@ -147,6 +147,7 @@ class CognitiveAnalysis:
     icap_label: str = "Pasivo"
     detected_markers: list = field(default_factory=list)
     engagement_score: float = 0.5  # 0-1
+    is_metacognitive: bool = False
 
 
 @dataclass

@@ -55,7 +55,7 @@ def _safe_import(module_name: str, class_name: str):
         mod = __import__(module_name)
         return getattr(mod, class_name)
     except (ImportError, AttributeError, Exception) as e:
-        print(f"  ⚠ Módulo {module_name}.{class_name} no disponible: {e}")
+        print(f"  [WARNING] Módulo {module_name}.{class_name} no disponible: {e}")
         return None
 
 
@@ -334,7 +334,7 @@ class EcosystemOrchestrator:
                     result.modules_activated.append("rag_sensor")
 
             except Exception as e:
-                print(f"  ⚠ RAG retrieval error: {e}")
+                print(f"  [WARNING] RAG retrieval error: {e}")
 
         # ─── FASE 3: LLM CALL ──────────────────────────────────
 
@@ -353,7 +353,7 @@ class EcosystemOrchestrator:
                 result.response_text = response
             except Exception as e:
                 result.response_text = f"Error al generar respuesta: {e}"
-                print(f"  ⚠ LLM error: {e}")
+                print(f"  [WARNING] LLM error: {e}")
         else:
             # Sin LLM: respuesta de demo
             result.response_text = self._demo_response(prompt, pre, chunks)
@@ -362,10 +362,7 @@ class EcosystemOrchestrator:
 
         # ─── FASE 4: POST-PROCESS (middleware) ──────────────────
 
-        post = self.middleware.post_process(
-            result.response_text,
-            result.detected_topics,
-        )
+        post = self.middleware.post_process(student_id, result.response_text)
         result.response_text = post["response"]
         result.hallucination_injected = post.get("hallucination_injected", False)
 
@@ -449,7 +446,7 @@ class EcosystemOrchestrator:
                 }
             return advisor.get_current_context()
         except Exception as e:
-            print(f"  ⚠ Temporal advisor error: {e}")
+            print(f"  [WARNING] Temporal advisor error: {e}")
             return None
 
     def _evaluate_rag_quality(
@@ -473,7 +470,7 @@ class EcosystemOrchestrator:
                 "chunks_evaluated": len(chunks),
             }
         except Exception as e:
-            print(f"  ⚠ RAG sensor error: {e}")
+            print(f"  [WARNING] RAG sensor error: {e}")
             return None
 
     def _analyze_cognitive(self, student_id: str, prompt: str) -> Optional[Dict]:
@@ -566,13 +563,13 @@ class EcosystemOrchestrator:
             # Heurística simple sin el módulo completo
             if bloom_level >= 4 and scaffolding_level == 0:
                 return {
-                    "alert": "⚠ Estudiante en nivel Bloom alto (analyze+) pero "
+                    "alert": "[WARNING] Estudiante en nivel Bloom alto (analyze+) pero "
                              "scaffolding al mínimo. Considerar dar más autonomía.",
                     "calibration_score": 0.6,
                 }
             if bloom_level <= 1 and scaffolding_level >= 3:
                 return {
-                    "alert": "⚠ Estudiante en nivel Bloom bajo (remember) recibiendo "
+                    "alert": "[WARNING] Estudiante en nivel Bloom bajo (remember) recibiendo "
                              "explicaciones completas. El modo socrático podría ser más efectivo.",
                     "calibration_score": 0.5,
                 }
@@ -613,7 +610,7 @@ class EcosystemOrchestrator:
                 return getattr(event, "event_id", "")
             return ""
         except Exception as e:
-            print(f"  ⚠ Event logger error: {e}")
+            print(f"  [WARNING] Event logger error: {e}")
             return ""
 
     def _background_processes(self, student_id: str, result: OrchestratedResult):
@@ -727,9 +724,9 @@ class EcosystemOrchestrator:
         health = {}
         for name in all_modules:
             if name in self._modules:
-                health[name] = "🟢 activo"
+                health[name] = "[OK] activo"
             else:
-                health[name] = "⚪ no cargado"
+                health[name] = "[--] no cargado"
         return health
 
     def _get_config_fingerprint(self) -> str:
@@ -750,7 +747,7 @@ class EcosystemOrchestrator:
 # ──────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print("\n🧬 GENIE Learn — Ecosystem Orchestrator Demo\n")
+    print("\n[GENIE] GENIE Learn — Ecosystem Orchestrator Demo\n")
 
     # Crear con configuración por defecto
     config = PedagogicalConfig()
