@@ -124,24 +124,7 @@ genie_prototype/
 
 ---
 
-## 📝 NOTAS PARA LA ENTREVISTA
 
-Este prototipo NO pretende replicar el sistema completo del GSIC/EMIC. 
-Es una **prueba de concepto** que demuestra:
-
-1. Comprensión de la arquitectura descrita en los papers
-2. Capacidad de implementar la cadena completa (prompt → middleware → RAG → LLM → respuesta)
-3. El middleware pedagógico como innovación central (no es un chatbot genérico)
-4. Analytics integrados (no un dashboard post-hoc)
-5. La agencia docente como principio de diseño (HCAI)
-
-Lo que falta (y que haría en los 18 meses del contrato):
-- Integración LTI con Moodle/Canvas
-- Base de datos PostgreSQL persistente
-- Evaluación con RAGAS (faithfulness, relevance)
-- Pilotos con estudiantes reales
-- Análisis estadístico de datos de interacción
-- Publicaciones
 
 ---
 
