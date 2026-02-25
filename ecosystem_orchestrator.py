@@ -528,6 +528,19 @@ class EcosystemOrchestrator:
 
         result.processing_time_ms = int((time.time() - start_time) * 1000)
 
+        try:
+            from data.database import log_interaction
+            log_interaction(
+                student_id=student_id,
+                prompt=prompt,
+                response=result.response_text,
+                bloom_level=result.bloom_level if hasattr(result, 'bloom_level') else 1,
+                copy_paste_score=getattr(result, 'copy_paste_score', 0.0),
+                scaffolding_mode=config.scaffolding_mode
+            )
+        except Exception:
+            pass  # No romper el flujo si falla el log
+
         return result
 
     # ──────────────────────────────────────────────────────────
